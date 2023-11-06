@@ -1,0 +1,55 @@
+{
+  "name": "mern-market-app",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "@reduxjs/toolkit": "1.8.5",
+    "@testing-library/jest-dom": "4.2.4",
+    "@testing-library/react": "9.3.2",
+    "@testing-library/user-event": "7.1.2",
+    "axios": "0.21.4",
+    "gh-pages": "2.2.0",
+    "react": "17.0.2",
+    "react-dom": "17.0.2",
+    "react-redux": "7.2.8",
+    "react-router-dom": "6.3.0",
+    "react-scripts": "4.0.3",
+    "redux-logger": "3.0.6"
+  },
+  "devDependencies": {
+    "eslint": "7.32.0",
+    "eslint-config-airbnb": "18.2.1",
+    "eslint-config-prettier": "6.7.0",
+    "eslint-plugin-import": "2.22.1",
+    "eslint-plugin-jsx-a11y": "6.4.1",
+    "eslint-plugin-prettier": "3.1.1",
+    "eslint-plugin-react": "7.21.5",
+    "eslint-plugin-react-hooks": "1.7.0",
+    "prettier": "1.19.1",
+    "sass": "1.23.7",
+    "typescript": "3.7.3"
+  },
+  "scripts": {
+    "start": "set port=5000 && react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject",
+    "predeploy": "yarn run build",
+    "deploy": "gh-pages -d build"
+  },
+  "eslintConfig": {
+    "extends": "react-app"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  }
+}
