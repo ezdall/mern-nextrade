@@ -1,17 +1,17 @@
-import {useState} from 'react'
-import {Redirect, useNavigate, useLocation} from 'react-router-dom'
+import { useState } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 
-import Card from '@material-ui/core/Card'
-import CardActions from '@material-ui/core/CardActions'
-import CardContent from '@material-ui/core/CardContent'
-import Button from '@material-ui/core/Button'
-import TextField from '@material-ui/core/TextField'
-import Typography from '@material-ui/core/Typography'
-import Icon from '@material-ui/core/Icon'
-import { makeStyles } from '@material-ui/core/styles'
+import Card from '@material-ui/core/Card';
+import CardActions from '@material-ui/core/CardActions';
+import CardContent from '@material-ui/core/CardContent';
+import Button from '@material-ui/core/Button';
+import TextField from '@material-ui/core/TextField';
+import Typography from '@material-ui/core/Typography';
+import Icon from '@material-ui/core/Icon';
+import { makeStyles } from '@material-ui/core/styles';
 
-import auth from './auth-helper'
-import { login } from './api-auth'
+import auth from './auth-helper';
+import { login } from './api-auth';
 
 const useStyles = makeStyles(theme => ({
   card: {
@@ -37,102 +37,123 @@ const useStyles = makeStyles(theme => ({
     margin: 'auto',
     marginBottom: theme.spacing(2)
   }
-}))
+}));
 
-export default function Login(props) {
-  const classes = useStyles()
-  const navigate = useNavigate()
-  const location = useLocation()
-	const from = location.state?.from?.pathname || '/';
+export default function Login() {
+  const classes = useStyles();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const from = location.state?.from?.pathname || '/';
 
-	// console.log({location})
+  // console.log({location})
 
   const [values, setValues] = useState({
     email: '',
     password: '',
     error: '',
     redirectToReferrer: false
-  })
+  });
 
- // console.log({location})
+  // console.log({location})
 
   const clickSubmit = () => {
+    const { email, password } = values;
 
-  	const { email, password } = values
+    if (!email || !password) {
+      return setValues({ ...values, error: 'all fields are required' });
+    }
 
-  	if(!email || !password){
-  		return setValues({ ...values, error:'all fields are required'})
-  	}
-    
-    return login({email, password})
-    	.then((data) => {
-    		// console.log({data})
-    		if(data.isAxiosError){
-    			return setValues({...values, email:'', password:'', error: data.response.data.error})
-    		}
-
-        return auth.authenticate(data, () => {
-          setValues({ ...values, error: '', redirectToReferrer: true})
-          return navigate(from, { replace: true })
-        })
-    }).catch(err => {
-    	 console.log({err})
-
-        if(!err.response){
-            return setValues({ ...values,email:'', password:'', error: 'No Server Response'})  
+    return login({ email, password })
+      .then(data => {
+        // console.log({data})
+        if (data.isAxiosError) {
+          return setValues({
+            ...values,
+            email: '',
+            password: '',
+            error: data.response.data.error
+          });
         }
 
-        return setValues({ ...values,email:'', password:'', error: err.message})    
-    })
-  }
+        return auth.authenticate(data, () => {
+          setValues({ ...values, error: '', redirectToReferrer: true });
+          return navigate(from, { replace: true });
+        });
+      })
+      .catch(err => {
+        console.log({ err });
+
+        if (!err.response) {
+          return setValues({
+            ...values,
+            email: '',
+            password: '',
+            error: 'No Server Response'
+          });
+        }
+
+        return setValues({
+          ...values,
+          email: '',
+          password: '',
+          error: err.message
+        });
+      });
+  };
 
   const handleChange = name => event => {
-  	setValues({...values, error:''})
+    setValues({ ...values, error: '' });
 
-    setValues({ ...values, [name]: event.target.value })
-  }
-
-  // const {from} = props.location.state || {
-  //   from: {
-  //     pathname: '/'
-  //   }
-  // }
-
-  // const {redirectToReferrer} = values
-  // if (redirectToReferrer) {
-  //     return (<Redirect to={from}/>)
-  // }
+    setValues({ ...values, [name]: event.target.value });
+  };
 
   return (
-      <Card className={classes.card}>
-        <CardContent>
-          <Typography variant="h5" className={classes.title}>
-            Log In
-          </Typography>
-          <TextField 
-          id="email" type="email" label="Email" 
-          className={classes.textField} 
-          value={values.email} 
+    <Card className={classes.card}>
+      <CardContent>
+        <Typography variant="h5" className={classes.title}>
+          Log In
+        </Typography>
+        <TextField
+          id="email"
+          type="email"
+          label="Email"
+          className={classes.textField}
+          value={values.email}
           onChange={handleChange('email')}
-          required 
-          margin="normal"/><br/>
-          <TextField 
-          id="password" type="password" label="Password" 
-          className={classes.textField} 
-          value={values.password} 
-          onChange={handleChange('password')} 
           required
-          margin="normal"/>
-          <br/> {
-            values.error && (<Typography component="p" color="error">
-              <Icon color="error" className={classes.error}>error</Icon>
-              {values.error}
-            </Typography>)
-          }
-        </CardContent>
-        <CardActions>
-        <Button color="primary" variant="contained" onClick={clickSubmit} className={classes.submit}>Submit</Button>
-        </CardActions>
-      </Card>
-    )
+          margin="normal"
+        />
+        <br />
+        <TextField
+          id="password"
+          type="password"
+          label="Password"
+          className={classes.textField}
+          value={values.password}
+          onChange={handleChange('password')}
+          required
+          margin="normal"
+        />
+        <br />{' '}
+        {values.error && (
+          <Typography component="p" color="error">
+            <Icon color="error" className={classes.error}>
+              error
+            </Icon>
+            {values.error}
+          </Typography>
+        )}
+      </CardContent>
+      <CardActions>
+        <Button
+          color="primary"
+          variant="contained"
+          onClick={clickSubmit}
+          className={classes.submit}
+        >
+          Submit
+        </Button>
+      </CardActions>
+    </Card>
+  );
 }
