@@ -40,7 +40,7 @@ export const handleAxiosError = (error, cb) => {
     if(inner.name === 'TokenExpiredError'){
       console.log('innnerrrrr')
        if (typeof window !== 'undefined') sessionStorage.removeItem('jwt');
-       cb()
+      cb()
     }
 
     // setErrCb(axErrMsg);

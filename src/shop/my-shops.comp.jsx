@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
 import { makeStyles } from '@material-ui/core/styles';
@@ -17,7 +17,7 @@ import Edit from '@material-ui/icons/Edit';
 import Divider from '@material-ui/core/Divider';
 
 // import DeleteShop from './delete-shop.comp
-import { handleAxiosError } from '../axios'
+import { handleAxiosError, BASE_URL } from '../axios'
 import auth from '../auth/auth-helper'
 
 import { listByOwner } from './api-shop';
@@ -57,7 +57,7 @@ export default function NewShop() {
   // all you shop
   useEffect(() => {
     const abortController = new AbortController();
-    const signal = abortController
+    const { signal } = abortController
 
     listByOwner(
       { userId },
@@ -66,7 +66,7 @@ export default function NewShop() {
       .then(data => {
 
       if(data?.isAxiosError){
-      return handleAxiosError(data, navigate('/login', { replace:true }))
+      return handleAxiosError(data, ()=> navigate('/login', { replace:true }))
         // return setIsError(true)
       
       }
@@ -77,7 +77,7 @@ export default function NewShop() {
     return function cleanup() {
       abortController.abort();
     };
-  }, [navigate]);
+  }, [userId, navigate]);
 
   const removeShop = () => {
     console.log('removeShop');
@@ -104,9 +104,7 @@ export default function NewShop() {
                 <ListItem>
                   <ListItemAvatar>
                     <Avatar
-                      src={`/api/shops/logo/${
-                        shop._id
-                      }?${new Date().getTime()}`}
+                      src={`${BASE_URL}/api/shops/logo/${shop._id}?${new Date().getTime()}`}
                     />
                   </ListItemAvatar>
                   <ListItemText

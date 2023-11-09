@@ -67,11 +67,13 @@ export default function Login() {
       .then(data => {
         // console.log({data})
         if (data.isAxiosError) {
+          console.log({errro1:data})
+
           return setValues({
             ...values,
             email: '',
             password: '',
-            error: data.response.data.error
+            error: data.message
           });
         }
 

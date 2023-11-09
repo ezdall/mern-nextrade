@@ -94,7 +94,7 @@ export default function Menu() {
                 <Button
                   color="inherit"
                   onClick={() => {
-                    auth.clearJWT(() => navigate('/'));
+                    auth.clearJWT(() => navigate('/', { replace: true }));
                   }}
                 >
                   Log Out

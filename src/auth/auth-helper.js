@@ -17,13 +17,15 @@ const auth = {
   },
 
   clearJWT(cb) {
-    if (typeof window !== 'undefined') sessionStorage.removeItem('jwt');
-    cb();
-    // optional
-    logout().then(data => {
-      // reset cookie
-      // document.cookie = "t=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;"
-    });
+    if (typeof window === 'undefined') return false
+
+      sessionStorage.removeItem('jwt');
+      cb();
+      // optional
+     return logout().then(data => {
+        // reset cookie
+        // document.cookie = "t=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;"
+      });
   },
 
   updateUser(user, cb) {
