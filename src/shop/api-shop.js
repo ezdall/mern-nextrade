@@ -1,9 +1,12 @@
 import axios from '../axios';
+import auth from '../auth/auth-helper'
+
+const { accessToken } = auth.isAuthenticated()
 
 // obj:params, str:accesstoken, shop:shopData
-export const createShop = (params, shop, accessToken) => {
+export const createShop = (params, shop) => {
   return axios
-    .post(`/api/shops/by/${params?.userId}`, shop, {
+    .post(`/api/shops/by/${params.userId}`, shop, {
       headers: {
         authorization: `Bearer ${accessToken}`
       }
@@ -21,7 +24,7 @@ export const createShop = (params, shop, accessToken) => {
     .catch(err => console.log(err));
 };
 
-export const listByOwner = async (params, signal, accessToken) => {
+export const listByOwner = async (params, signal) => {
   try {
     const response = await axios.get(`/api/shops/by/${params.userId}`, {
       signal,

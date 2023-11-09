@@ -17,7 +17,9 @@ import Person from '@material-ui/icons/Person';
 import Divider from '@material-ui/core/Divider';
 
 // import DeleteUser from './DeleteUser';
-import auth from '../auth/auth-helper';
+import auth from '../auth/auth-helper'
+
+
 import { read } from './api-user';
 
 // import config from './../../config/config';
@@ -25,12 +27,12 @@ import { read } from './api-user';
 // import MyOrders from './../order/MyOrders';
 
 const useStyles = makeStyles(theme => ({
-  root: theme.mixins.gutters({
+  root: {
     maxWidth: 600,
     margin: 'auto',
     padding: theme.spacing(3),
     marginTop: theme.spacing(5)
-  }),
+  },
   title: {
     margin: `${theme.spacing(3)}px 0 ${theme.spacing(2)}px`,
     color: theme.palette.protectedTitle
@@ -56,11 +58,12 @@ export default function Profile() {
   const location = useLocation();
   const params = useParams();
 
-  const match = undefined;
+  // const match = undefined;
+
+  const authUser = auth.isAuthenticated().user
 
   const [user, setUser] = useState({});
   // const [redirectToSignin, setRedirectToSignin] = useState(false);
-  const jwt = auth.isAuthenticated();
 
   useEffect(() => {
     const abortController = new AbortController();
@@ -69,21 +72,23 @@ export default function Profile() {
       {
         userId: params.userId
       },
-      { t: jwt.token },
       [abortController.signal]
     ).then(data => {
-      if (data && data.error) {
+
+      if (data && data.isAxiosError) {
         // setRedirectToSignin(true);
+
+        //  weird code
         return navigate('/signin');
       }
-      console.log(data);
+      console.log({data});
       return setUser(data.user);
     });
 
     return function cleanup() {
       abortController.abort();
     };
-  }, [jwt.token, params.userId, navigate]);
+  }, [params.userId, navigate]);
 
   // console.log(user);
 
@@ -100,8 +105,8 @@ export default function Profile() {
             </Avatar>
           </ListItemAvatar>
           <ListItemText primary={user.name} secondary={user.email} />{' '}
-          {auth.isAuthenticated().user &&
-            String(auth.isAuthenticated().user._id) === String(user._id) && (
+          {authUser &&
+            String(authUser._id) === String(user._id) && (
               <ListItemSecondaryAction>
                 {/* {user.seller &&
                   (user.stripe_seller ? (

@@ -16,9 +16,8 @@ import Typography from '@material-ui/core/Typography';
 import Edit from '@material-ui/icons/Edit';
 import Divider from '@material-ui/core/Divider';
 
-// import auth from './../auth/auth-helper'
-
-// import DeleteShop from './delete-shop.comp'
+// import DeleteShop from './delete-shop.comp
+import auth from '../auth/auth-helper'
 
 import { listByOwner } from './api-shop';
 
@@ -49,21 +48,20 @@ export default function NewShop() {
   const navigate = useNavigate();
   const classes = useStyles();
 
+  const userId = auth.isAuthenticated().user._id
+
   const [shops, setShops] = useState([]);
   const [redirectToSignin, setRedirectToSignin] = useState(false);
 
-  console.log({ shops });
+  // console.log({ shops });
 
   // all you shop
   useEffect(() => {
     const abortController = new AbortController();
 
     listByOwner(
-      {
-        userId: '6361f1a2d0994e1db4a26ab2' // admin
-      },
-      [abortController.signal],
-      {} // accessToken
+      { userId },
+      [abortController.signal]
     )
       .then(data => {
         // console.log({data}
@@ -95,7 +93,7 @@ export default function NewShop() {
           </span>
         </Typography>
         <List dense>
-          {shops.map(shop => {
+          {shops.length && shops.map(shop => {
             return (
               <span key={shop._id}>
                 <ListItem>

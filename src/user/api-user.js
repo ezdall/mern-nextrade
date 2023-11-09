@@ -1,6 +1,10 @@
 import axios from '../axios';
 
-export const read = async (params, accessToken, signal) => {
+import auth from '../auth/auth-helper'
+
+const { accessToken } = auth.isAuthenticated()
+
+export const read = async (params, signal) => {
   try {
     const response = await axios.get(`/api/users/${params.userId}`, {
       signal,
@@ -12,6 +16,7 @@ export const read = async (params, accessToken, signal) => {
     });
     return response.data;
   } catch (err) {
-    return console.log(err);
+    console.log(err);
+    return err
   }
 };
