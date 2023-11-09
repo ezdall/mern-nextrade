@@ -18,7 +18,7 @@ import Divider from '@material-ui/core/Divider';
 
 // import DeleteUser from './DeleteUser';
 import auth from '../auth/auth-helper'
-
+import { handleAxiosError } from '../axios'
 
 import { read } from './api-user';
 
@@ -63,27 +63,30 @@ export default function Profile() {
   const authUser = auth.isAuthenticated().user
 
   const [user, setUser] = useState({});
+  const [isError, setIsError] = useState(false)
   // const [redirectToSignin, setRedirectToSignin] = useState(false);
 
   useEffect(() => {
     const abortController = new AbortController();
+    const {signal} = abortController
+
+    setIsError(false)
 
     read(
       {
         userId: params.userId
       },
-      [abortController.signal]
+      signal
     ).then(data => {
 
-      if (data && data.isAxiosError) {
-        // setRedirectToSignin(true);
-
-        //  weird code
-        return navigate('/signin');
+      if(data?.isAxiosError){
+        handleAxiosError(data, navigate('/login', {replace:true}))
+        return setIsError(true)
       }
+
       console.log({data});
       return setUser(data.user);
-    });
+    })
 
     return function cleanup() {
       abortController.abort();

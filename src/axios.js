@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const BASE_URL = 'http://localhost:3000';
+export const BASE_URL = 'http://localhost:3000';
 
 export default axios.create({
   baseURL: BASE_URL
@@ -12,12 +12,13 @@ export const axiosPrivate = axios.create({
   withCredentials: true
 });
 
-export const handleAxiosError = (error, setErrMsg) => {
+export const handleAxiosError = (error, cb) => {
   const { response } = error;
+
 
   if (!response) {
     console.log({ error });
-    setErrMsg('No Server Response');
+    // setErrCb('No Server Response');
     // return;
   }
 
@@ -27,16 +28,22 @@ export const handleAxiosError = (error, setErrMsg) => {
 
     console.log({ error });
 
-    setErrMsg(axErrMsg);
+    // setErrCb(axErrMsg);
     // return;
   }
 
   if (response.status === 401) {
-    const axErrMsg = response.data.error;
+    const {error:axErrMsg, inner} = response.data;
 
     console.log({ error });
 
-    setErrMsg(axErrMsg);
+    if(inner.name === 'TokenExpiredError'){
+      console.log('innnerrrrr')
+       if (typeof window !== 'undefined') sessionStorage.removeItem('jwt');
+       cb()
+    }
+
+    // setErrCb(axErrMsg);
     // return;
   }
 

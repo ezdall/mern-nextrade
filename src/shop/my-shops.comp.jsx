@@ -17,6 +17,7 @@ import Edit from '@material-ui/icons/Edit';
 import Divider from '@material-ui/core/Divider';
 
 // import DeleteShop from './delete-shop.comp
+import { handleAxiosError } from '../axios'
 import auth from '../auth/auth-helper'
 
 import { listByOwner } from './api-shop';
@@ -30,9 +31,7 @@ const useStyles = makeStyles(theme => ({
     marginTop: theme.spacing(5)
   },
   title: {
-    margin: `${theme.spacing(3)}px 0 ${theme.spacing(3)}px ${theme.spacing(
-      1
-    )}px`,
+    margin: `${theme.spacing(3)}px 0 ${theme.spacing(3)}px ${theme.spacing(1)}px`,
     color: theme.palette.protectedTitle,
     fontSize: '1.2em'
   },
@@ -46,9 +45,9 @@ const useStyles = makeStyles(theme => ({
 
 export default function NewShop() {
   const navigate = useNavigate();
-  const classes = useStyles();
-
   const userId = auth.isAuthenticated().user._id
+
+  const classes = useStyles();
 
   const [shops, setShops] = useState([]);
   const [redirectToSignin, setRedirectToSignin] = useState(false);
@@ -58,21 +57,27 @@ export default function NewShop() {
   // all you shop
   useEffect(() => {
     const abortController = new AbortController();
+    const signal = abortController
 
     listByOwner(
       { userId },
-      [abortController.signal]
+      signal
     )
       .then(data => {
-        // console.log({data}
-        setShops(data);
+
+      if(data?.isAxiosError){
+      return handleAxiosError(data, navigate('/login', { replace:true }))
+        // return setIsError(true)
+      
+      }
+        console.log({data})
+        return setShops(data);
       })
-      .catch(err => setRedirectToSignin(true));
 
     return function cleanup() {
       abortController.abort();
     };
-  }, []);
+  }, [navigate]);
 
   const removeShop = () => {
     console.log('removeShop');
@@ -86,8 +91,8 @@ export default function NewShop() {
           <span className={classes.addButton}>
             <Link to="/seller/shop/new">
               <Button color="primary" variant="contained">
-                {/* <Icon className={classes.leftIcon}>add_box</Icon> */} New
-                Shop
+                 {/* <Icon className={classes.leftIcon}>add_box</Icon> */}
+                New Shop
               </Button>
             </Link>
           </span>
