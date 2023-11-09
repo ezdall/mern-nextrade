@@ -7,6 +7,8 @@ import NewShop from './shop/new-shop.comp';
 import MyShops from './shop/my-shops.comp';
 import Login from './auth/login.comp';
 import Profile from './user/profile.comp';
+
+import EditShop from './shop/edit-shop.comp'
 import Shops from './shop/shops.comp'
 import Shop from './shop/shop.comp'
 import Product from './product/product.comp'
@@ -25,6 +27,7 @@ export default function MainRouter() {
         <Route path="/shops/:shopId" element={<Shop />} /> 
 
           {/* this route must be Private */}
+       <Route path="/seller/shop/edit/:shopId" element={<EditShop />}/>
        <Route path="/seller/shop/new" element={<NewShop />} />
        <Route path="/seller/shops" element={<MyShops />} />
         

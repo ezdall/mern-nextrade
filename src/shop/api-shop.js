@@ -24,6 +24,21 @@ export const createShop = (params, shop) => {
     .catch(err => console.log(err));
 };
 
+export const updateShop = async (params, shop) => {
+  try {
+    const response = await axios.patch(`/api/shops/${params.shopId}`,
+      shop, { 
+      headers: {
+        authorization: `Bearer ${accessToken}`
+      }
+    })
+
+    return response.data
+  }catch(err) {
+    return err
+  }
+}
+
 export const readShop = async (params, signal) => {
   try {
     const response = await axios.get(`/api/shop/${params.shopId}`, {

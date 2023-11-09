@@ -100,11 +100,14 @@ export default function NewShop() {
     )
       .then(data => {
         console.log(data);
+      if (data.isAxiosError) {
+       return setValues({...values, error: data.message})
+      } 
 
-        setValues({ ...values, error: '', redirect: true });
+        return setValues({ ...values, error: '', redirect: true });
       })
       .catch(err => {
-        console.error({ err });
+        // console.error({ err });
         setValues({ ...values, error: err });
       });
   };
