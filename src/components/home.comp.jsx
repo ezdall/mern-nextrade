@@ -1,46 +1,80 @@
-import { makeStyles } from '@material-ui/core/styles';
-import Card from '@material-ui/core/Card';
-import CardContent from '@material-ui/core/CardContent';
-import CardMedia from '@material-ui/core/CardMedia';
-import Typography from '@material-ui/core/Typography';
+import {useState, useEffect} from 'react'
+import { makeStyles } from '@material-ui/core/styles'
+import Grid from '@material-ui/core/Grid'
 
-import unicornbikeImg from '../assets/images/unicornbike.jpg';
+// import Search from '../product/Search'
+import Categories from '../product/categories.comp'
+import Suggestions from '../product/suggestions.comp'
+import { listLatest, listCategories } from '../product/api-product'
+
+import { handleAxiosError } from '../axios'
 
 const useStyles = makeStyles(theme => ({
-  card: {
-    maxWidth: 600,
-    margin: 'auto',
-    marginTop: theme.spacing(5)
-  },
-  title: {
-    padding: `${theme.spacing(3)}px ${theme.spacing(2.5)}px ${theme.spacing(
-      2
-    )}px`,
-    color: theme.palette.openTitle
-  },
-  media: {
-    minHeight: 400
+  root: {
+    flexGrow: 1,
+    margin: 30,
   }
 }));
 
 export default function Home() {
   const classes = useStyles();
 
+  const [suggestionTitle, setSuggestionTitle] = useState("Latest Products")
+  const [categories, setCategories] = useState([])
+  const [suggestions, setSuggestions] = useState([])
+
+  // console.log(categories)
+  // console.log(suggestions)
+
+  useEffect(() => {
+    const abortController = new AbortController()
+    const {signal} = abortController
+
+    listLatest(signal).then((data) => {
+      if (data.error) {
+        console.log(data.message)
+        return handleAxiosError(data)
+      } 
+      return setSuggestions(data)
+      
+    })
+
+    return function cleanup(){
+      console.log('abort')
+      abortController.abort()
+    }
+  }, [])
+
+  useEffect(() => {
+    const abortController = new AbortController()
+    const { signal } = abortController
+
+    listCategories(signal).then((data) => {
+      if (data.error) {
+        console.log(data.message)
+        return handleAxiosError(data)
+      } 
+       return setCategories(data)
+      
+    })
+
+    return function cleanup(){
+      console.log('abort')
+      abortController.abort()
+    }
+  }, [])
+
   return (
-    <Card className={classes.card}>
-      <Typography variant="h6" className={classes.title}>
-        Home Page
-      </Typography>
-      <CardMedia
-        className={classes.media}
-        image={unicornbikeImg}
-        title="Unicorn Bicycle"
-      />
-      <CardContent>
-        <Typography variant="body2" component="p">
-          Welcome to the MERN Skeleton home page.
-        </Typography>
-      </CardContent>
-    </Card>
+    <div className={classes.root}>
+        <Grid container spacing={2}>
+          <Grid item xs={8} sm={8}>
+        {/*  <Search categories={categories}/> */}
+             <Categories categories={categories}/> 
+          </Grid>
+          <Grid item xs={4} sm={4}>
+         <Suggestions products={suggestions} title={suggestionTitle}/> 
+          </Grid>
+        </Grid>
+      </div>
   );
 }
