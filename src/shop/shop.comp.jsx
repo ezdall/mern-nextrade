@@ -8,7 +8,7 @@ import Avatar from '@material-ui/core/Avatar'
 import Grid from '@material-ui/core/Grid'
 
 import { readShop } from './api-shop'
-// import Products from './../product/Products'
+import Products from '../product/products.comp'
 import { listByShop } from '../product/api-product'
 
 const useStyles = makeStyles(theme => ({
@@ -56,14 +56,14 @@ export default function Shop(props) {
     const abortController = new AbortController()
     const { signal } = abortController
 
-    // listByShop({
-    //   shopId
-    // }, signal).then((data)=>{
-    //   if (data?.isAxiosError) {
-    //     return setError(data.message)
-    //   } 
-    //   return setProducts(data)
-    // })
+    listByShop({
+      shopId
+    }, signal).then((data)=>{
+      if (data?.isAxiosError) {
+        return setError(data.message)
+      } 
+      return setProducts(data)
+    })
 
     readShop({
       shopId
@@ -122,7 +122,7 @@ export default function Shop(props) {
         <Grid item xs={8} sm={8}>
           <Card>
             <Typography type="title" component="h2" className={classes.productTitle}>Products</Typography>
-            {/* <Products products={products} searched={false}/> */}
+             <Products products={products} searched={false}/> 
           </Card> 
         </Grid>
       </Grid>
