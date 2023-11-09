@@ -24,6 +24,18 @@ export const createShop = (params, shop) => {
     .catch(err => console.log(err));
 };
 
+export const readShop = async (params, signal) => {
+  try {
+    const response = await axios.get(`/api/shop/${params.shopId}`, {
+      signal
+    })
+
+    return response.data
+  }catch(err) {
+    return err
+  }
+}
+
 export const updateShop = async (params, shop) => {
   try {
     const response = await axios.patch(`/api/shops/${params.shopId}`,
@@ -39,10 +51,12 @@ export const updateShop = async (params, shop) => {
   }
 }
 
-export const readShop = async (params, signal) => {
+export const removeShop = async (params) => {
   try {
-    const response = await axios.get(`/api/shop/${params.shopId}`, {
-      signal
+    const response = await axios.delete(`/api/shops/${params.shopId}`,{
+       headers: {
+        authorization: `Bearer ${accessToken}`
+      }
     })
 
     return response.data
@@ -50,6 +64,7 @@ export const readShop = async (params, signal) => {
     return err
   }
 }
+
 
 export const list = async (signal) => {
   try {

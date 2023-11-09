@@ -16,7 +16,7 @@ import Typography from '@material-ui/core/Typography';
 import Edit from '@material-ui/icons/Edit';
 import Divider from '@material-ui/core/Divider';
 
-// import DeleteShop from './delete-shop.comp
+import DeleteShop from './delete-shop.comp'
 import { handleAxiosError, BASE_URL } from '../axios'
 import auth from '../auth/auth-helper'
 
@@ -79,8 +79,9 @@ export default function NewShop() {
     };
   }, [userId, navigate]);
 
-  const removeShop = () => {
-    console.log('removeShop');
+  const onRemoveShop = (shop) => {
+    const filteredShops = shops.filter(s => s._id !== shop._id)
+    setShops(filteredShops)
   };
 
   return (
@@ -97,10 +98,10 @@ export default function NewShop() {
             </Link>
           </span>
         </Typography>
-        <List dense>
-          {shops.length && shops.map(shop => {
+         {shops.length ? shops.map(shop => {
             return (
-              <span key={shop._id}>
+              <List key={shop._id} dense>
+              <span>
                 <ListItem>
                   <ListItemAvatar>
                     <Avatar
@@ -113,9 +114,7 @@ export default function NewShop() {
                   />
                   <ListItemSecondaryAction>
                     <Link
-                      to={`/seller/orders/${shop.name.replace(' ', '-')}/${
-                        shop._id
-                      }`}
+                      to={`/seller/orders/${shop.name.replace(' ', '-')}/${shop._id}`}
                     >
                       <Button aria-label="Orders" color="primary">
                         View Orders
@@ -126,14 +125,14 @@ export default function NewShop() {
                         <Edit />
                       </IconButton>
                     </Link>
-                    {/* <DeleteShop shop={shop} onRemove={removeShop}/> */}
+                    <DeleteShop shop={shop} onRemoveShop={onRemoveShop}/>
                   </ListItemSecondaryAction>
                 </ListItem>
                 <Divider />
               </span>
-            );
-          })}
-        </List>
+            </List> );
+        }): <p>Loading...</p>
+       }
       </Paper>
     </div>
   );
