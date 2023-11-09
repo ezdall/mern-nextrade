@@ -9,6 +9,7 @@ import Login from './auth/login.comp';
 import Profile from './user/profile.comp';
 import Shops from './shop/shops.comp'
 import Shop from './shop/shop.comp'
+import Product from './product/product.comp'
 
 export default function MainRouter() {
   return (
@@ -19,6 +20,7 @@ export default function MainRouter() {
         <Route path="/login" element={<Login />} />
         <Route path="/user/:userId" element={<Profile />} />
 
+         <Route path="/product/:productId" element={<Product />} />
         <Route path="/shops/all" element={<Shops />} />
         <Route path="/shops/:shopId" element={<Shop />} /> 
 

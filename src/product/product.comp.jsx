@@ -9,9 +9,11 @@ import Typography from '@material-ui/core/Typography'
 import Icon from '@material-ui/core/Icon'
 import Grid from '@material-ui/core/Grid'
 
-import {read} from './api-product.js'
-// import Suggestions from './../product/Suggestions'
-// import AddToCart from './../cart/AddToCart'
+import { readProduct, listRelated } from './api-product'
+import { BASE_URL } from '../axios';
+
+import Suggestions from './suggestions.comp'
+// import AddToCart from '../cart/add-to-cart.comp'
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -62,24 +64,24 @@ const useStyles = makeStyles(theme => ({
   }
 }))
 
-export default function Product ({match}) {
+export default function Product () {
   const classes = useStyles()
-  const params = useParams()
+  const {productId} = useParams()
 
   const [product, setProduct] = useState({shop:{}})
   const [suggestions, setSuggestions] = useState([])
   const [error, setError] = useState('')
 
+// change product due productId
   useEffect(() => {
       const abortController = new AbortController()
       const { signal }= abortController
   
-      read({productId}, signal).then((data) => {
+      readProduct({productId}, signal).then((data) => {
         if (data?.isAxiosError) {
           return setError(data.message)
         } 
         return setProduct(data)
-        
       })
 
     return function cleanup(){
@@ -87,26 +89,28 @@ export default function Product ({match}) {
     }
   }, [productId])
 
-//   useEffect(() => {
-//     const abortController = new AbortController()
-//     const signal = abortController.signal
+// change related based on productId 
+  useEffect(() => {
+    const abortController = new AbortController()
+    const {signal} = abortController
 
-//         listRelated({
-//           productId: match.params.productId}, signal).then((data) => {
-//           if (data.error) {
-//             setError(data.error)
-//           } else {
-//             setSuggestions(data)
-//           }
-//         })
-//   return function cleanup(){
-//     abortController.abort()
-//   }
-// }, [match.params.productId])
+        listRelated({productId}, signal).then((data) => {
+          if (data?.isAxiosError) {
+            return setError(data.message)
+          } 
+           return setSuggestions(data)
+          
+        })
+
+    return function cleanup(){
+    abortController.abort()
+  }
+}, [productId])
 
     const imageUrl = product._id
-          ? `/api/product/image/${product._id}?${new Date().getTime()}`
-          : '/api/product/defaultphoto'
+          ? `${BASE_URL}/api/product/image/${product._id}?${new Date().getTime()}`
+          : `${BASE_URL}/api/products/defaultphoto`
+
     return (
         <div className={classes.root}>
           <Grid container spacing={10}>
@@ -114,10 +118,10 @@ export default function Product ({match}) {
               <Card className={classes.card}>
                 <CardHeader
                   title={product.name}
-                  subheader={product.quantity > 0? 'In Stock': 'Out of Stock'}
+                  subheader={product.quantity > 0 ? 'In Stock': 'Out of Stock'}
                   action={
                     <span className={classes.action}>
-                      <AddToCart cartStyle={classes.addCart} item={product}/>
+                      {/* <AddToCart cartStyle={classes.addCart} item={product}/> */} 
                     </span>
                   }
                 />
@@ -130,7 +134,7 @@ export default function Product ({match}) {
                   <Typography component="p" variant="subtitle1" className={classes.subheading}>
                     {product.description}<br/>
                     <span className={classes.price}>$ {product.price}</span>
-                    <Link to={'/shops/'+product.shop._id} className={classes.link}>
+                    <Link to={`/shops/${product.shop._id}`} className={classes.link}>
                       <span>
                         <Icon className={classes.icon}>shopping_basket</Icon> {product.shop.name}
                       </span>
@@ -142,7 +146,7 @@ export default function Product ({match}) {
             </Grid>
             {suggestions.length > 0 &&
               (<Grid item xs={5} sm={5}>
-                <Suggestions  products={suggestions} title='Related Products'/>
+                 <Suggestions products={suggestions} title='Related Products'/>
               </Grid>)}
           </Grid>
         </div>)
