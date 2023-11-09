@@ -24,6 +24,29 @@ export const createShop = (params, shop) => {
     .catch(err => console.log(err));
 };
 
+export const readShop = async (params, signal) => {
+  try {
+    const response = await axios.get(`/api/shop/${params.shopId}`, {
+      signal
+    })
+
+    return response.data
+  }catch(err) {
+    return err
+  }
+}
+
+export const list = async (signal) => {
+  try {
+    const response = await axios.get('/api/shops', {
+      signal
+    })
+    return response.data
+  } catch(err) {
+    return err
+  }
+}
+
 export const listByOwner = async (params, signal) => {
   try {
     const response = await axios.get(`/api/shops/by/${params.userId}`, {
@@ -35,7 +58,6 @@ export const listByOwner = async (params, signal) => {
 
     return response.data;
   } catch (err) {
-    console.log({ err });
     return err;
   }
 };
