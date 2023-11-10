@@ -12,6 +12,7 @@ import { makeStyles } from '@material-ui/core/styles';
 
 import auth from './auth-helper';
 import { login } from './api-auth';
+import { handleAxiosError } from '../axios'
 
 const useStyles = makeStyles(theme => ({
   card: {
@@ -67,14 +68,15 @@ export default function Login() {
       .then(data => {
         // console.log({data})
         if (data.isAxiosError) {
-          console.log({errro1:data})
-
-          return setValues({
-            ...values,
-            email: '',
-            password: '',
-            error: data.message
-          });
+          console.log({error: data.message})
+          return handleAxiosError(data, ()=> {
+           return setValues({
+              ...values,
+              email: '',
+              password: '',
+              error: data.message
+            });
+          })
         }
 
         return auth.authenticate(data, () => {
@@ -103,10 +105,11 @@ export default function Login() {
       });
   };
 
-  const handleChange = name => event => {
+  const handleChange = event => {
+    const {name, value} = event.target
     setValues({ ...values, error: '' });
 
-    setValues({ ...values, [name]: event.target.value });
+    setValues({ ...values, [name]: value });
   };
 
   return (
@@ -118,10 +121,11 @@ export default function Login() {
         <TextField
           id="email"
           type="email"
+          name="email"
           label="Email"
           className={classes.textField}
           value={values.email}
-          onChange={handleChange('email')}
+          onChange={handleChange}
           required
           margin="normal"
         />
@@ -129,14 +133,15 @@ export default function Login() {
         <TextField
           id="password"
           type="password"
+          name="password"
           label="Password"
           className={classes.textField}
           value={values.password}
-          onChange={handleChange('password')}
+          onChange={handleChange}
           required
           margin="normal"
         />
-        <br />{' '}
+        <br />
         {values.error && (
           <Typography component="p" color="error">
             <Icon color="error" className={classes.error}>

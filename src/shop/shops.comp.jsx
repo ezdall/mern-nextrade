@@ -1,17 +1,17 @@
-import { useState, useEffect } from 'react'
-import {Link} from 'react-router-dom'
-import { makeStyles } from '@material-ui/core/styles'
+import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import { makeStyles } from '@material-ui/core/styles';
 
-import Paper from '@material-ui/core/Paper'
-import List from '@material-ui/core/List'
-import ListItem from '@material-ui/core/ListItem'
-import ListItemAvatar from '@material-ui/core/ListItemAvatar'
-import Avatar from '@material-ui/core/Avatar'
-import Typography from '@material-ui/core/Typography'
-import Divider from '@material-ui/core/Divider'
+import Paper from '@material-ui/core/Paper';
+import List from '@material-ui/core/List';
+import ListItem from '@material-ui/core/ListItem';
+import ListItemAvatar from '@material-ui/core/ListItemAvatar';
+import Avatar from '@material-ui/core/Avatar';
+import Typography from '@material-ui/core/Typography';
+import Divider from '@material-ui/core/Divider';
 
-import { list } from './api-shop'
-import { BASE_URL} from '../axios'
+import { list } from './api-shop';
+import { BASE_URL } from '../axios';
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -27,7 +27,7 @@ const useStyles = makeStyles(theme => ({
     textAlign: 'center',
     fontSize: '1.2em'
   },
-  avatar:{
+  avatar: {
     width: 100,
     height: 100
   },
@@ -41,57 +41,75 @@ const useStyles = makeStyles(theme => ({
   details: {
     padding: '24px'
   }
-}))
+}));
 
-export default function Shops(){
-  const classes = useStyles()
-  const [shops, setShops] = useState([])
+export default function Shops() {
+  const classes = useStyles();
+  const [shops, setShops] = useState([]);
 
   useEffect(() => {
-    const abortController = new AbortController()
+    const abortController = new AbortController();
+    const { signal } = abortController;
 
-    list(abortController.signal).then((data) => {
+    list(signal).then(data => {
       // console.log({data})
       if (data?.isAxiosError) {
-        return console.log(data.message)
-      } 
-       return setShops(data)
-    })
+        return console.log(data.message);
+      }
+      return setShops(data);
+    });
 
-    return function cleanup(){
-      abortController.abort()
-    }
+    return function cleanup() {
+      abortController.abort();
+    };
+  }, []);
 
-  }, [])
+  console.log({ shops });
 
-  console.log({shops})
-
-    return (
+  return (
     <div>
       <Paper className={classes.root} elevation={4}>
         <Typography type="title" className={classes.title}>
           All Shops
         </Typography>
         <List dense>
-          {shops.map((shop) => {
-            return <Link to={`/shops/${shop._id}`} key={shop._id}>
-              <Divider/>
-              <ListItem button>
-                <ListItemAvatar>
-                  <Avatar className={classes.avatar}  src={`${BASE_URL}/api/shops/logo/${shop._id}?${new Date().getTime()}`}/>
-                </ListItemAvatar>
-                <div className={classes.details}>
-                  <Typography type="headline" component="h2" color="primary" className={classes.shopTitle}>
-                    {shop.name}
-                  </Typography>
-                  <Typography type="subheading" component="h4" className={classes.subheading}>
-                    {shop.description}
-                  </Typography>
-                </div>
-              </ListItem>
-              <Divider/>
-            </Link>})}
+          {shops.map(shop => {
+            return (
+              <Link to={`/shops/${shop._id}`} key={shop._id}>
+                <Divider />
+                <ListItem button>
+                  <ListItemAvatar>
+                    <Avatar
+                      className={classes.avatar}
+                      src={`${BASE_URL}/api/shops/logo/${
+                        shop._id
+                      }?${new Date().getTime()}`}
+                    />
+                  </ListItemAvatar>
+                  <div className={classes.details}>
+                    <Typography
+                      type="headline"
+                      component="h2"
+                      color="primary"
+                      className={classes.shopTitle}
+                    >
+                      {shop.name}
+                    </Typography>
+                    <Typography
+                      type="subheading"
+                      component="h4"
+                      className={classes.subheading}
+                    >
+                      {shop.description}
+                    </Typography>
+                  </div>
+                </ListItem>
+                <Divider />
+              </Link>
+            );
+          })}
         </List>
       </Paper>
-    </div>)
+    </div>
+  );
 }

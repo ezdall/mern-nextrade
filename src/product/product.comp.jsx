@@ -1,30 +1,30 @@
-import {useState, useEffect}  from 'react'
-import {Link, useParams} from 'react-router-dom'
+import { useState, useEffect } from 'react';
+import { Link, useParams } from 'react-router-dom';
 
-import {makeStyles} from '@material-ui/core/styles'
-import Card from '@material-ui/core/Card'
-import CardHeader from '@material-ui/core/CardHeader'
-import CardMedia from '@material-ui/core/CardMedia'
-import Typography from '@material-ui/core/Typography'
-import Icon from '@material-ui/core/Icon'
-import Grid from '@material-ui/core/Grid'
+import { makeStyles } from '@material-ui/core/styles';
+import Card from '@material-ui/core/Card';
+import CardHeader from '@material-ui/core/CardHeader';
+import CardMedia from '@material-ui/core/CardMedia';
+import Typography from '@material-ui/core/Typography';
+import Icon from '@material-ui/core/Icon';
+import Grid from '@material-ui/core/Grid';
 
-import { readProduct, listRelated } from './api-product'
+import { readProduct, listRelated } from './api-product';
 import { BASE_URL } from '../axios';
 
-import Suggestions from './suggestions.comp'
+import Suggestions from './suggestions.comp';
 // import AddToCart from '../cart/add-to-cart.comp'
 
 const useStyles = makeStyles(theme => ({
   root: {
     flexGrow: 1,
-    margin: 30,
+    margin: 30
   },
-  flex:{
-    display:'flex'
+  flex: {
+    display: 'flex'
   },
   card: {
-    padding:'24px 40px 40px'
+    padding: '24px 40px 40px'
   },
   subheading: {
     margin: '24px',
@@ -36,7 +36,7 @@ const useStyles = makeStyles(theme => ({
     display: 'flex',
     backgroundColor: '#93c5ae3d',
     fontSize: '1.3em',
-    color: '#375a53',
+    color: '#375a53'
   },
   media: {
     height: 200,
@@ -47,7 +47,7 @@ const useStyles = makeStyles(theme => ({
   icon: {
     verticalAlign: 'sub'
   },
-  link:{
+  link: {
     color: '#3e4c54b3',
     fontSize: '0.9em'
   },
@@ -62,92 +62,102 @@ const useStyles = makeStyles(theme => ({
     margin: '8px 24px',
     display: 'inline-block'
   }
-}))
+}));
 
-export default function Product () {
-  const classes = useStyles()
-  const {productId} = useParams()
+export default function Product() {
+  const classes = useStyles();
+  const { productId } = useParams();
 
-  const [product, setProduct] = useState({shop:{}})
-  const [suggestions, setSuggestions] = useState([])
-  const [error, setError] = useState('')
+  const [product, setProduct] = useState({ shop: {} });
+  const [suggestions, setSuggestions] = useState([]);
+  const [error, setError] = useState('');
 
-// change product due productId
+  // change product due productId
   useEffect(() => {
-      const abortController = new AbortController()
-      const { signal }= abortController
-  
-      readProduct({productId}, signal).then((data) => {
-        if (data?.isAxiosError) {
-          return setError(data.message)
-        } 
-        return setProduct(data)
-      })
+    const abortController = new AbortController();
+    const { signal } = abortController;
 
-    return function cleanup(){
-      abortController.abort()
-    }
-  }, [productId])
+    readProduct({ productId }, signal).then(data => {
+      if (data?.isAxiosError) {
+        return setError(data.message);
+      }
+      return setProduct(data);
+    });
 
-// change related based on productId 
+    return function cleanup() {
+      console.log('abort prod.comp');
+      abortController.abort();
+    };
+  }, [productId]);
+
+  // change related based on productId
   useEffect(() => {
-    const abortController = new AbortController()
-    const {signal} = abortController
+    const abortController = new AbortController();
+    const { signal } = abortController;
 
-        listRelated({productId}, signal).then((data) => {
-          if (data?.isAxiosError) {
-            return setError(data.message)
-          } 
-           return setSuggestions(data)
-          
-        })
+    listRelated({ productId }, signal).then(data => {
+      if (data?.isAxiosError) {
+        return setError(data.message);
+      }
+      return setSuggestions(data);
+    });
 
-    return function cleanup(){
-    abortController.abort()
-  }
-}, [productId])
+    return function cleanup() {
+      abortController.abort();
+    };
+  }, [productId]);
 
-    const imageUrl = product._id
-          ? `${BASE_URL}/api/product/image/${product._id}?${new Date().getTime()}`
-          : `${BASE_URL}/api/products/defaultphoto`
+  const imageUrl = product._id
+    ? `${BASE_URL}/api/product/image/${product._id}?${new Date().getTime()}`
+    : `${BASE_URL}/api/products/defaultphoto`;
 
-    return (
-        <div className={classes.root}>
-          <Grid container spacing={10}>
-            <Grid item xs={7} sm={7}>
-              <Card className={classes.card}>
-                <CardHeader
-                  title={product.name}
-                  subheader={product.quantity > 0 ? 'In Stock': 'Out of Stock'}
-                  action={
-                    <span className={classes.action}>
-                      {/* <AddToCart cartStyle={classes.addCart} item={product}/> */} 
-                    </span>
-                  }
-                />
-                <div className={classes.flex}>
-                  <CardMedia
-                    className={classes.media}
-                    image={imageUrl}
-                    title={product.name}
-                  />
-                  <Typography component="p" variant="subtitle1" className={classes.subheading}>
-                    {product.description}<br/>
-                    <span className={classes.price}>$ {product.price}</span>
-                    <Link to={`/shops/${product.shop._id}`} className={classes.link}>
-                      <span>
-                        <Icon className={classes.icon}>shopping_basket</Icon> {product.shop.name}
-                      </span>
-                    </Link>
-                  </Typography>
-
-                </div>
-              </Card>
-            </Grid>
-            {suggestions.length > 0 &&
-              (<Grid item xs={5} sm={5}>
-                 <Suggestions products={suggestions} title='Related Products'/>
-              </Grid>)}
+  return (
+    <div className={classes.root}>
+      <Grid container spacing={10}>
+        <Grid item xs={7} sm={7}>
+          <Card className={classes.card}>
+            <CardHeader
+              title={product.name}
+              subheader={product.quantity > 0 ? 'In Stock' : 'Out of Stock'}
+              action={
+                <span className={classes.action}>
+                  {/* <AddToCart cartStyle={classes.addCart} item={product}/> */}
+                </span>
+              }
+            />
+            <div className={classes.flex}>
+              <CardMedia
+                className={classes.media}
+                image={imageUrl}
+                title={product.name}
+              />
+              <Typography
+                component="p"
+                variant="subtitle1"
+                className={classes.subheading}
+              >
+                {product.description}
+                <br />
+                <span className={classes.price}>$ {product.price}</span>
+                <Link
+                  to={`/shops/${product.shop._id}`}
+                  className={classes.link}
+                >
+                  <span>
+                    <Icon className={classes.icon}>shopping_basket</Icon>{' '}
+                    {product.shop.name}
+                  </span>
+                </Link>
+              </Typography>
+            </div>
+          </Card>
+        </Grid>
+        {suggestions.length > 0 && (
+          <Grid item xs={5} sm={5}>
+            <Suggestions products={suggestions} title="Related Products" />
           </Grid>
-        </div>)
+        )}
+      </Grid>
+    </div>
+  );
 }

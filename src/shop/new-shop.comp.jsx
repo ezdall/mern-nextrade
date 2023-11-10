@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
 import { makeStyles } from '@material-ui/core/styles';
@@ -12,6 +12,7 @@ import Icon from '@material-ui/core/Icon';
 import FileUpload from '@material-ui/icons/AddPhotoAlternate';
 
 import { createShop } from './api-shop';
+import auth from '../auth/auth-helper';
 
 // style
 const useStyles = makeStyles(theme => ({
@@ -49,6 +50,7 @@ const useStyles = makeStyles(theme => ({
 
 export default function NewShop() {
   const navigate = useNavigate();
+  const authUser = auth.isAuthenticated().user;
 
   const classes = useStyles();
   const [values, setValues] = useState({
@@ -61,11 +63,11 @@ export default function NewShop() {
 
   console.log({ values });
 
-  useEffect(() => {
-    if (values.redirect) {
-      navigate('/seller/shops');
-    }
-  }, [values.redirect, navigate]);
+  // useEffect(() => {
+  //   if (values.redirect) {
+  //     navigate('/seller/shops');
+  //   }
+  // }, [navigate, values.redirect]);
 
   const handleChange = ev => {
     const { name, value, files } = ev.target;
@@ -93,18 +95,19 @@ export default function NewShop() {
 
     return createShop(
       {
-        userId: '6361f1a2d0994e1db4a26ab2' // admin
+        userId: authUser._id
       },
       shopData,
       {} // accessToken
     )
       .then(data => {
         console.log(data);
-      if (data.isAxiosError) {
-       return setValues({...values, error: data.message})
-      } 
+        if (data.isAxiosError) {
+          return setValues({ ...values, error: data.message });
+        }
 
-        return setValues({ ...values, error: '', redirect: true });
+        setValues({ ...values, error: '', redirect: true });
+        return navigate('/seller/shops');
       })
       .catch(err => {
         // console.error({ err });
@@ -133,7 +136,7 @@ export default function NewShop() {
               Upload Logo
               <FileUpload />
             </Button>
-          </label>{' '}
+          </label>
           <span className={classes.filename}>{values.image?.name ?? ''}</span>
           <br />
           <TextField
@@ -158,7 +161,7 @@ export default function NewShop() {
             className={classes.textField}
             margin="normal"
           />
-          <br />{' '}
+          <br />
           {values.error && (
             <Typography component="p" color="error">
               {/* <Icon color="error" className={classes.error}>error: </Icon> */}

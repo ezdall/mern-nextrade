@@ -16,9 +16,9 @@ import Typography from '@material-ui/core/Typography';
 import Edit from '@material-ui/icons/Edit';
 import Divider from '@material-ui/core/Divider';
 
-import DeleteShop from './delete-shop.comp'
-import { handleAxiosError, BASE_URL } from '../axios'
-import auth from '../auth/auth-helper'
+import DeleteShop from './delete-shop.comp';
+import { handleAxiosError, BASE_URL } from '../axios';
+import auth from '../auth/auth-helper';
 
 import { listByOwner } from './api-shop';
 
@@ -31,7 +31,9 @@ const useStyles = makeStyles(theme => ({
     marginTop: theme.spacing(5)
   },
   title: {
-    margin: `${theme.spacing(3)}px 0 ${theme.spacing(3)}px ${theme.spacing(1)}px`,
+    margin: `${theme.spacing(3)}px 0 ${theme.spacing(3)}px ${theme.spacing(
+      1
+    )}px`,
     color: theme.palette.protectedTitle,
     fontSize: '1.2em'
   },
@@ -45,43 +47,40 @@ const useStyles = makeStyles(theme => ({
 
 export default function NewShop() {
   const navigate = useNavigate();
-  const userId = auth.isAuthenticated().user._id
+  const { user:{_id: userId }, accessToken} = auth.isAuthenticated();
 
   const classes = useStyles();
 
   const [shops, setShops] = useState([]);
-  const [redirectToSignin, setRedirectToSignin] = useState(false);
+  // const [redirectToSignin, setRedirectToSignin] = useState(false);
 
-  // console.log({ shops });
+  console.log({ userId });
 
   // all you shop
   useEffect(() => {
     const abortController = new AbortController();
-    const { signal } = abortController
+    const { signal } = abortController;
 
-    listByOwner(
-      { userId },
-      signal
-    )
-      .then(data => {
-
-      if(data?.isAxiosError){
-      return handleAxiosError(data, ()=> navigate('/login', { replace:true }))
+    listByOwner({ userId }, signal, accessToken).then(data => {
+      if (data?.isAxiosError) {
+        return handleAxiosError(data, () =>
+          navigate('/login', { replace: true })
+        );
         // return setIsError(true)
-      
       }
-        console.log({data})
-        return setShops(data);
-      })
+      console.log({ data });
+      return setShops(data);
+    });
 
-    return function cleanup() {
+    return () => {
+      console.log('abort-my-shop');
       abortController.abort();
     };
-  }, [userId, navigate]);
+  }, [navigate, userId]);
 
-  const onRemoveShop = (shop) => {
-    const filteredShops = shops.filter(s => s._id !== shop._id)
-    setShops(filteredShops)
+  const onRemoveShop = shop => {
+    const filteredShops = shops.filter(s => s._id !== shop._id);
+    setShops(filteredShops);
   };
 
   return (
@@ -92,47 +91,55 @@ export default function NewShop() {
           <span className={classes.addButton}>
             <Link to="/seller/shop/new">
               <Button color="primary" variant="contained">
-                 {/* <Icon className={classes.leftIcon}>add_box</Icon> */}
+                {/* <Icon className={classes.leftIcon}>add_box</Icon> */}
                 New Shop
               </Button>
             </Link>
           </span>
         </Typography>
-         {shops.length ? shops.map(shop => {
+        {shops.length ? (
+          shops.map(shop => {
             return (
               <List key={shop._id} dense>
-              <span>
-                <ListItem>
-                  <ListItemAvatar>
-                    <Avatar
-                      src={`${BASE_URL}/api/shops/logo/${shop._id}?${new Date().getTime()}`}
+                <span>
+                  <ListItem>
+                    <ListItemAvatar>
+                      <Avatar
+                        src={`${BASE_URL}/api/shops/logo/${
+                          shop._id
+                        }?${new Date().getTime()}`}
+                      />
+                    </ListItemAvatar>
+                    <ListItemText
+                      primary={shop.name}
+                      secondary={shop.description}
                     />
-                  </ListItemAvatar>
-                  <ListItemText
-                    primary={shop.name}
-                    secondary={shop.description}
-                  />
-                  <ListItemSecondaryAction>
-                    <Link
-                      to={`/seller/orders/${shop.name.replace(' ', '-')}/${shop._id}`}
-                    >
-                      <Button aria-label="Orders" color="primary">
-                        View Orders
-                      </Button>
-                    </Link>
-                    <Link to={`/seller/shop/edit/${shop._id}`}>
-                      <IconButton aria-label="Edit" color="primary">
-                        <Edit />
-                      </IconButton>
-                    </Link>
-                    <DeleteShop shop={shop} onRemoveShop={onRemoveShop}/>
-                  </ListItemSecondaryAction>
-                </ListItem>
-                <Divider />
-              </span>
-            </List> );
-        }): <p>Loading...</p>
-       }
+                    <ListItemSecondaryAction>
+                      <Link
+                        to={`/seller/orders/${shop.name.replace(' ', '-')}/${
+                          shop._id
+                        }`}
+                      >
+                        <Button aria-label="Orders" color="primary">
+                          View Orders
+                        </Button>
+                      </Link>
+                      <Link to={`/seller/shop/edit/${shop._id}`}>
+                        <IconButton aria-label="Edit" color="primary">
+                          <Edit />
+                        </IconButton>
+                      </Link>
+                      <DeleteShop shop={shop} onRemoveShop={onRemoveShop} />
+                    </ListItemSecondaryAction>
+                  </ListItem>
+                  <Divider />
+                </span>
+              </List>
+            );
+          })
+        ) : (
+          <p>No Shop</p>
+        )}
       </Paper>
     </div>
   );

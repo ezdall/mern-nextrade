@@ -12,9 +12,8 @@ export const axiosPrivate = axios.create({
   withCredentials: true
 });
 
-export const handleAxiosError = (error, cb) => {
+export const handleAxiosError = (error, cb=()=>console.log('axios default')) => {
   const { response } = error;
-
 
   if (!response) {
     console.log({ error });
@@ -33,14 +32,14 @@ export const handleAxiosError = (error, cb) => {
   }
 
   if (response.status === 401) {
-    const {error:axErrMsg, inner} = response.data;
+    const { inner } = response.data;
 
     console.log({ error });
 
-    if(inner.name === 'TokenExpiredError'){
-      console.log('innnerrrrr')
-       if (typeof window !== 'undefined') sessionStorage.removeItem('jwt');
-      cb()
+    if (inner.name === 'TokenExpiredError') {
+      console.log('innnerrrrr');
+      if (typeof window !== 'undefined') sessionStorage.removeItem('jwt');
+      cb();
     }
 
     // setErrCb(axErrMsg);

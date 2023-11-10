@@ -17,8 +17,8 @@ import Person from '@material-ui/icons/Person';
 import Divider from '@material-ui/core/Divider';
 
 // import DeleteUser from './DeleteUser';
-import auth from '../auth/auth-helper'
-import { handleAxiosError } from '../axios'
+import auth from '../auth/auth-helper';
+import { handleAxiosError } from '../axios';
 
 import { read } from './api-user';
 
@@ -55,43 +55,34 @@ const useStyles = makeStyles(theme => ({
 export default function Profile() {
   const classes = useStyles();
   const navigate = useNavigate();
-  const location = useLocation();
   const params = useParams();
 
   // const match = undefined;
 
-  const authUser = auth.isAuthenticated().user
+  const { user:authUser, accessToken } = auth.isAuthenticated();
 
   const [user, setUser] = useState({});
-  const [isError, setIsError] = useState(false)
+  const [isError, setIsError] = useState(false);
   // const [redirectToSignin, setRedirectToSignin] = useState(false);
 
   useEffect(() => {
     const abortController = new AbortController();
-    const {signal} = abortController
+    const { signal } = abortController;
 
-    setIsError(false)
+    setIsError(false);
 
-    read(
-      {
-        userId: params.userId
-      },
-      signal
-    ).then(data => {
-
-      if(data?.isAxiosError){
-        handleAxiosError(data, navigate('/login', {replace:true}))
-        return setIsError(true)
+    read({ userId: params.userId }, signal, accessToken).then(data => {
+      if (data?.isAxiosError) {
+        handleAxiosError(data, ()=>navigate('/login', { replace: true }));
+        return setIsError(true);
       }
 
-      console.log({data});
+      console.log({ data });
       return setUser(data.user);
-    })
+    });
 
-    return function cleanup() {
-      abortController.abort();
-    };
-  }, [params.userId, navigate]);
+    return () => abortController.abort();
+  }, [navigate, params.userId]);
 
   // console.log(user);
 
@@ -107,11 +98,10 @@ export default function Profile() {
               <Person />
             </Avatar>
           </ListItemAvatar>
-          <ListItemText primary={user.name} secondary={user.email} />{' '}
-          {authUser &&
-            String(authUser._id) === String(user._id) && (
-              <ListItemSecondaryAction>
-                {/* {user.seller &&
+          <ListItemText primary={user.name} secondary={user.email} />
+          {authUser && String(authUser._id) === String(user._id) && (
+            <ListItemSecondaryAction>
+              {/* {user.seller &&
                   (user.stripe_seller ? (
                     <Button
                       variant="contained"
@@ -128,19 +118,19 @@ export default function Profile() {
                       <img src={stripeButton} />
                     </a>
                   ))} */}
-                <Link to={`/user/edit/${user._id}`}>
-                  <IconButton aria-label="Edit" color="primary">
-                    <Edit />
-                  </IconButton>
-                </Link>
-                {/* <DeleteUser userId={user._id} /> */}
-              </ListItemSecondaryAction>
-            )}
+              <Link to={`/user/edit/${user._id}`}>
+                <IconButton aria-label="Edit" color="primary">
+                  <Edit />
+                </IconButton>
+              </Link>
+              {/* <DeleteUser userId={user._id} /> */}
+            </ListItemSecondaryAction>
+          )}
         </ListItem>
         <Divider />
         <ListItem>
           <ListItemText
-            primary={`Joined: ${new Date(user.created).toDateString()}`}
+            primary={`Joined: ${new Date(user.createdAt).toDateString()}`}
           />
         </ListItem>
       </List>
