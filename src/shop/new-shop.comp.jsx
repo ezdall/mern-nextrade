@@ -63,12 +63,6 @@ export default function NewShop() {
 
   console.log({ values });
 
-  // useEffect(() => {
-  //   if (values.redirect) {
-  //     navigate('/seller/shops');
-  //   }
-  // }, [navigate, values.redirect]);
-
   const handleChange = ev => {
     const { name, value, files } = ev.target;
 
@@ -93,16 +87,10 @@ export default function NewShop() {
     if (description) shopData.append('description', description);
     if (image) shopData.append('image', image);
 
-    return createShop(
-      {
-        userId: authUser._id
-      },
-      shopData,
-      {} // accessToken
-    )
+    return createShop({userId: authUser._id},shopData)
       .then(data => {
-        console.log(data);
-        if (data.isAxiosError) {
+        console.log({data});
+        if (data?.isAxiosError) {
           return setValues({ ...values, error: data.message });
         }
 

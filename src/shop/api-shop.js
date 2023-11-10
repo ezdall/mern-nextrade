@@ -5,6 +5,8 @@ const { accessToken } = auth.isAuthenticated();
 
 // obj:params, str:accesstoken, shop:shopData
 export const createShop = (params, shop) => {
+  // const accessToken1 = auth.isAuthenticated().accessToken
+
   return axios
     .post(`/api/shops/by/${params.userId}`, shop, {
       headers: {
@@ -12,16 +14,12 @@ export const createShop = (params, shop) => {
       }
     })
     .then(resp => {
-      // console.log(resp)
-      const { status, data } = resp;
-
-      if (status === (200 || 201)) {
-        throw Error('error @createShop');
-      }
-
-      return data;
+      return resp.data;
     })
-    .catch(err => console.log(err));
+    .catch(err => {
+      console.log(err)
+      return err;
+    });
 };
 
 export const readShop = async (params, signal) => {
@@ -38,6 +36,8 @@ export const readShop = async (params, signal) => {
 
 export const updateShop = async (params, shop) => {
   try {
+    // const accessToken1 = auth.isAuthenticated().accessToken
+
     const response = await axios.patch(`/api/shops/${params.shopId}`, shop, {
       headers: {
         authorization: `Bearer ${accessToken}`

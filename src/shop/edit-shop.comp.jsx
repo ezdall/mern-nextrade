@@ -89,6 +89,7 @@ export default function EditShop() {
       if (data.isAxiosError) {
         return setValues({ ...values, error: data.message });
       }
+      console.log({data})
       return setValues({
         ...values,
         id: data._id,
@@ -98,11 +99,12 @@ export default function EditShop() {
       });
     });
 
-    return function cleanup() {
-      console.log('edit-shop');
+    return () => {
+      console.log('edit-shop abort');
       abortController.abort();
     };
-  }, [params.shopId, values]);
+  }, [params.shopId]);
+  // auto-loop when add [ ,values]
 
   const handleChange = ev => {
     const { name, value, files } = ev.target;
@@ -128,12 +130,7 @@ export default function EditShop() {
     if (description) shopData.append('description', description);
     if (image) shopData.append('image', image);
 
-    return updateShop(
-      {
-        shopId: params.shopId
-      },
-      shopData
-    )
+    return updateShop({ shopId: params.shopId}, shopData)
       .then(data => {
         if (data.isAxiosError) {
           return setValues({ ...values, error: data.message });
