@@ -30,6 +30,33 @@ export const createProduct = async (params, product) => {
   }
 };
 
+export const updateProduct = async (params, product) => {
+  try {
+    const response = await axios.patch(`/api/product/${params.shopId}/${params.productId}`,
+      product, { 
+        headers: { authorization:`Bearer ${accessToken}` }
+      }
+    );
+
+    return response.data;
+  } catch (err) {
+    return err;
+  }
+};
+
+export const removeProduct = async (params) => {
+  try {
+    const response = await axios.delete(`/api/product/${params.shopId}/${params.productId}`, {
+      headers: {
+        authorization: `Bearer ${accessToken}`
+      }
+    })
+    return response.data
+  } catch(err) {
+    return err
+  }
+}
+
 
 export const listLatest = async signal => {
   try {

@@ -18,7 +18,7 @@ import Divider from '@material-ui/core/Divider'
 
 import {listByShop} from './api-product'
 import { BASE_URL } from '../axios'
-// import DeleteProduct from '../product/delete-product.comp'
+import DeleteProduct from './delete-product.comp'
 
 const useStyles = makeStyles(theme => ({
   products: {
@@ -75,11 +75,8 @@ export default function MyProducts (props){
   }, [])
 
   const onRemoveProduct = (product) => {
-    // const updatedProducts = [...products]
-    // const index = updatedProducts.indexOf(product)
-    // updatedProducts.splice(index, 1)
-    // setProducts(updatedProducts)
-    console.log('removeProduct')
+    const filteredProducts = products.filter(prod => prod._id !== product._id)
+    setProducts(filteredProducts)
   }
 
     return (
@@ -118,11 +115,11 @@ export default function MyProducts (props){
                       <Edit/>
                     </IconButton>
                   </Link>
-              {/* <DeleteProduct
-                    product={product}
-                    shopId={shopId}
-                    onRemoveProduct={onRemoveProduct}
-                    /> */}
+               <DeleteProduct
+                     product={product}
+                     shopId={shopId}
+                     onRemoveProduct={onRemoveProduct}
+                  /> 
                 </ListItemSecondaryAction>
               </ListItem>
               <Divider/></span>})}

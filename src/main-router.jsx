@@ -19,6 +19,7 @@ import Profile from './user/profile.comp';
 
 import Product from './product/product.comp';
 import NewProduct from './product/new-product.comp';
+import EditProduct from './product/edit-product.comp';
 
 export default function MainRouter() {
   return (
@@ -43,6 +44,7 @@ export default function MainRouter() {
           <Route path="/seller/shop/new" element={<NewShop />} />
           <Route path="/seller/shops" element={<MyShops />} />
 
+          <Route path="/seller/:shopId/:productId/edit" element={<EditProduct />}/>
           <Route path="/seller/:shopId/products/new" element={<NewProduct />} />
         </Route>
         <Route path="*" element={<>Error Page</>} />
