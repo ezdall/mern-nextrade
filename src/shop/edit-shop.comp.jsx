@@ -12,7 +12,7 @@ import Avatar from '@material-ui/core/Avatar'
 import FileUpload from '@material-ui/icons/AddPhotoAlternate'
 import Grid from '@material-ui/core/Grid'
 
-import {readShop, updateShop} from './api-shop'
+import { readShop, updateShop } from './api-shop'
 import auth from '../auth/auth-helper'
 import { BASE_URL } from '../axios'
 // import MyProducts from './../product/MyProducts'
@@ -137,12 +137,8 @@ export default function EditShop ({match}) {
   }
 
     const logoUrl = values.id
-          ? `${BASE_URL}/api/shops/logo/${values.id}?${new Date().getTime()}`
-          : `${BASE_URL}/api/shops/defaultphoto`
-
-    // if (values.redirect) {
-    //   return (<Redirect to={'/seller/shops'}/>)
-    // }
+      ? `${BASE_URL}/api/shops/logo/${values.id}?${new Date().getTime()}`
+      : `${BASE_URL}/api/shops/defaultphoto`
 
     return (<div className={classes.root}>
       <Grid container spacing={8}>

@@ -10,6 +10,7 @@ import Grid from '@material-ui/core/Grid'
 import { readShop } from './api-shop'
 import Products from '../product/products.comp'
 import { listByShop } from '../product/api-product'
+import { BASE_URL } from '../axios' 
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -100,8 +101,8 @@ export default function Shop(props) {
   // }, [shopId])
 
     const logoUrl = shop._id
-          ? `/api/shops/logo/${shop._id}?${new Date().getTime()}`
-          : '/api/shops/defaultphoto'
+          ? `${BASE_URL}/api/shops/logo/${shop._id}?${new Date().getTime()}`
+          : `${BASE_URL}/api/shops/defaultphoto`
 
     return (<div className={classes.root}>
       <Grid container spacing={8}>

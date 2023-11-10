@@ -11,7 +11,7 @@ import Typography from '@material-ui/core/Typography'
 import Divider from '@material-ui/core/Divider'
 
 import { list } from './api-shop'
-
+import { BASE_URL} from '../axios'
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -78,7 +78,7 @@ export default function Shops(){
               <Divider/>
               <ListItem button>
                 <ListItemAvatar>
-                  <Avatar className={classes.avatar}  src={`/api/shops/logo/${shop._id}?${new Date().getTime()}`}/>
+                  <Avatar className={classes.avatar}  src={`${BASE_URL}/api/shops/logo/${shop._id}?${new Date().getTime()}`}/>
                 </ListItemAvatar>
                 <div className={classes.details}>
                   <Typography type="headline" component="h2" color="primary" className={classes.shopTitle}>
