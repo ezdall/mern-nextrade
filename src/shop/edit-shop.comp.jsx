@@ -15,7 +15,7 @@ import Grid from '@material-ui/core/Grid';
 import { readShop, updateShop } from './api-shop';
 import auth from '../auth/auth-helper';
 import { BASE_URL } from '../axios';
-// import MyProducts from './../product/MyProducts'
+import MyProducts from '../product/my-products.comp'
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -177,9 +177,9 @@ export default function EditShop() {
                   Change Logo
                   <FileUpload />
                 </Button>
-              </label>{' '}
+              </label>
               <span className={classes.filename}>
-                {values.image ? values.image.name : ''}
+                {values.image.name ?? ''}
               </span>
               <br />
               <TextField
@@ -234,7 +234,7 @@ export default function EditShop() {
           </Card>
         </Grid>
         <Grid item xs={6} sm={6}>
-          {/* <MyProducts shopId={params.shopId}/> */}
+           <MyProducts shopId={params.shopId}/> 
         </Grid>
       </Grid>
     </div>

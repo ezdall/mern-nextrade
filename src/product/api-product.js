@@ -1,5 +1,9 @@
 import axios from '../axios';
 
+import auth from '../auth/auth-helper';
+
+const { accessToken } = auth.isAuthenticated()
+
 export const readProduct = async (params, signal) => {
   try {
     const response = await axios.get(`/api/product/${params.productId}`, {
@@ -11,6 +15,21 @@ export const readProduct = async (params, signal) => {
     return err;
   }
 };
+
+export const createProduct = async (params, product) => {
+  try {
+    const response = await axios.post(`/api/products/by/${params.shopId}`,
+      product, { 
+        headers: { authorization:`Bearer ${accessToken}` }
+      }
+    );
+
+    return response.data;
+  } catch (err) {
+    return err;
+  }
+};
+
 
 export const listLatest = async signal => {
   try {
