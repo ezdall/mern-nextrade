@@ -16,7 +16,7 @@ import Edit from '@material-ui/icons/Edit';
 import Person from '@material-ui/icons/Person';
 import Divider from '@material-ui/core/Divider';
 
-// import DeleteUser from './DeleteUser';
+import DeleteUser from './delete-user.comp';
 import auth from '../auth/auth-helper';
 import { handleAxiosError } from '../axios';
 
@@ -123,7 +123,7 @@ export default function Profile() {
                   <Edit />
                 </IconButton>
               </Link>
-              {/* <DeleteUser userId={user._id} /> */}
+               <DeleteUser userId={user._id} />
             </ListItemSecondaryAction>
           )}
         </ListItem>
