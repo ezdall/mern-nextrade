@@ -21,6 +21,8 @@ import Product from './product/product.comp';
 import NewProduct from './product/new-product.comp';
 import EditProduct from './product/edit-product.comp';
 
+import Cart from './cart/cart.comp'
+
 export default function MainRouter() {
   return (
     <div>
@@ -32,6 +34,7 @@ export default function MainRouter() {
         <Route path="/users" element={<Users />} />
         <Route path="/user/:userId" element={<Profile />} />
 
+        <Route path="/cart" element={<Cart />} />
         <Route path="/product/:productId" element={<Product />} />
         <Route path="/shops/all" element={<Shops />} />
         <Route path="/shops/:shopId" element={<Shop />} />

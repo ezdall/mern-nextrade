@@ -8,7 +8,7 @@ import ImageList from '@material-ui/core/ImageList';
 import ImageListItem from '@material-ui/core/ImageListItem';
 import ImageListItemBar from '@material-ui/core/ImageListItemBar';
 
-// import AddToCart from './../cart/AddToCart'
+import AddToCart from '../cart/add-cart.comp'
 
 import { BASE_URL } from '../axios';
 
@@ -57,7 +57,7 @@ const useStyles = makeStyles(theme => ({
 }));
 
 export default function Products(props) {
-  console.log({ props });
+  // console.log({ props });
   const { products, searched } = props;
 
   const classes = useStyles();
@@ -86,7 +86,7 @@ export default function Products(props) {
                     </Link>
                   }
                   subtitle={<span>$ {product.price}</span>}
-                  // actionIcon={ <AddToCart item={product}/> }
+                  actionIcon={ <AddToCart item={product}/> }
                 />
               </ImageListItem>
             ))}

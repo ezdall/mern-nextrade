@@ -10,7 +10,7 @@ import CartIcon from '@material-ui/icons/ShoppingCart';
 import Badge from '@material-ui/core/Badge';
 
 import auth from '../auth/auth-helper';
-// import cart from './../cart/cart-helper'
+import cart from '../cart/cart-helper';
 
 const isActive = (location, path) => {
   if (location.pathname === path) return { color: '#bef67a' };
@@ -43,22 +43,20 @@ export default function Menu() {
           <Link to="/shops/all">
             <Button style={isActive(location, '/shops/all')}>All Shops</Button>
           </Link>
-          {/*
-         <Link to="/auctions/all">
-          <Button style={isActive(location, "/auctions/all")}>All Auctions</Button>
-        </Link>
-        */}
-
-          {/*
-           <Link to="/cart">
-          <Button style={isActive(history, "/cart")}>
-            Cart
-            <Badge invisible={false} color="secondary" badgeContent={cart.itemTotal()} style={{'marginLeft': '7px'}}>
-              <CartIcon />
-            </Badge>
-          </Button>
-        </Link>    
-        */}
+          <Link to="/cart">
+            <Button style={isActive(location, '/cart')}>
+              Cart
+              <Badge
+                invisible={false}
+                overlap="rectangular"
+                color="secondary"
+                badgeContent={cart.itemTotal()}
+                style={{ marginLeft: '7px' }}
+              >
+                <CartIcon />
+              </Badge>
+            </Button>
+          </Link>
         </div>
         <div style={{ position: 'absolute', right: '10px' }}>
           <span style={{ float: 'right' }}>
