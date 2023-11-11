@@ -72,7 +72,7 @@ export default function Product() {
   const [suggestions, setSuggestions] = useState([]);
   const [error, setError] = useState('');
 
-  // change product due productId
+  // change product-page due productId
   useEffect(() => {
     const abortController = new AbortController();
     const { signal } = abortController;
@@ -84,13 +84,14 @@ export default function Product() {
       return setProduct(data);
     });
 
-    return function cleanup() {
+    return () => {
       console.log('abort prod.comp');
       abortController.abort();
     };
+
   }, [productId]);
 
-  // change related based on productId
+  // change related-prod due productId
   useEffect(() => {
     const abortController = new AbortController();
     const { signal } = abortController;
@@ -102,7 +103,8 @@ export default function Product() {
       return setSuggestions(data);
     });
 
-    return function cleanup() {
+    return () => {
+      console.log('abort prod-related')
       abortController.abort();
     };
   }, [productId]);

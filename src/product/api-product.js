@@ -1,5 +1,6 @@
-import axios from '../axios';
+import queryString from 'query-string';
 
+import axios from '../axios';
 import auth from '../auth/auth-helper';
 
 const { accessToken } = auth.isAuthenticated()
@@ -111,10 +112,9 @@ export const listByShop = async (params, signal) => {
 };
 
 export const list = async (params, signal) => {
-  // const query = queryString.stringify(params)
-
   try {
-    const response = await axios.get('/api/products', {
+    const query = queryString.stringify(params)
+    const response = await axios.get(`/api/products?${query}`, {
       signal
     });
     return response.data;

@@ -112,9 +112,9 @@ export default function Categories(props) {
         <div className={classes.root}>
           <ImageList className={classes.gridList} cols={4}>
             {categories.length &&
-              categories.map((tile, i) => (
+              categories.map((tile) => (
                 <ImageListItem
-                  key={tile.i}
+                  key={tile}
                   className={classes.tileTitle}
                   style={{
                     height: '64px',
