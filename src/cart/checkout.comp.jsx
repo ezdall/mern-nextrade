@@ -1,15 +1,14 @@
 import { useState, useEffect } from 'react';
 
-import Card from '@material-ui/core/Card';
 import { makeStyles } from '@material-ui/core/styles';
+import Card from '@material-ui/core/Card';
 import TextField from '@material-ui/core/TextField';
 import Typography from '@material-ui/core/Typography';
 import Icon from '@material-ui/core/Icon';
 
+import PlaceOrder from './place-order.comp'
 import auth from '../auth/auth-helper';
 import cart from './cart-helper';
-// import PlaceOrder from './PlaceOrder'
-// import {Elements} from 'react-stripe-elements'
 
 const useStyles = makeStyles(theme => ({
   card: {
@@ -46,6 +45,7 @@ const useStyles = makeStyles(theme => ({
 
 export default function Checkout() {
   const classes = useStyles();
+  
   const { user } = auth.isAuthenticated();
 
   const [values, setValues] = useState({
@@ -76,6 +76,7 @@ export default function Checkout() {
     const { value, name } = event.target;
     const { checkoutDetails } = values; // || undefined
 
+    // mutating
     checkoutDetails.delivery_address[name] = value; // || undefined
     setValues({ ...values,  checkoutDetails });
   };
@@ -170,7 +171,7 @@ export default function Checkout() {
         </Typography>
       )}
       <div>
-        {/* <Elements><PlaceOrder checkoutDetails={values.checkoutDetails} /></Elements> */}
+        <PlaceOrder checkoutDetails={values.checkoutDetails} />
       </div>
     </Card>
   );

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 // import PropTypes from 'prop-types'
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { makeStyles } from '@material-ui/core/styles';
 
 import Card from '@material-ui/core/Card';
@@ -94,6 +94,8 @@ const useStyles = makeStyles(theme => ({
 }));
 
 export default function CartItems(props) {
+  const location = useLocation()
+
   const { checkout, setCheckout } = props;
 
   const classes = useStyles();
@@ -101,9 +103,9 @@ export default function CartItems(props) {
 
   // console.log(cartItems)
 
-  const handleChange = (i,prodId) => event => {
+  const handleChange = (prodId) => event => {
     const { value } = event.target;
-    console.log('handleChange')
+    // console.log('handleChange')
 
     const updatedCartItems = cartItems.map(item => {
       if(item._id === prodId){
@@ -115,18 +117,9 @@ export default function CartItems(props) {
       return item
     })
 
-    // if (value === 0) {
-    //   updatedCartItems[i].quantity = 1;
-    // } else {
-    //   updatedCartItems[i].quantity = value;
-    // }
-
     setCartItems(updatedCartItems)
 
-    // setCartItems([...updatedCartItems]);
-
-    cart.updateCart(prodId, Number(value) );
-
+    cart.updateCart(prodId, Number(value));
   };
 
   const getTotal = () => {
@@ -197,7 +190,7 @@ export default function CartItems(props) {
                       Quantity: 
                       <TextField
                         value={item.quantity}
-                        onChange={handleChange(i,item.product._id)}
+                        onChange={handleChange(item.product._id)}
                         type="number"
                         inputProps={{
                           min: 1
@@ -211,7 +204,7 @@ export default function CartItems(props) {
                       <Button
                         className={classes.removeButton}
                         color="primary"
-                        onClick={removeItem(i,item.product._id)}
+                        onClick={removeItem(i, item.product._id)}
                       >
                         x Remove
                       </Button>
@@ -234,7 +227,7 @@ export default function CartItems(props) {
                   Checkout
                 </Button>
               ) : (
-                <Link to="/login">
+                <Link to="/login" state={{from:location}} >
                   <Button color="primary" variant="contained">
                     Sign in to checkout
                   </Button>

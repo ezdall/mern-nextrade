@@ -17,7 +17,7 @@ const Cart = {
 
      const updCart = cart.map(c => {
       console.log({c})
-      if(c._id === prodId){
+      if(c.id === prodId){
         return {...c, quantity}
       }
 
@@ -45,7 +45,7 @@ const Cart = {
         cart = JSON.parse(localStorage.getItem('cart'));
       }
 
-      const cartIndex = cart.findIndex(c=> c._id === item._id) 
+      const cartIndex = cart.findIndex(c=> c.id === item._id) 
 
       // console.log({cartIndex})
       // console.log(cart[cartIndex])
@@ -58,7 +58,7 @@ const Cart = {
         ]
      } else{
         cart = [...cart, {
-            _id: item._id,
+            id: item._id,
             product: item,
             quantity: 1,
             shop: item.shop._id
@@ -86,7 +86,7 @@ const Cart = {
       }
       // cart.splice(itemIndex, 1);
 
-      cart = cart.filter(c => c._id !== prodId)
+      cart = cart.filter(c => c.id !== prodId)
 
       localStorage.setItem('cart', JSON.stringify(cart));
     }
