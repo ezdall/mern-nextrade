@@ -1,12 +1,14 @@
 import { useState, useEffect } from 'react';
+import { loadStripe } from '@stripe/stripe-js'
+import { Elements } from '@stripe/react-stripe-js'
+
 import { makeStyles } from '@material-ui/core/styles';
 import Grid from '@material-ui/core/Grid';
 
 import CartItems from './cart-items.comp';
 import Checkout from './checkout.comp';
-// import config from './../../config/config'
 
-// import {StripeProvider} from 'react-stripe-elements'
+const stripePromise = loadStripe(process.env.REACT_APP_STRIPE)
 
 const useStyles = makeStyles(() => ({
   root: {
@@ -31,10 +33,9 @@ export default function Cart() {
         </Grid>
         {checkout && (
           <Grid item xs={6} sm={6}>
-            {/*  <StripeProvider apiKey={config.stripe_test_api_key}>
-              <Checkout/>
-            </StripeProvider> */}
+          <Elements stripe={stripePromise}>
             <Checkout />
+          </Elements>
           </Grid>
         )}
       </Grid>
