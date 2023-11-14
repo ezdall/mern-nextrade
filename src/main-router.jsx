@@ -21,6 +21,8 @@ import Product from './product/product.comp';
 import NewProduct from './product/new-product.comp';
 import EditProduct from './product/edit-product.comp';
 
+import ShopOrders from './order/shop-order.comp'
+import Order from './order/order.comp'
 import Cart from './cart/cart.comp'
 
 export default function MainRouter() {
@@ -32,16 +34,19 @@ export default function MainRouter() {
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<SignUp />} />
         <Route path="/users" element={<Users />} />
-        <Route path="/user/:userId" element={<Profile />} />
-
+        
         <Route path="/cart" element={<Cart />} />
         <Route path="/product/:productId" element={<Product />} />
         <Route path="/shops/all" element={<Shops />} />
         <Route path="/shops/:shopId" element={<Shop />} />
 
+        <Route path="/order/:orderId" element={<Order />} />
         {/* this route must be Private */}
         <Route element={<RequireAuth />}>
+          <Route path="/user/:userId" element={<Profile />} />
           <Route path="/user/edit/:userId" element={<EditProfile />} />
+
+          <Route path="/seller/orders/:shop/:shopId" element={<ShopOrders />} />
 
           <Route path="/seller/shop/edit/:shopId" element={<EditShop />} />
           <Route path="/seller/shop/new" element={<NewShop />} />
