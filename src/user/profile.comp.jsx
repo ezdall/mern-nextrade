@@ -23,8 +23,8 @@ import { handleAxiosError } from '../axios';
 import { read } from './api-user';
 
 // import config from './../../config/config';
-// import stripeButton from './../assets/images/stripeButton.png';
-// import MyOrders from './../order/MyOrders';
+import stripeButton from '../assets/images/stripeButton.png';
+import MyOrders from '../order/my-orders.comp';
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -56,6 +56,7 @@ export default function Profile() {
   const classes = useStyles();
   const navigate = useNavigate();
   const params = useParams();
+  const location = useLocation()
 
   // const match = undefined;
 
@@ -63,7 +64,7 @@ export default function Profile() {
 
   const [user, setUser] = useState({});
   const [isError, setIsError] = useState(false);
-  // const [redirectToSignin, setRedirectToSignin] = useState(false);
+
 
   useEffect(() => {
     const abortController = new AbortController();
@@ -73,18 +74,23 @@ export default function Profile() {
 
     read({ userId: params.userId }, signal, accessToken).then(data => {
       if (data?.isAxiosError) {
-        handleAxiosError(data, ()=>navigate('/login', { replace: true }));
+        handleAxiosError(data, ()=> navigate('/login', { replace: true, state:{from:location} }));
         return setIsError(true);
       }
 
       console.log({ data });
       return setUser(data.user);
-    });
+    })
+    .catch(err => setIsError(true))
 
     return () => abortController.abort();
   }, [navigate, params.userId]);
 
   // console.log(user);
+
+  if(isError) return <p>Error...</p>
+
+  if(!user) return <p>Loading...</p>
 
   return (
     <Paper className={classes.root} elevation={4}>
@@ -101,7 +107,7 @@ export default function Profile() {
           <ListItemText primary={user.name} secondary={user.email} />
           {authUser && String(authUser._id) === String(user._id) && (
             <ListItemSecondaryAction>
-              {/* {user.seller &&
+              {user.seller &&
                   (user.stripe_seller ? (
                     <Button
                       variant="contained"
@@ -112,12 +118,13 @@ export default function Profile() {
                     </Button>
                   ) : (
                     <a
-                      href={`https://connect.stripe.com/oauth/authorize?response_type=code&client_id=${config.stripe_connect_test_client_id}&scope=read_write`}
+                      // href={`https://connect.stripe.com/oauth/authorize?response_type=code&client_id=${config.stripe_connect_test_client_id}&scope=read_write`}
                       className={classes.stripe_connect}
+
                     >
-                      <img src={stripeButton} />
+                      <img src={stripeButton} alt="stripe" />
                     </a>
-                  ))} */}
+                  ))} 
               <Link to={`/user/edit/${user._id}`}>
                 <IconButton aria-label="Edit" color="primary">
                   <Edit />
@@ -134,7 +141,7 @@ export default function Profile() {
           />
         </ListItem>
       </List>
-      {/* <MyOrders /> */}
+       <MyOrders /> 
       <Paper className={classes.auctions} elevation={4}>
         <Typography type="title" color="primary">
           Auctions you bid in
