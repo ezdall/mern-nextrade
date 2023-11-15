@@ -13,7 +13,7 @@ import { readProduct, listRelated } from './api-product';
 import { BASE_URL } from '../axios';
 
 import Suggestions from './suggestions.comp';
-// import AddToCart from '../cart/add-to-cart.comp'
+import AddToCart from '../cart/add-cart.comp';
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -88,7 +88,6 @@ export default function Product() {
       console.log('abort prod.comp');
       abortController.abort();
     };
-
   }, [productId]);
 
   // change related-prod due productId
@@ -104,7 +103,7 @@ export default function Product() {
     });
 
     return () => {
-      console.log('abort prod-related')
+      console.log('abort prod-related');
       abortController.abort();
     };
   }, [productId]);
@@ -112,6 +111,8 @@ export default function Product() {
   const imageUrl = product._id
     ? `${BASE_URL}/api/product/image/${product._id}?${new Date().getTime()}`
     : `${BASE_URL}/api/products/defaultphoto`;
+
+  if (error) return <p>Error!!..</p>;
 
   return (
     <div className={classes.root}>
@@ -123,7 +124,7 @@ export default function Product() {
               subheader={product.quantity > 0 ? 'In Stock' : 'Out of Stock'}
               action={
                 <span className={classes.action}>
-                  {/* <AddToCart cartStyle={classes.addCart} item={product}/> */}
+                  <AddToCart cartStyle={classes.addCart} item={product} />
                 </span>
               }
             />

@@ -13,9 +13,8 @@ import FileUpload from '@material-ui/icons/AddPhotoAlternate';
 import Grid from '@material-ui/core/Grid';
 
 import { readShop, updateShop } from './api-shop';
-import auth from '../auth/auth-helper';
 import { BASE_URL } from '../axios';
-import MyProducts from '../product/my-products.comp'
+import MyProducts from '../product/my-products.comp';
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -63,7 +62,6 @@ const useStyles = makeStyles(theme => ({
 export default function EditShop() {
   const navigate = useNavigate();
   const params = useParams();
-  const jwt = auth.isAuthenticated();
 
   const classes = useStyles();
 
@@ -87,16 +85,16 @@ export default function EditShop() {
       signal
     ).then(data => {
       if (data.isAxiosError) {
-        return setValues({ ...values, error: data.message });
+        return setValues(v => ({ ...v, error: data.message }));
       }
-      console.log({data})
-      return setValues({
-        ...values,
+      console.log({ data });
+      return setValues(v => ({
+        ...v,
         id: data._id,
         name: data.name,
         description: data.description,
         owner: data.owner.name
-      });
+      }));
     });
 
     return () => {
@@ -130,7 +128,7 @@ export default function EditShop() {
     if (description) shopData.append('description', description);
     if (image) shopData.append('image', image);
 
-    return updateShop({ shopId: params.shopId}, shopData)
+    return updateShop({ shopId: params.shopId }, shopData)
       .then(data => {
         if (data.isAxiosError) {
           return setValues({ ...values, error: data.message });
@@ -234,7 +232,7 @@ export default function EditShop() {
           </Card>
         </Grid>
         <Grid item xs={6} sm={6}>
-           <MyProducts shopId={params.shopId}/> 
+          <MyProducts shopId={params.shopId} />
         </Grid>
       </Grid>
     </div>

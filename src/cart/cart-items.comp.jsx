@@ -94,7 +94,7 @@ const useStyles = makeStyles(theme => ({
 }));
 
 export default function CartItems(props) {
-  const location = useLocation()
+  const location = useLocation();
 
   const { checkout, setCheckout } = props;
 
@@ -103,21 +103,20 @@ export default function CartItems(props) {
 
   // console.log(cartItems)
 
-  const handleChange = (prodId) => event => {
+  const handleChange = prodId => event => {
     const { value } = event.target;
-    // console.log('handleChange')
 
-    const updatedCartItems = cartItems.map(item => {
-      if(item._id === prodId){
-        if(value === 0){
-          return {...item, quantity: 1}
+    const updatedCartItems = cartItems.map(c => {
+      if (c.id === prodId) {
+        if (value === 0) {
+          return { ...c, quantity: 1 };
         }
-        return {...item, quantity: Number(value) }
+        return { ...c, quantity: Number(value) };
       }
-      return item
-    })
+      return c;
+    });
 
-    setCartItems(updatedCartItems)
+    setCartItems(updatedCartItems);
 
     cart.updateCart(prodId, Number(value));
   };
@@ -128,7 +127,7 @@ export default function CartItems(props) {
     }, 0);
   };
 
-  const removeItem = (index, prodId) => ev => {
+  const removeItem = (index, prodId) => () => {
     const updatedCartItems = cart.removeItem(index, prodId);
 
     if (updatedCartItems.length === 0) {
@@ -187,7 +186,7 @@ export default function CartItems(props) {
                       </div>
                     </CardContent>
                     <div className={classes.subheading}>
-                      Quantity: 
+                      Quantity:
                       <TextField
                         value={item.quantity}
                         onChange={handleChange(item.product._id)}
@@ -227,7 +226,7 @@ export default function CartItems(props) {
                   Checkout
                 </Button>
               ) : (
-                <Link to="/login" state={{from:location}} >
+                <Link to="/login" state={{ from: location }}>
                   <Button color="primary" variant="contained">
                     Sign in to checkout
                   </Button>

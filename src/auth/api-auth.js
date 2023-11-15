@@ -2,14 +2,10 @@ import axios from '../axios';
 
 export const login = async user => {
   try {
-    const response = await axios.post('/auth/login', user, {
-      // withCredentials: true, // you want to receive cookie
-    });
+    const response = await axios.post('/auth/login', user);
 
-    // console.log({ response });
     return response.data;
   } catch (err) {
-    // console.log(err);
     return err;
   }
 };
@@ -20,7 +16,6 @@ export const logout = async () => {
 
     return response.data;
   } catch (err) {
-    // console.log(err);
     return err;
   }
 };

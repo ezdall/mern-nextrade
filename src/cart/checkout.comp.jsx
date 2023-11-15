@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 
 import { makeStyles } from '@material-ui/core/styles';
 import Card from '@material-ui/core/Card';
@@ -6,7 +6,7 @@ import TextField from '@material-ui/core/TextField';
 import Typography from '@material-ui/core/Typography';
 import Icon from '@material-ui/core/Icon';
 
-import PlaceOrder from './place-order.comp'
+import PlaceOrder from './place-order.comp';
 import auth from '../auth/auth-helper';
 import cart from './cart-helper';
 
@@ -45,7 +45,7 @@ const useStyles = makeStyles(theme => ({
 
 export default function Checkout() {
   const classes = useStyles();
-  
+
   const { user } = auth.isAuthenticated();
 
   const [values, setValues] = useState({
@@ -68,17 +68,26 @@ export default function Checkout() {
     const { value, name } = event.target;
     const { checkoutDetails } = values;
 
+    setValues({ ...values, error: '' });
+
     checkoutDetails[name] = value;
-    setValues({ ...values, checkoutDetails  });
+    setValues({ ...values, checkoutDetails });
   };
 
   const handleAddressChange = event => {
     const { value, name } = event.target;
     const { checkoutDetails } = values; // || undefined
 
+    setValues({ ...values, error: '' });
+
     // mutating
     checkoutDetails.delivery_address[name] = value; // || undefined
-    setValues({ ...values,  checkoutDetails });
+    setValues({ ...values, checkoutDetails });
+  };
+
+  const handleError = ev => {
+    console.log({ ev });
+    setValues({ ...values, error: 'valid fields are required!' });
   };
 
   return (
@@ -87,6 +96,7 @@ export default function Checkout() {
         Checkout
       </Typography>
       <TextField
+        error={!!values.error}
         id="name"
         label="Name"
         className={classes.textField}
@@ -97,6 +107,7 @@ export default function Checkout() {
       />
       <br />
       <TextField
+        error={!!values.error}
         id="email"
         type="email"
         label="Email"
@@ -115,6 +126,8 @@ export default function Checkout() {
         Delivery Address
       </Typography>
       <TextField
+        error={!!values.error}
+        autoFocus
         id="street"
         label="Street Address"
         className={classes.streetField}
@@ -125,6 +138,7 @@ export default function Checkout() {
       />
       <br />
       <TextField
+        error={!!values.error}
         id="city"
         label="City"
         className={classes.addressField}
@@ -144,6 +158,7 @@ export default function Checkout() {
       />
       <br />
       <TextField
+        error={!!values.error}
         id="zipcode"
         label="Zip Code"
         className={classes.addressField}
@@ -153,6 +168,7 @@ export default function Checkout() {
         margin="normal"
       />
       <TextField
+        error={!!values.error}
         id="country"
         label="Country"
         className={classes.addressField}
@@ -171,7 +187,10 @@ export default function Checkout() {
         </Typography>
       )}
       <div>
-        <PlaceOrder checkoutDetails={values.checkoutDetails} />
+        <PlaceOrder
+          onError={handleError}
+          checkoutDetails={values.checkoutDetails}
+        />
       </div>
     </Card>
   );

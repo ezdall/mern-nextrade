@@ -3,12 +3,11 @@ import { Link } from 'react-router-dom';
 import { makeStyles } from '@material-ui/core/styles';
 
 import Typography from '@material-ui/core/Typography';
-import GridList from '@material-ui/core/GridList';
 import ImageList from '@material-ui/core/ImageList';
 import ImageListItem from '@material-ui/core/ImageListItem';
 import ImageListItemBar from '@material-ui/core/ImageListItemBar';
 
-import AddToCart from '../cart/add-cart.comp'
+import AddToCart from '../cart/add-cart.comp';
 
 import { BASE_URL } from '../axios';
 
@@ -86,7 +85,7 @@ export default function Products(props) {
                     </Link>
                   }
                   subtitle={<span>$ {product.price}</span>}
-                  actionIcon={ <AddToCart item={product}/> }
+                  actionIcon={<AddToCart item={product} />}
                 />
               </ImageListItem>
             ))}

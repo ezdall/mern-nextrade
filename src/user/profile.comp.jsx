@@ -22,7 +22,6 @@ import { handleAxiosError } from '../axios';
 
 import { read } from './api-user';
 
-// import config from './../../config/config';
 import stripeButton from '../assets/images/stripeButton.png';
 import MyOrders from '../order/my-orders.comp';
 
@@ -56,15 +55,12 @@ export default function Profile() {
   const classes = useStyles();
   const navigate = useNavigate();
   const params = useParams();
-  const location = useLocation()
+  const location = useLocation();
 
-  // const match = undefined;
-
-  const { user:authUser, accessToken } = auth.isAuthenticated();
+  const { user: authUser } = auth.isAuthenticated();
 
   const [user, setUser] = useState({});
   const [isError, setIsError] = useState(false);
-
 
   useEffect(() => {
     const abortController = new AbortController();
@@ -72,25 +68,26 @@ export default function Profile() {
 
     setIsError(false);
 
-    read({ userId: params.userId }, signal, accessToken).then(data => {
-      if (data?.isAxiosError) {
-        handleAxiosError(data, ()=> navigate('/login', { replace: true, state:{from:location} }));
-        return setIsError(true);
-      }
+    read({ userId: params.userId }, signal)
+      .then(data => {
+        if (data?.isAxiosError) {
+          handleAxiosError(data, () =>
+            navigate('/login', { replace: true, state: { from: location } })
+          );
+          return setIsError(true);
+        }
 
-      console.log({ data });
-      return setUser(data.user);
-    })
-    .catch(err => setIsError(true))
+        console.log({ data });
+        return setUser(data.user);
+      })
+      .catch(err => setIsError(true));
 
     return () => abortController.abort();
-  }, [navigate, params.userId]);
+  }, [location, navigate, params.userId]);
 
-  // console.log(user);
+  if (isError) return <p>Error...</p>;
 
-  if(isError) return <p>Error...</p>
-
-  if(!user) return <p>Loading...</p>
+  if (!user) return <p>Loading...</p>;
 
   return (
     <Paper className={classes.root} elevation={4}>
@@ -108,23 +105,22 @@ export default function Profile() {
           {authUser && String(authUser._id) === String(user._id) && (
             <ListItemSecondaryAction>
               {user.seller &&
-                  (user.stripe_seller ? (
-                    <Button
-                      variant="contained"
-                      disabled
-                      className={classes.stripe_connected}
-                    >
-                      Stripe connected
-                    </Button>
-                  ) : (
-                    <a
-                      // href={`https://connect.stripe.com/oauth/authorize?response_type=code&client_id=${config.stripe_connect_test_client_id}&scope=read_write`}
-                      className={classes.stripe_connect}
-
-                    >
-                      <img src={stripeButton} alt="stripe" />
-                    </a>
-                  ))} 
+                (user.stripe_seller ? (
+                  <Button
+                    variant="contained"
+                    disabled
+                    className={classes.stripe_connected}
+                  >
+                    Stripe connected
+                  </Button>
+                ) : (
+                  <a
+                    // href={`https://connect.stripe.com/oauth/authorize?response_type=code&client_id=${config.stripe_connect_test_client_id}&scope=read_write`}
+                    className={classes.stripe_connect}
+                  >
+                    <img src={stripeButton} alt="stripe" />
+                  </a>
+                ))}
               <Link to={`/user/edit/${user._id}`}>
                 <IconButton aria-label="Edit" color="primary">
                   <Edit />
@@ -142,7 +138,7 @@ export default function Profile() {
           />
         </ListItem>
       </List>
-       <MyOrders /> 
+      <MyOrders />
       <Paper className={classes.auctions} elevation={4}>
         <Typography type="title" color="primary">
           Auctions you bid in
@@ -152,4 +148,4 @@ export default function Profile() {
   );
 }
 
-//   
+//

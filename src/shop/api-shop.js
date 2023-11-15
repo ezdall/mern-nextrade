@@ -5,8 +5,6 @@ const { accessToken } = auth.isAuthenticated();
 
 // obj:params, str:accesstoken, shop:shopData
 export const createShop = (params, shop) => {
-  // const accessToken1 = auth.isAuthenticated().accessToken
-
   return axios
     .post(`/api/shops/by/${params.userId}`, shop, {
       headers: {
@@ -17,7 +15,7 @@ export const createShop = (params, shop) => {
       return resp.data;
     })
     .catch(err => {
-      console.log(err)
+      console.log(err);
       return err;
     });
 };
@@ -36,8 +34,6 @@ export const readShop = async (params, signal) => {
 
 export const updateShop = async (params, shop) => {
   try {
-    // const accessToken1 = auth.isAuthenticated().accessToken
-
     const response = await axios.patch(`/api/shops/${params.shopId}`, shop, {
       headers: {
         authorization: `Bearer ${accessToken}`
@@ -75,14 +71,12 @@ export const list = async signal => {
   }
 };
 
-export const listByOwner = async (params, signal, accessToken1) => {
+export const listByOwner = async (params, signal) => {
   try {
-    const accessToken2 = auth.isAuthenticated().accessToken
-
     const response = await axios.get(`/api/shops/by/${params.userId}`, {
       signal,
       headers: {
-        authorization: `Bearer ${accessToken2}`
+        authorization: `Bearer ${accessToken}`
       }
     });
 

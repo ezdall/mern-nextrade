@@ -1,19 +1,24 @@
-import {useState, useEffect} from 'react'
+import { useState, useEffect } from 'react';
 // import PropTypes from 'prop-types'
 
-import {makeStyles} from '@material-ui/core/styles'
-import List from '@material-ui/core/List'
-import ListItem from '@material-ui/core/ListItem'
-import ListItemText from '@material-ui/core/ListItemText'
-import Typography from '@material-ui/core/Typography'
-import MenuItem from '@material-ui/core/MenuItem'
-import TextField from '@material-ui/core/TextField'
-import Divider from '@material-ui/core/Divider'
+import { makeStyles } from '@material-ui/core/styles';
+import List from '@material-ui/core/List';
+import ListItem from '@material-ui/core/ListItem';
+import ListItemText from '@material-ui/core/ListItemText';
+import Typography from '@material-ui/core/Typography';
+import MenuItem from '@material-ui/core/MenuItem';
+import TextField from '@material-ui/core/TextField';
+import Divider from '@material-ui/core/Divider';
 
-import auth from '../auth/auth-helper'
+import auth from '../auth/auth-helper';
 
-import {getStatusValues, update, cancelOrder, processCharge} from './api-order'
-import {BASE_URL, handleAxiosError} from '../axios'
+import {
+  getStatusValues,
+  update,
+  cancelOrder,
+  processCharge
+} from './api-order';
+import { BASE_URL, handleAxiosError } from '../axios';
 
 const useStyles = makeStyles(theme => ({
   nested: {
@@ -26,7 +31,7 @@ const useStyles = makeStyles(theme => ({
     marginRight: '10px'
   },
   listDetails: {
-    display: "inline-block"
+    display: 'inline-block'
   },
   listQty: {
     margin: 0,
@@ -43,166 +48,186 @@ const useStyles = makeStyles(theme => ({
     right: '5px',
     padding: '5px'
   }
-}))
-export default function ProductOrderEdit (props){
-  const {updateOrders, shopId, order, orderIndex } = props
+}));
+export default function ProductOrderEdit(props) {
+  const { updateOrders, shopId, order, orderIndex } = props;
 
-  const classes = useStyles()
+  const classes = useStyles();
   const [values, setValues] = useState({
-      open: 0,
-      statusValues: [],
-      error: ''
-  })
-  const jwt = auth.isAuthenticated()
+    open: 0,
+    statusValues: [],
+    error: ''
+  });
+  const jwt = auth.isAuthenticated();
   useEffect(() => {
-    const abortController = new AbortController()
-    const {signal} = abortController
+    const abortController = new AbortController();
+    const { signal } = abortController;
 
-    getStatusValues(signal).then((data) => {
+    getStatusValues(signal).then(data => {
       // console.log({data})
       if (data.isAxiosError) {
-        handleAxiosError(data)
-        setValues({...values, error: "Could not get status"})
+        handleAxiosError(data);
+        setValues({ ...values, error: 'Could not get status' });
       } else {
-        setValues({...values, statusValues: data, error: ''})
+        setValues({ ...values, statusValues: data, error: '' });
       }
-    })
-    return ()=>{
-      abortController.abort()
-    }
-  }, [])
+    });
+    return () => {
+      console.log('order-edit');
+      abortController.abort();
+    };
+  }, [values]);
 
   const handleStatusChange = productIndex => event => {
-    const { value } = event.target
+    const { value } = event.target;
 
-    order.products[productIndex].status = value
-    const product = order.products[productIndex]
+    order.products[productIndex].status = value;
+    const product = order.products[productIndex];
 
-    if (event.target.value === "Cancelled") {
-
-      cancelOrder({
+    if (event.target.value === 'Cancelled') {
+      cancelOrder(
+        {
           shopId,
           productId: product.product._id
-        }, {
+        },
+        {
           cartItemId: product._id,
           status: value,
           quantity: product.quantity
-        })
-        .then((data) => {
-          if (data.isAxiosError) {
-            setValues({
-              ...values,
-              error: "Status not updated, try again"
-            })
-          } else {
-            updateOrders(orderIndex, order)
-            setValues({
-              ...values,
-              error: ''
-            })
-          }
-        })
-
-    } else if (event.target.value === "Processing") {
-      processCharge({
+        }
+      ).then(data => {
+        if (data.isAxiosError) {
+          setValues({
+            ...values,
+            error: 'Status not updated, try again'
+          });
+        } else {
+          updateOrders(orderIndex, order);
+          setValues({
+            ...values,
+            error: ''
+          });
+        }
+      });
+    } else if (event.target.value === 'Processing') {
+      processCharge(
+        {
           userId: jwt.user._id,
           shopId,
           orderId: order._id
-        }, {
+        },
+        {
           cartItemId: product._id,
           status: value,
-          amount: (product.quantity * product.product.price)
-        })
-        .then((data) => {
-          if (data.isAxiosError) {
-            setValues({
-              ...values,
-              error: "Status not updated, try again"
-            })
-          } else {
-            updateOrders(orderIndex, order)
-            setValues({
-              ...values,
-              error: ''
-            })
-          }
-        })
-        // delivered?
+          amount: product.quantity * product.product.price
+        }
+      ).then(data => {
+        if (data.isAxiosError) {
+          setValues({
+            ...values,
+            error: 'Status not updated, try again'
+          });
+        } else {
+          updateOrders(orderIndex, order);
+          setValues({
+            ...values,
+            error: ''
+          });
+        }
+      });
+      // delivered?
     } else {
-      update({
+      update(
+        {
           shopId
-        }, {
+        },
+        {
           cartItemId: product._id,
           status: value
-        })
-        .then((data) => {
-          console.log({data1:data})
-          if (data.isAxiosError) {
-            setValues({
-              ...values,
-              error: "Status not updated, try again"
-            })
-          } else {
-            updateOrders(orderIndex, order)
-            setValues({
-              ...values,
-              error: ''
-            })
-          }
-        })
+        }
+      ).then(data => {
+        console.log({ data1: data });
+        if (data.isAxiosError) {
+          setValues({
+            ...values,
+            error: 'Status not updated, try again'
+          });
+        } else {
+          updateOrders(orderIndex, order);
+          setValues({
+            ...values,
+            error: ''
+          });
+        }
+      });
     }
-  }
+  };
 
-  console.log({values})
-  console.log({products:order.products})
+  console.log({ values });
+  console.log({ products: order.products });
 
-    return (
+  return (
     <div>
-      <Typography component="span" color="error" className={classes.statusMessage}>
+      <Typography
+        component="span"
+        color="error"
+        className={classes.statusMessage}
+      >
         {values.error}
       </Typography>
-      <List disablePadding style={{backgroundColor:'#f8f8f8'}}>
+      <List disablePadding style={{ backgroundColor: '#f8f8f8' }}>
         {order.products.map((item, index) => {
-
-          return <span key={item._id}>
-                  { item.shop === shopId &&
-                    <ListItem button className={classes.nested}>
-                      <ListItemText
-                        primary={<div>
-                                    <img className={classes.listImg} src={`${BASE_URL}/api/product/image/${item.product._id}`} alt="product"/>
-                                    <div className={classes.listDetails}>
-                                      {item.product.name}
-                                      <p className={classes.listQty}>{`Quantity: ${item.quantity}`}</p>
-                                    </div>
-                                  </div>}/>
-                      <TextField
-                        error={Boolean(values.error)}
-                        id="select-status"
-                        select
-                        label="Update Status"
-                        className={classes.textField}
-                        value={item.status}
-                        onChange={handleStatusChange(index)}
-                        SelectProps={{
-                          MenuProps: {
-                            className: classes.menu,
-                          },
-                        }}
-                        margin="normal"
-                      >
-                        {values.statusValues.map(option => (
-                          <MenuItem key={option} value={option}>
-                            {option}
-                          </MenuItem>
-                        ))}
-                      </TextField>
-                    </ListItem>
-                  }
-                  <Divider style={{margin: 'auto', width: "80%"}}/>
-                </span>})
-              }
+          return (
+            <span key={item._id}>
+              {item.shop === shopId && (
+                <ListItem button className={classes.nested}>
+                  <ListItemText
+                    primary={
+                      <div>
+                        <img
+                          className={classes.listImg}
+                          src={`${BASE_URL}/api/product/image/${item.product._id}`}
+                          alt="product"
+                        />
+                        <div className={classes.listDetails}>
+                          {item.product.name}
+                          <p
+                            className={classes.listQty}
+                          >{`Quantity: ${item.quantity}`}</p>
+                        </div>
+                      </div>
+                    }
+                  />
+                  <TextField
+                    error={Boolean(values.error)}
+                    id="select-status"
+                    select
+                    label="Update Status"
+                    className={classes.textField}
+                    value={values.statusValues.length ? item.status : ''}
+                    onChange={handleStatusChange(index)}
+                    SelectProps={{
+                      MenuProps: {
+                        className: classes.menu
+                      }
+                    }}
+                    margin="normal"
+                  >
+                    {values.statusValues.map(option => (
+                      <MenuItem key={option} value={option}>
+                        {option}
+                      </MenuItem>
+                    ))}
+                  </TextField>
+                </ListItem>
+              )}
+              <Divider style={{ margin: 'auto', width: '80%' }} />
+            </span>
+          );
+        })}
       </List>
-    </div>)
+    </div>
+  );
 }
 // ProductOrderEdit.propTypes = {
 //   shopId: PropTypes.string.isRequired,

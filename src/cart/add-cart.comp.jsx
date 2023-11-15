@@ -1,8 +1,7 @@
-import { useState } from 'react';
+// import PropTypes from 'prop-types'
 import { useNavigate } from 'react-router-dom';
 import { makeStyles } from '@material-ui/core/styles';
 
-// import PropTypes from 'prop-types'
 import IconButton from '@material-ui/core/IconButton';
 import AddCartIcon from '@material-ui/icons/AddShoppingCart';
 import DisabledCartIcon from '@material-ui/icons/RemoveShoppingCart';
@@ -26,11 +25,9 @@ export default function AddToCart(props) {
   const navigate = useNavigate();
 
   const classes = useStyles();
-  const [redirect, setRedirect] = useState(false);
 
   const addToCart = () => {
     cart.addItem(item, () => {
-      // setRedirect({redirect:true})
       navigate('/cart');
     });
   };

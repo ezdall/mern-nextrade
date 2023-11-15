@@ -10,7 +10,6 @@ import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
 import ListItemText from '@material-ui/core/ListItemText';
 import Avatar from '@material-ui/core/Avatar';
 import IconButton from '@material-ui/core/IconButton';
-import Icon from '@material-ui/core/Icon';
 import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
 import Edit from '@material-ui/icons/Edit';
@@ -47,7 +46,9 @@ const useStyles = makeStyles(theme => ({
 
 export default function NewShop() {
   const navigate = useNavigate();
-  const { user:{_id: userId }, accessToken} = auth.isAuthenticated();
+  const {
+    user: { _id: userId }
+  } = auth.isAuthenticated();
 
   const classes = useStyles();
 
@@ -61,12 +62,12 @@ export default function NewShop() {
     const abortController = new AbortController();
     const { signal } = abortController;
 
-    listByOwner({ userId }, signal, accessToken).then(data => {
+    listByOwner({ userId }, signal).then(data => {
       if (data?.isAxiosError) {
         return handleAxiosError(data, () =>
           navigate('/login', { replace: true })
         );
-        // return setIsError(true)
+        // return setIsError(true);
       }
       console.log({ data });
       return setShops(data);

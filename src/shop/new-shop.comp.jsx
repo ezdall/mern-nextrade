@@ -8,7 +8,6 @@ import CardContent from '@material-ui/core/CardContent';
 import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
 import Typography from '@material-ui/core/Typography';
-import Icon from '@material-ui/core/Icon';
 import FileUpload from '@material-ui/icons/AddPhotoAlternate';
 
 import { createShop } from './api-shop';
@@ -87,9 +86,9 @@ export default function NewShop() {
     if (description) shopData.append('description', description);
     if (image) shopData.append('image', image);
 
-    return createShop({userId: authUser._id},shopData)
+    return createShop({ userId: authUser._id }, shopData)
       .then(data => {
-        console.log({data});
+        console.log({ data });
         if (data?.isAxiosError) {
           return setValues({ ...values, error: data.message });
         }

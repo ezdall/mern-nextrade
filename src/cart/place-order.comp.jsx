@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 // import PropTypes from 'prop-types'
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
 
 import { makeStyles } from '@material-ui/core/styles';
@@ -43,7 +43,7 @@ const useStyles = makeStyles(() => ({
 }));
 
 export default function PlaceOrder(props) {
-  const { checkoutDetails } = props;
+  const { checkoutDetails, onError } = props;
 
   const stripe = useStripe();
   const elements = useElements();
@@ -55,56 +55,66 @@ export default function PlaceOrder(props) {
   const [values, setValues] = useState({
     order: {},
     error: '',
-    redirect: false,
     orderId: ''
   });
 
   const placeOrder = event => {
     event.preventDefault();
 
-    const {products, customer_name, customer_email, delivery_address} = checkoutDetails
-   
-    const {street, city, state, zipcode, country} = delivery_address
+    const {
+      products,
+      customer_name,
+      customer_email,
+      delivery_address
+    } = checkoutDetails;
 
-    if(!Array.isArray(products) 
-      || !customer_name 
-      || !customer_email
-      || !street
-      || !city
-      || !zipcode
-      || !country
-      ){
-      return setValues({...values, error: 'lack of info'})
+    const { street, city, zipcode, country } = delivery_address;
+
+    if (
+      !Array.isArray(products) ||
+      !customer_name ||
+      !customer_email ||
+      !street ||
+      !city ||
+      !zipcode ||
+      !country
+    ) {
+      return onError();
+      // return setValues({ ...values, error: 'lack of info' });
     }
 
     if (!elements || !stripe) {
-      return setValues({...values, error: 'no stripe yet'})
+      return setValues({ ...values, error: 'no stripe yet' });
     }
 
-    return stripe.createToken(elements.getElement(CardElement))
-     .then(payload => {
-      // console.log({payload})
+    return stripe
+      .createToken(elements.getElement(CardElement))
+      .then(payload => {
+        // console.log({payload})
 
-    if(payload.error){
-      setValues({...values, error: payload.error.message})
-    } else{
-      const jwt = auth.isAuthenticated()
-
-      createOrder({userId: jwt.user._id}, checkoutDetails, payload.token.id)
-      .then(data => {
-        
-        if (data?.isAxiosError) {
-          handleAxiosError(data)
-          setValues({...values, error: data.message})
+        if (payload.error) {
+          setValues({ ...values, error: payload.error.message });
         } else {
-          cart.emptyCart(()=> {
-            setValues({...values, orderId: data._id, redirect: true})
-            navigate(`/order/${values.orderId}`)
-          })
+          const jwt = auth.isAuthenticated();
+
+          createOrder(
+            { userId: jwt.user._id },
+            checkoutDetails,
+            payload.token.id
+          ).then(data => {
+            if (data?.isAxiosError) {
+              handleAxiosError(data);
+              setValues({ ...values, error: data.message });
+            } else {
+              cart.emptyCart(() => {
+                setValues({ ...values, orderId: data._id });
+                // console.log({data})
+                navigate(`/order/${data._id}`);
+              });
+            }
+          });
         }
-      })
-    }
-    })
+      });
   };
 
   return (
@@ -116,45 +126,42 @@ export default function PlaceOrder(props) {
       >
         Card details
       </Typography>
-        <CardElement
-          className={classes.StripeElement}
-          {...{style: {
-                        base: {
-                          color: '#424770',
-                          letterSpacing: '0.025em',
-                          fontFamily: 'Source Code Pro, Menlo, monospace',
-                          '::placeholder': {
-                            color: '#aab7c4',
-                          },
-                        },
-                        invalid: {
-                          color: '#9e2146',
-                        },
-                      }
-          }}
-        />
-        <div className={classes.checkout}>
-          {values.error && (
-            <Typography
-              component="span"
-              color="error"
-              className={classes.error}
-            >
-              <Icon color="error" className={classes.errorIcon}>
-                error
-              </Icon>
-              {values.error}
-            </Typography>
-          )}
-          <Button
-            disabled={!stripe || !elements}
-            color="secondary"
-            variant="contained"
-            onClick={placeOrder}
-          >
-            Place Order
-          </Button>
-        </div>
+      <CardElement
+        className={classes.StripeElement}
+        {...{
+          style: {
+            base: {
+              color: '#424770',
+              letterSpacing: '0.025em',
+              fontFamily: 'Source Code Pro, Menlo, monospace',
+              '::placeholder': {
+                color: '#aab7c4'
+              }
+            },
+            invalid: {
+              color: '#9e2146'
+            }
+          }
+        }}
+      />
+      <div className={classes.checkout}>
+        {values.error && (
+          <Typography component="span" color="error" className={classes.error}>
+            <Icon color="error" className={classes.errorIcon}>
+              error
+            </Icon>
+            {values.error}
+          </Typography>
+        )}
+        <Button
+          disabled={!stripe || !elements}
+          color="secondary"
+          variant="contained"
+          onClick={placeOrder}
+        >
+          Place Order
+        </Button>
+      </div>
     </span>
   );
 }

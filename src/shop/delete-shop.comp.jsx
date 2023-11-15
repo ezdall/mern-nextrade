@@ -10,7 +10,6 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 
-import auth from '../auth/auth-helper';
 import { removeShop } from './api-shop';
 import { handleAxiosError } from '../axios';
 
@@ -20,11 +19,8 @@ export default function DeleteShop(props) {
 
   const [open, setOpen] = useState(false);
 
-  const jwt = auth.isAuthenticated();
-
   const clickButton = () => {
     setOpen(true);
-    // dialogRef.current.open()
   };
 
   const deleteShop = () => {
@@ -36,13 +32,12 @@ export default function DeleteShop(props) {
         return handleAxiosError(data);
       }
       setOpen(false);
-      // dialogRef.current.close()
+
       return onRemoveShop(shop);
     });
   };
 
   const handleRequestClose = () => {
-    // dialogRef.current.close()
     setOpen(false);
   };
 
@@ -52,8 +47,6 @@ export default function DeleteShop(props) {
         <DeleteIcon />
       </IconButton>
 
-      {/*  replace with useRef */}
-      {/* dialog box open={open} */}
       <Dialog ref={dialogRef} open={open} onClose={handleRequestClose}>
         <DialogTitle>{`Delete ${shop.name}`}</DialogTitle>
         <DialogContent>

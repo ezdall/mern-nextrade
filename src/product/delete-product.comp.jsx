@@ -1,50 +1,50 @@
-import {useState} from 'react'
+import { useState } from 'react';
 // import PropTypes from 'prop-types'
 
-import IconButton from '@material-ui/core/IconButton'
-import Button from '@material-ui/core/Button'
-import DeleteIcon from '@material-ui/icons/Delete'
-import Dialog from '@material-ui/core/Dialog'
-import DialogActions from '@material-ui/core/DialogActions'
-import DialogContent from '@material-ui/core/DialogContent'
-import DialogContentText from '@material-ui/core/DialogContentText'
-import DialogTitle from '@material-ui/core/DialogTitle'
+import IconButton from '@material-ui/core/IconButton';
+import Button from '@material-ui/core/Button';
+import DeleteIcon from '@material-ui/icons/Delete';
+import Dialog from '@material-ui/core/Dialog';
+import DialogActions from '@material-ui/core/DialogActions';
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogContentText from '@material-ui/core/DialogContentText';
+import DialogTitle from '@material-ui/core/DialogTitle';
 
-import auth from '../auth/auth-helper'
-import { removeProduct } from './api-product'
+import auth from '../auth/auth-helper';
+import { removeProduct } from './api-product';
 
 export default function DeleteProduct(props) {
-  const {shopId, product, onRemoveProduct} = props
+  const { shopId, product, onRemoveProduct } = props;
 
-  const [open, setOpen] = useState(false)
-  
-  const jwt = auth.isAuthenticated()
+  const [open, setOpen] = useState(false);
+
+  const jwt = auth.isAuthenticated();
 
   const clickButton = () => {
-    setOpen(true)
-  }
+    setOpen(true);
+  };
 
   const deleteProduct = () => {
     removeProduct({
       shopId,
       productId: product._id
-    }).then((data) => {
+    }).then(data => {
       if (data.error) {
-        return console.log(data.error)
-      } 
+        return console.log(data.error);
+      }
 
-        setOpen(false)
-       return onRemoveProduct(product)
-      
-    })
-  }
+      setOpen(false);
+      return onRemoveProduct(product);
+    });
+  };
   const handleRequestClose = () => {
-    setOpen(false)
-  }
+    setOpen(false);
+  };
 
-    return (<span>
+  return (
+    <span>
       <IconButton aria-label="Delete" onClick={clickButton} color="secondary">
-        <DeleteIcon/>
+        <DeleteIcon />
       </IconButton>
       <Dialog open={open} onClose={handleRequestClose}>
         <DialogTitle>{`Delete ${product.name}`}</DialogTitle>
@@ -57,17 +57,20 @@ export default function DeleteProduct(props) {
           <Button onClick={handleRequestClose} color="primary">
             Cancel
           </Button>
-          <Button onClick={deleteProduct} color="secondary" autoFocus="autoFocus">
+          <Button
+            onClick={deleteProduct}
+            color="secondary"
+            autoFocus="autoFocus"
+          >
             Confirm
           </Button>
         </DialogActions>
       </Dialog>
-    </span>)
-
+    </span>
+  );
 }
 // DeleteProduct.propTypes = {
 //   shopId: PropTypes.string.isRequired,
 //   product: PropTypes.object.isRequired,
 //   onRemove: PropTypes.func.isRequired
 // }
-

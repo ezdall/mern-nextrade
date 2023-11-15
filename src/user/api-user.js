@@ -2,20 +2,21 @@ import axios from '../axios';
 
 import auth from '../auth/auth-helper';
 
-export const createUser = async (user) => {
-  try {
-    const response = await axios.post('/auth/register', user)
+const { accessToken } = auth.isAuthenticated();
 
-    return await response.data
-  } catch(err) {
+export const createUser = async user => {
+  try {
+    const response = await axios.post('/auth/register', user);
+
+    return await response.data;
+  } catch (err) {
     // console.log(err)
-    return err
+    return err;
   }
-}
+};
 
-export const read = async (params, signal, accessToken1) => {
+export const read = async (params, signal) => {
   try {
-    const { accessToken } = auth.isAuthenticated();
     // console.log(accessToken)
 
     const response = await axios.get(`/api/users/${params.userId}`, {
@@ -24,7 +25,7 @@ export const read = async (params, signal, accessToken1) => {
         authorization: `Bearer ${accessToken}`
       }
     });
-    console.log({response})
+    // console.log({response})
     return response.data;
   } catch (err) {
     // console.log(err);
@@ -32,11 +33,8 @@ export const read = async (params, signal, accessToken1) => {
   }
 };
 
-export const updateUser = async (params, user, accessToken1) => {
+export const updateUser = async (params, user) => {
   try {
-    const { accessToken } = auth.isAuthenticated();
-    console.log({accessToken})
-
     const response = await axios.patch(`/api/users/${params.userId}`, user, {
       headers: {
         authorization: `Bearer ${accessToken}`
@@ -50,25 +48,22 @@ export const updateUser = async (params, user, accessToken1) => {
   }
 };
 
-export const removeUser = async (params) => {
+export const removeUser = async params => {
   try {
-    const { accessToken } = auth.isAuthenticated();
-    
     const response = await axios.delete(`/api/users/${params.userId}`, {
       headers: {
         authorization: `Bearer ${accessToken}`
       }
-    })
-    return await response.data
-  } catch(err) {
+    });
+    return await response.data;
+  } catch (err) {
     // console.log(err)
-    return err
+    return err;
   }
-}
+};
 
-export const usersList = async (signal) => {
+export const usersList = async signal => {
   try {
-
     const response = await axios.get('/api/users', {
       signal
     });

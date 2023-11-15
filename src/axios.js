@@ -1,6 +1,7 @@
 import axios from 'axios';
 
-export const BASE_URL = 'http://localhost:3000';
+export const BASE_URL = process.env.REACT_APP_API_URL;
+// 'http://localhost:3000';
 
 export default axios.create({
   baseURL: BASE_URL
@@ -12,7 +13,10 @@ export const axiosPrivate = axios.create({
   withCredentials: true
 });
 
-export const handleAxiosError = (error, cb=()=>console.log('axios default')) => {
+export const handleAxiosError = (
+  error,
+  cb = () => console.log('axios default')
+) => {
   const { response } = error;
 
   if (!response) {
@@ -41,13 +45,5 @@ export const handleAxiosError = (error, cb=()=>console.log('axios default')) => 
       if (typeof window !== 'undefined') sessionStorage.removeItem('jwt');
       cb();
     }
-
-    // setErrCb(axErrMsg);
-    // return;
   }
-
-  // return
-  // axios + mongoose error
-  // error.response.data.error.code === 11000
-  // error.response.data.error.keyValue.email === '...@...'
 };

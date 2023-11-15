@@ -1,22 +1,22 @@
-import React, {useState} from 'react'
-import {Link} from 'react-router-dom'
-import { makeStyles } from '@material-ui/core/styles'
+import { useState } from 'react';
+import { Link } from 'react-router-dom';
+import { makeStyles } from '@material-ui/core/styles';
 
-import Card from '@material-ui/core/Card'
-import CardActions from '@material-ui/core/CardActions'
-import CardContent from '@material-ui/core/CardContent'
-import Button from '@material-ui/core/Button'
-import TextField from '@material-ui/core/TextField'
-import Typography from '@material-ui/core/Typography'
-import Icon from '@material-ui/core/Icon'
-import Dialog from '@material-ui/core/Dialog'
-import DialogActions from '@material-ui/core/DialogActions'
-import DialogContent from '@material-ui/core/DialogContent'
-import DialogContentText from '@material-ui/core/DialogContentText'
-import DialogTitle from '@material-ui/core/DialogTitle'
+import Card from '@material-ui/core/Card';
+import CardActions from '@material-ui/core/CardActions';
+import CardContent from '@material-ui/core/CardContent';
+import Button from '@material-ui/core/Button';
+import TextField from '@material-ui/core/TextField';
+import Typography from '@material-ui/core/Typography';
+import Icon from '@material-ui/core/Icon';
+import Dialog from '@material-ui/core/Dialog';
+import DialogActions from '@material-ui/core/DialogActions';
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogContentText from '@material-ui/core/DialogContentText';
+import DialogTitle from '@material-ui/core/DialogTitle';
 
-import { createUser } from './api-user'
-import { handleAxiosError } from '../axios'
+import { createUser } from './api-user';
+import { handleAxiosError } from '../axios';
 
 const useStyles = makeStyles(theme => ({
   card: {
@@ -42,10 +42,10 @@ const useStyles = makeStyles(theme => ({
     margin: 'auto',
     marginBottom: theme.spacing(2)
   }
-}))
+}));
 
 export default function Signup() {
-  const classes = useStyles()
+  const classes = useStyles();
 
   const [values, setValues] = useState({
     name: '',
@@ -53,48 +53,93 @@ export default function Signup() {
     email: '',
     open: false,
     error: ''
-  })
+  });
 
   const handleChange = event => {
-    const { name, value } = event.target
-    setValues({ ...values, [name]: value })
-  }
+    const { name, value } = event.target;
+    setValues({ ...values, [name]: value });
+  };
 
   const clickSubmit = () => {
     const user = {
       name: values.name || undefined,
       email: values.email || undefined,
       password: values.password || undefined
-    }
+    };
 
-    createUser(user).then((data) => {
+    createUser(user).then(data => {
       if (data?.isAxiosError) {
-        handleAxiosError(data)
-        return setValues({ ...values, error: data.message})
-      } 
-      return setValues({ ...values, error: '', open: true})
-      
-    })
-  }   
-    return (<div>
+        handleAxiosError(data);
+        return setValues({ ...values, error: data.message });
+      }
+      return setValues({ ...values, error: '', open: true });
+    });
+  };
+
+  const handleClose = (e, r) => {
+    console.log({ e, r });
+  };
+
+  return (
+    <div>
       <Card className={classes.card}>
         <CardContent>
           <Typography variant="h6" className={classes.title}>
             Sign Up
           </Typography>
-          <TextField id="name" name="name" label="Name" className={classes.textField} value={values.name} onChange={handleChange} margin="normal"/><br/>
-          <TextField id="email" name="email" type="email" label="Email" className={classes.textField} value={values.email} onChange={handleChange} margin="normal"/><br/>
-          <TextField id="password" name="password" type="password" label="Password" className={classes.textField} value={values.password} onChange={handleChange} margin="normal"/>
-          <br/> 
-          {values.error && (<Typography component="p" color="error">
-              <Icon color="error" className={classes.error}>error</Icon>
-              {values.error}</Typography>)}
+          <TextField
+            id="name"
+            name="name"
+            label="Name"
+            className={classes.textField}
+            value={values.name}
+            onChange={handleChange}
+            margin="normal"
+          />
+          <br />
+          <TextField
+            id="email"
+            name="email"
+            type="email"
+            label="Email"
+            className={classes.textField}
+            value={values.email}
+            onChange={handleChange}
+            margin="normal"
+          />
+          <br />
+          <TextField
+            id="password"
+            name="password"
+            type="password"
+            label="Password"
+            className={classes.textField}
+            value={values.password}
+            onChange={handleChange}
+            margin="normal"
+          />
+          <br />
+          {values.error && (
+            <Typography component="p" color="error">
+              <Icon color="error" className={classes.error}>
+                error
+              </Icon>
+              {values.error}
+            </Typography>
+          )}
         </CardContent>
         <CardActions>
-          <Button color="primary" variant="contained" onClick={clickSubmit} className={classes.submit}>Submit</Button>
+          <Button
+            color="primary"
+            variant="contained"
+            onClick={clickSubmit}
+            className={classes.submit}
+          >
+            Submit
+          </Button>
         </CardActions>
       </Card>
-      <Dialog open={values.open} disableBackdropClick>
+      <Dialog open={values.open} onClose={handleClose}>
         <DialogTitle>New Account</DialogTitle>
         <DialogContent>
           <DialogContentText>
@@ -103,12 +148,12 @@ export default function Signup() {
         </DialogContent>
         <DialogActions>
           <Link to="/login">
-            <Button color="primary" autoFocus="autoFocus" variant="contained">
+            <Button color="primary" autoFocus variant="contained">
               Sign In
             </Button>
           </Link>
         </DialogActions>
       </Dialog>
     </div>
-  )
+  );
 }

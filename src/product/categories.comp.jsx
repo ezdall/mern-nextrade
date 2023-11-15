@@ -82,7 +82,7 @@ export default function Categories(props) {
       return setProducts(data);
     });
 
-    return function cleanup() {
+    return () => {
       console.log('abort cat-list');
       abortController.abort();
     };
@@ -112,7 +112,7 @@ export default function Categories(props) {
         <div className={classes.root}>
           <ImageList className={classes.gridList} cols={4}>
             {categories.length &&
-              categories.map((tile) => (
+              categories.map(tile => (
                 <ImageListItem
                   key={tile}
                   className={classes.tileTitle}

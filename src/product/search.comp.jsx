@@ -1,16 +1,16 @@
-import {useState} from 'react'
+import { useState } from 'react';
 // import PropTypes from 'prop-types'
 
-import {makeStyles} from '@material-ui/core/styles'
-import Card from '@material-ui/core/Card'
-import Divider from '@material-ui/core/Divider'
-import MenuItem from '@material-ui/core/MenuItem'
-import TextField from '@material-ui/core/TextField'
-import Button from '@material-ui/core/Button'
-import SearchIcon from '@material-ui/icons/Search'
+import { makeStyles } from '@material-ui/core/styles';
+import Card from '@material-ui/core/Card';
+import Divider from '@material-ui/core/Divider';
+import MenuItem from '@material-ui/core/MenuItem';
+import TextField from '@material-ui/core/TextField';
+import Button from '@material-ui/core/Button';
+import SearchIcon from '@material-ui/icons/Search';
 
-import {list} from './api-product'
-import Products from './products.comp'
+import { list } from './api-product';
+import Products from './products.comp';
 
 const useStyles = makeStyles(theme => ({
   card: {
@@ -20,7 +20,7 @@ const useStyles = makeStyles(theme => ({
     backgroundColor: '#80808024'
   },
   menu: {
-    width: 200,
+    width: 200
   },
   textField: {
     marginLeft: theme.spacing(1),
@@ -41,89 +41,93 @@ const useStyles = makeStyles(theme => ({
     padding: '0 8px',
     marginBottom: '20px'
   }
-}))
+}));
 
-export default function Search({categories}) {
-
-  const classes = useStyles()
+export default function Search({ categories }) {
+  const classes = useStyles();
   const [values, setValues] = useState({
-      category: '',
-      search: '',
-      results: [],
-      searched: false
-  })
+    category: '',
+    search: '',
+    results: [],
+    searched: false
+  });
 
   const handleChange = event => {
-    const {name, value} = event.target
+    const { name, value } = event.target;
 
-    setValues({...values, [name]: value})
-  }
+    setValues({ ...values, [name]: value });
+  };
 
   const search = () => {
-    if(values.search){
+    if (values.search) {
       list({
-        search: values.search || undefined, category: values.category
-      }).then((data) => {
+        search: values.search || undefined,
+        category: values.category
+      }).then(data => {
         if (data.error) {
-          console.log(data.error)
+          console.log(data.error);
         } else {
-          setValues({...values, results: data, searched:true})
+          setValues({ ...values, results: data, searched: true });
         }
-      })
+      });
     }
-  }
+  };
 
-  const enterKey = (event) => {
-    if(event.keyCode === 13){
-      event.preventDefault()
-      search()
+  const enterKey = event => {
+    if (event.keyCode === 13) {
+      event.preventDefault();
+      search();
     }
-  }
+  };
 
-    return (
-      <div>
-        <Card className={classes.card}>
-          <TextField
-            id="select-category"
-            select
-            label="Select category"
-            className={classes.textField}
-            name="category"
-            value={values.category}
-            onChange={handleChange}
-            SelectProps={{
-              MenuProps: {
-                className: classes.menu,
-              },
-            }}
-            margin="normal">
-            <MenuItem value="All">
-              All
+  return (
+    <div>
+      <Card className={classes.card}>
+        <TextField
+          id="select-category"
+          select
+          label="Select category"
+          className={classes.textField}
+          name="category"
+          value={values.category}
+          onChange={handleChange}
+          SelectProps={{
+            MenuProps: {
+              className: classes.menu
+            }
+          }}
+          margin="normal"
+        >
+          <MenuItem value="All">All</MenuItem>
+          {categories.map(option => (
+            <MenuItem key={option} value={option}>
+              {option}
             </MenuItem>
-            { categories.map(option => (
-              <MenuItem key={option} value={option}>
-                {option}
-              </MenuItem>
-            ))}
-          </TextField>
-          <TextField
-            id="search"
-            label="Search products"
-            type="search"
-            onKeyDown={enterKey}
-            name="search"
-            onChange={handleChange}
-            className={classes.searchField}
-            margin="normal"
-          />
-          <Button variant="contained" color='primary' className={classes.searchButton} onClick={search}>
-            <SearchIcon />
-          </Button>
-          <Divider/>
-          <Products products={values.results} searched={values.searched}/>
-        </Card>
-      </div>
-    )
+          ))}
+        </TextField>
+        <TextField
+          id="search"
+          label="Search products"
+          type="search"
+          onKeyDown={enterKey}
+          name="search"
+          onChange={handleChange}
+          className={classes.searchField}
+          margin="normal"
+        />
+        <Button
+          variant="contained"
+          color="primary"
+          className={classes.searchButton}
+          onClick={search}
+        >
+          <SearchIcon />
+        </Button>
+        <Divider />
+        <Products products={values.results} searched={values.searched} />
+      </Card>
+    </div>
+  );
 }
 // Search.propTypes = {
 //   categories: PropTypes.array.isRequired

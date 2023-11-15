@@ -12,7 +12,7 @@ import { makeStyles } from '@material-ui/core/styles';
 
 import auth from './auth-helper';
 import { login } from './api-auth';
-import { handleAxiosError } from '../axios'
+import { handleAxiosError } from '../axios';
 
 const useStyles = makeStyles(theme => ({
   card: {
@@ -68,15 +68,15 @@ export default function Login() {
       .then(data => {
         // console.log({data})
         if (data.isAxiosError) {
-          console.log({error: data.message})
-          return handleAxiosError(data, ()=> {
-           return setValues({
+          console.log({ error: data.message });
+          return handleAxiosError(data, () => {
+            return setValues({
               ...values,
               email: '',
               password: '',
               error: data.message
             });
-          })
+          });
         }
 
         return auth.authenticate(data, () => {
@@ -106,7 +106,7 @@ export default function Login() {
   };
 
   const handleChange = event => {
-    const {name, value} = event.target
+    const { name, value } = event.target;
     setValues({ ...values, error: '' });
 
     setValues({ ...values, [name]: value });
@@ -126,6 +126,7 @@ export default function Login() {
           className={classes.textField}
           value={values.email}
           onChange={handleChange}
+          // error={values.email === ''}
           required
           margin="normal"
         />
@@ -139,6 +140,7 @@ export default function Login() {
           value={values.password}
           onChange={handleChange}
           required
+          error={values.password}
           margin="normal"
         />
         <br />

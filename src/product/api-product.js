@@ -3,7 +3,7 @@ import queryString from 'query-string';
 import axios from '../axios';
 import auth from '../auth/auth-helper';
 
-const { accessToken } = auth.isAuthenticated()
+const { accessToken } = auth.isAuthenticated();
 
 export const readProduct = async (params, signal) => {
   try {
@@ -19,9 +19,11 @@ export const readProduct = async (params, signal) => {
 
 export const createProduct = async (params, product) => {
   try {
-    const response = await axios.post(`/api/products/by/${params.shopId}`,
-      product, { 
-        headers: { authorization:`Bearer ${accessToken}` }
+    const response = await axios.post(
+      `/api/products/by/${params.shopId}`,
+      product,
+      {
+        headers: { authorization: `Bearer ${accessToken}` }
       }
     );
 
@@ -33,9 +35,11 @@ export const createProduct = async (params, product) => {
 
 export const updateProduct = async (params, product) => {
   try {
-    const response = await axios.patch(`/api/product/${params.shopId}/${params.productId}`,
-      product, { 
-        headers: { authorization:`Bearer ${accessToken}` }
+    const response = await axios.patch(
+      `/api/product/${params.shopId}/${params.productId}`,
+      product,
+      {
+        headers: { authorization: `Bearer ${accessToken}` }
       }
     );
 
@@ -45,19 +49,21 @@ export const updateProduct = async (params, product) => {
   }
 };
 
-export const removeProduct = async (params) => {
+export const removeProduct = async params => {
   try {
-    const response = await axios.delete(`/api/product/${params.shopId}/${params.productId}`, {
-      headers: {
-        authorization: `Bearer ${accessToken}`
+    const response = await axios.delete(
+      `/api/product/${params.shopId}/${params.productId}`,
+      {
+        headers: {
+          authorization: `Bearer ${accessToken}`
+        }
       }
-    })
-    return response.data
-  } catch(err) {
-    return err
+    );
+    return response.data;
+  } catch (err) {
+    return err;
   }
-}
-
+};
 
 export const listLatest = async signal => {
   try {
@@ -113,7 +119,7 @@ export const listByShop = async (params, signal) => {
 
 export const list = async (params, signal) => {
   try {
-    const query = queryString.stringify(params)
+    const query = queryString.stringify(params);
     const response = await axios.get(`/api/products?${query}`, {
       signal
     });

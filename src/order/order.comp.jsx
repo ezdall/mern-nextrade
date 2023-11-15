@@ -1,16 +1,16 @@
-import {useState, useEffect}  from 'react'
-import {Link, useParams} from 'react-router-dom'
+import { useState, useEffect } from 'react';
+import { Link, useParams } from 'react-router-dom';
 
-import {makeStyles} from '@material-ui/core/styles'
-import Card from '@material-ui/core/Card'
-import CardContent from '@material-ui/core/CardContent'
-import CardMedia from '@material-ui/core/CardMedia'
-import Typography from '@material-ui/core/Typography'
-import Grid from '@material-ui/core/Grid'
-import Divider from '@material-ui/core/Divider'
+import { makeStyles } from '@material-ui/core/styles';
+import Card from '@material-ui/core/Card';
+import CardContent from '@material-ui/core/CardContent';
+import CardMedia from '@material-ui/core/CardMedia';
+import Typography from '@material-ui/core/Typography';
+import Grid from '@material-ui/core/Grid';
+import Divider from '@material-ui/core/Divider';
 
-import { readOrder } from './api-order'
-import { handleAxiosError } from '../axios'
+import { readOrder } from './api-order';
+import { handleAxiosError } from '../axios';
 
 const useStyles = makeStyles(theme => ({
   card: {
@@ -18,7 +18,7 @@ const useStyles = makeStyles(theme => ({
     paddingTop: theme.spacing(1),
     paddingBottom: theme.spacing(2),
     flexGrow: 1,
-    margin: 30,
+    margin: 30
   },
   cart: {
     textAlign: 'left',
@@ -27,8 +27,8 @@ const useStyles = makeStyles(theme => ({
   },
   details: {
     display: 'inline-block',
-    width: "100%",
-    padding: "4px"
+    width: '100%',
+    padding: '4px'
   },
   content: {
     flex: '1 0 auto',
@@ -44,7 +44,7 @@ const useStyles = makeStyles(theme => ({
     fontSize: '0.95rem',
     display: 'inline'
   },
-  thanks:{
+  thanks: {
     color: 'rgb(136, 183, 107)',
     fontSize: '0.9rem',
     fontStyle: 'italic'
@@ -97,98 +97,188 @@ const useStyles = makeStyles(theme => ({
     fontWeight: '600',
     verticalAlign: 'bottom'
   }
-}))
+}));
 
 export default function Order() {
-  const params = useParams()
+  const params = useParams();
 
-  const classes = useStyles()
-  const [order, setOrder] = useState({products:[], delivery_address:{}})
+  const classes = useStyles();
+  const [order, setOrder] = useState({ products: [], delivery_address: {} });
 
   useEffect(() => {
-    const abortController = new AbortController()
-    const { signal } = abortController
+    const abortController = new AbortController();
+    const { signal } = abortController;
 
-    readOrder({
-      orderId: params.orderId
-    }, signal)
-    .then((data) => {
-      console.log({data})
+    readOrder(
+      {
+        orderId: params.orderId
+      },
+      signal
+    ).then(data => {
+      console.log({ data });
       if (data.isAxiosError) {
-        handleAxiosError(data)
+        handleAxiosError(data);
         // console.log(data.error)
       } else {
-        setOrder(data)
+        setOrder(data);
       }
-    })
-    return ()=>{
-      console.log('order -read')
-      abortController.abort()
-    }
-  }, [params.orderId])
+    });
+    return () => {
+      console.log('order -read');
+      abortController.abort();
+    };
+  }, [params.orderId]);
 
   const getTotal = () => {
     return order.products.reduce((a, b) => {
-       const quantity = b.status === "Cancelled" ? 0 : b.quantity
-        return a + (quantity*b.product.price)
-    }, 0)
-  }
+      const quantity = b.status === 'Cancelled' ? 0 : b.quantity;
+      return a + quantity * b.product.price;
+    }, 0);
+  };
 
-  if(!order) return <p>Loading</p>
+  if (!order) return <p>Loading...</p>;
 
-    return (
-      <Card className={classes.card}>
-        <Typography type="headline" component="h2" className={classes.title}>
-            Order Details
-        </Typography>
-        <Typography type="subheading" component="h2" className={classes.subheading}>
-            Order Code: <strong>{order._id}</strong> <br/> Placed on {(new Date(order.createdAt)).toDateString()}
-        </Typography><br/>
-        <Grid container spacing={4}>
-            <Grid item xs={7} sm={7}>
-                <Card className={classes.innerCardItems}>
-                  {order.products.length && order.products.map((item) => <span key={item._id}>
-                      <Card className={classes.cart} >
-                        <CardMedia
-                          className={classes.cover}
-                          image={`/api/product/image/${item.product._id}`}
-                          title={item.product.name}
-                        />
-                        <div className={classes.details}>
-                          <CardContent className={classes.content}>
-                            <Link to={`/product/${item.product._id}`}><Typography type="title" component="h3" className={classes.productTitle} color="primary">{item.product.name}</Typography></Link>
-                            <Typography type="subheading" component="h3" className={classes.itemShop} color="primary">$ {item.product.price} x {item.quantity}</Typography>
-                            <span className={classes.itemTotal}>${item.product.price * item.quantity}</span>
-                            <span className={classes.itemShop}>Shop: {item.shop.name}</span>
-                            <Typography type="subheading" component="h3" color={item.status === "Cancelled" ? "error":"secondary"}>Status: {item.status}</Typography>
-                          </CardContent>
-                        </div>
-                      </Card>
-                      <Divider/>
-                    </span>)
-                  }
-                  <div className={classes.checkout}>
-                    <span className={classes.total}>Total: ${getTotal()}</span>
-                  </div>
-                </Card>
-            </Grid>
-            <Grid item xs={5} sm={5}>
-              <Card className={classes.innerCard}>
-                <Typography type="subheading" component="h2" className={classes.productTitle} color="primary">
-                 Deliver to:
-                </Typography>
-                <Typography type="subheading" component="h3" className={classes.info} color="primary"><strong>{order.customer_name}</strong></Typography><br/>
-                <Typography type="subheading" component="h3" className={classes.info} color="primary">{order.customer_email}</Typography><br/>
-                <br/>
-                <Divider/>
-                <br/>
-                <Typography type="subheading" component="h3" className={classes.itemShop} color="primary">{order.delivery_address.street}</Typography>
-                <Typography type="subheading" component="h3" className={classes.itemShop} color="primary">{order.delivery_address.city}, {order.delivery_address.state} {order.delivery_address.zipcode}</Typography>
-                <Typography type="subheading" component="h3" className={classes.itemShop} color="primary">{order.delivery_address.country}</Typography><br/>
-                <Typography type="subheading" component="h3" className={classes.thanks} color="primary">Thank you for shopping with us! <br/>You can track the status of your purchased items on this page.</Typography>
-              </Card>
-            </Grid>
+  return (
+    <Card className={classes.card}>
+      <Typography type="headline" component="h2" className={classes.title}>
+        Order Details
+      </Typography>
+      <Typography
+        type="subheading"
+        component="h2"
+        className={classes.subheading}
+      >
+        Order Code: <strong>{order._id}</strong> <br /> Placed on{' '}
+        {new Date(order.createdAt).toDateString()}
+      </Typography>
+      <br />
+      <Grid container spacing={4}>
+        <Grid item xs={7} sm={7}>
+          <Card className={classes.innerCardItems}>
+            {order.products.length &&
+              order.products.map(item => (
+                <span key={item._id}>
+                  <Card className={classes.cart}>
+                    <CardMedia
+                      className={classes.cover}
+                      image={`/api/product/image/${item.product._id}`}
+                      title={item.product.name}
+                    />
+                    <div className={classes.details}>
+                      <CardContent className={classes.content}>
+                        <Link to={`/product/${item.product._id}`}>
+                          <Typography
+                            type="title"
+                            component="h3"
+                            className={classes.productTitle}
+                            color="primary"
+                          >
+                            {item.product.name}
+                          </Typography>
+                        </Link>
+                        <Typography
+                          type="subheading"
+                          component="h3"
+                          className={classes.itemShop}
+                          color="primary"
+                        >
+                          $ {item.product.price} x {item.quantity}
+                        </Typography>
+                        <span className={classes.itemTotal}>
+                          ${item.product.price * item.quantity}
+                        </span>
+                        <span className={classes.itemShop}>
+                          Shop: {item.shop.name}
+                        </span>
+                        <Typography
+                          type="subheading"
+                          component="h3"
+                          color={
+                            item.status === 'Cancelled' ? 'error' : 'secondary'
+                          }
+                        >
+                          Status: {item.status}
+                        </Typography>
+                      </CardContent>
+                    </div>
+                  </Card>
+                  <Divider />
+                </span>
+              ))}
+            <div className={classes.checkout}>
+              <span className={classes.total}>Total: ${getTotal()}</span>
+            </div>
+          </Card>
         </Grid>
-      </Card>
-    )
+        <Grid item xs={5} sm={5}>
+          <Card className={classes.innerCard}>
+            <Typography
+              type="subheading"
+              component="h2"
+              className={classes.productTitle}
+              color="primary"
+            >
+              Deliver to:
+            </Typography>
+            <Typography
+              type="subheading"
+              component="h3"
+              className={classes.info}
+              color="primary"
+            >
+              <strong>{order.customer_name}</strong>
+            </Typography>
+            <br />
+            <Typography
+              type="subheading"
+              component="h3"
+              className={classes.info}
+              color="primary"
+            >
+              {order.customer_email}
+            </Typography>
+            <br />
+            <br />
+            <Divider />
+            <br />
+            <Typography
+              type="subheading"
+              component="h3"
+              className={classes.itemShop}
+              color="primary"
+            >
+              {order.delivery_address.street}
+            </Typography>
+            <Typography
+              type="subheading"
+              component="h3"
+              className={classes.itemShop}
+              color="primary"
+            >
+              {order.delivery_address.city}, {order.delivery_address.state}{' '}
+              {order.delivery_address.zipcode}
+            </Typography>
+            <Typography
+              type="subheading"
+              component="h3"
+              className={classes.itemShop}
+              color="primary"
+            >
+              {order.delivery_address.country}
+            </Typography>
+            <br />
+            <Typography
+              type="subheading"
+              component="h3"
+              className={classes.thanks}
+              color="primary"
+            >
+              Thank you for shopping with us! <br />
+              You can track the status of your purchased items on this page.
+            </Typography>
+          </Card>
+        </Grid>
+      </Grid>
+    </Card>
+  );
 }

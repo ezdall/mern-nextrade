@@ -6,9 +6,6 @@ export default function RequireAuth() {
   const location = useLocation();
   const authUser = auth.isAuthenticated().user;
 
-  // console.log('auth:',auth)
-  console.log('loc:', location);
-
   return authUser ? (
     <Outlet />
   ) : (
