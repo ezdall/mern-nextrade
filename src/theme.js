@@ -1,7 +1,8 @@
-import { createTheme } from '@material-ui/core/styles';
+// eslint-disable-next-line camelcase
+import { unstable_createMuiStrictModeTheme } from '@material-ui/core/styles';
 import { blueGrey, lightGreen } from '@material-ui/core/colors';
 
-const theme = createTheme({
+const theme = unstable_createMuiStrictModeTheme({
   palette: {
     primary: {
       light: '#8eacbb',

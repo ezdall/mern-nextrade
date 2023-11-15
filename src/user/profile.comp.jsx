@@ -130,11 +130,12 @@ export default function Profile() {
                   <Edit />
                 </IconButton>
               </Link>
-               <DeleteUser userId={user._id} />
+              <DeleteUser userId={user._id} />
             </ListItemSecondaryAction>
           )}
         </ListItem>
         <Divider />
+
         <ListItem>
           <ListItemText
             primary={`Joined: ${new Date(user.createdAt).toDateString()}`}
@@ -150,3 +151,5 @@ export default function Profile() {
     </Paper>
   );
 }
+
+//   

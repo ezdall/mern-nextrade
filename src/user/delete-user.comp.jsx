@@ -28,22 +28,24 @@ export default function DeleteUser(props) {
     setOpen(true)
   }
 
+  const handleRequestClose = () => {
+    setOpen(false)
+  }
+
   const deleteAccount = () => { 
     removeUser({
       userId
     }).then((data) => {
       if (data?.isAxiosError) {
-        console.log(data.message)
+        // console.log(data.message)
+        handleRequestClose()
         return handleAxiosError(data)
       } 
         auth.clearJWT(() => console.log('deleted'))
         return navigate('/', { replace: true })
     })
   }
-  const handleRequestClose = () => {
-    setOpen(false)
-  }
-  
+ 
     return (<span>
       <IconButton aria-label="Delete" onClick={clickButton} color="secondary">
         <DeleteIcon/>
