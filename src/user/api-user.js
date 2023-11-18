@@ -2,11 +2,11 @@ import axios from '../axios';
 
 import auth from '../auth/auth-helper';
 
-const { accessToken } = auth.isAuthenticated();
+const { accessToken, user } = auth.isAuthenticated();
 
-export const createUser = async user => {
+export const createUser = async userData => {
   try {
-    const response = await axios.post('/auth/register', user);
+    const response = await axios.post('/auth/register', userData);
 
     return await response.data;
   } catch (err) {
@@ -33,9 +33,9 @@ export const read = async (params, signal) => {
   }
 };
 
-export const updateUser = async (params, user) => {
+export const updateUser = async (params, userData) => {
   try {
-    const response = await axios.patch(`/api/users/${params.userId}`, user, {
+    const response = await axios.patch(`/api/users/${params.userId}`, userData, {
       headers: {
         authorization: `Bearer ${accessToken}`
       }
@@ -61,6 +61,20 @@ export const removeUser = async params => {
     return err;
   }
 };
+
+export const stripeUpdate = async (authCode, signal) => {
+  try {
+    const response = await axios.patch(`/api/stripe-auth/${user._id}`, {stripe: authCode}, {
+      signal,
+      headers: {
+        authorization: `Bearer ${accessToken}`
+      }
+    })
+    return response.data
+  } catch(err) {
+    return err
+  }
+}
 
 export const usersList = async signal => {
   try {

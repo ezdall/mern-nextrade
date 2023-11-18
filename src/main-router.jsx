@@ -9,6 +9,7 @@ import RequireAuth from './auth/require-auth.comp';
 import Profile from './user/profile.comp';
 import Users from './user/users.comp';
 import EditProfile from './user/edit-profile.comp';
+import StripeConnect from './user/stripe-connect.comp'
 
 import NewShop from './shop/new-shop.comp';
 import EditShop from './shop/edit-shop.comp';
@@ -33,6 +34,7 @@ export default function MainRouter() {
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<SignUp />} />
         <Route path="/users" element={<Users />} />
+        <Route path="/seller/stripe/connect" element={<StripeConnect />} />
 
         <Route path="/cart" element={<Cart />} />
         <Route path="/product/:productId" element={<Product />} />

@@ -77,7 +77,7 @@ export default function Profile() {
           return setIsError(true);
         }
 
-        console.log({ data });
+        // console.log({ data });
         return setUser(data.user);
       })
       .catch(err => setIsError(true));
@@ -115,7 +115,7 @@ export default function Profile() {
                   </Button>
                 ) : (
                   <a
-                    // href={`https://connect.stripe.com/oauth/authorize?response_type=code&client_id=${config.stripe_connect_test_client_id}&scope=read_write`}
+                    href={`https://connect.stripe.com/oauth/authorize?response_type=code&client_id=${process.env.REACT_APP_STRIPE_CLIENT_ID}&scope=read_write`}
                     className={classes.stripe_connect}
                   >
                     <img src={stripeButton} alt="stripe" />
