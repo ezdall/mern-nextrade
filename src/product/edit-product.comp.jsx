@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { Link, Navigate, useParams } from 'react-router-dom';
 
 import { makeStyles } from '@material-ui/core/styles';
 // import {withStyles} from '@material-ui/core/styles'
@@ -58,7 +58,6 @@ const useStyles = makeStyles(theme => ({
 export default function EditProduct() {
   const classes = useStyles();
   const params = useParams();
-  const navigate = useNavigate();
 
   const [values, setValues] = useState({
     name: '',
@@ -82,23 +81,23 @@ export default function EditProduct() {
       signal
     ).then(data => {
       if (data?.isAxiosError) {
-        return setValues({ ...values, error: data.message });
+        return setValues(prevValues => ({ ...prevValues, error: data.message }));
       }
-      return setValues({
-        ...values,
-        id: data._id,
-        name: data.name,
-        description: data.description,
-        category: data.category,
-        quantity: data.quantity,
-        price: data.price
-      });
+      return setValues(prevValues => ({
+              ...prevValues,
+              id: data._id,
+              name: data.name,
+              description: data.description,
+              category: data.category,
+              quantity: data.quantity,
+              price: data.price
+            }));
     });
     return () => {
       console.log('abort edit-prod read');
       abortController.abort();
     };
-  }, [params.productId, values]);
+  }, [params.productId]);
 
   const clickSubmit = () => {
     const { name, description, category, quantity, price, image } = values;
@@ -127,8 +126,7 @@ export default function EditProduct() {
       if (data?.isAxiosError) {
         return setValues({ ...values, error: data.message });
       }
-      setValues({ ...values, redirect: true });
-      return navigate(`/seller/shop/edit/${params.shopId}`);
+      return setValues({ ...values, redirect: true });
     });
   };
 
@@ -143,6 +141,10 @@ export default function EditProduct() {
   const imageUrl = values.id
     ? `${BASE_URL}/api/product/image/${values.id}?${new Date().getTime()}`
     : `${BASE_URL}/api/products/defaultphoto`;
+
+  if(values.redirect){
+    return <Navigate to={`/seller/shop/edit/${params.shopId}`} />
+  }
 
   return (
     <div>
@@ -167,7 +169,7 @@ export default function EditProduct() {
               Change Image
               <FileUpload />
             </Button>
-          </label>{' '}
+          </label>
           <span className={classes.filename}>{values.image.name ?? ''}</span>
           <br />
           <TextField

@@ -1,6 +1,7 @@
-// import PropTypes from 'prop-types'
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+// import PropTypes from 'prop-types'
+import { Navigate, useLocation } from 'react-router-dom';
+
 import { CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
 
 import { makeStyles } from '@material-ui/core/styles';
@@ -42,24 +43,27 @@ const useStyles = makeStyles(() => ({
   }
 }));
 
+const authUser = auth.isAuthenticated().user;
+
 export default function PlaceOrder(props) {
   const { checkoutDetails, onError } = props;
 
   const stripe = useStripe();
   const elements = useElements();
-  const navigate = useNavigate();
+  const location = useLocation()
 
-  console.log({ stripe, elements });
+  console.log({location})
+  // console.log({ stripe, elements });
 
   const classes = useStyles();
   const [values, setValues] = useState({
     order: {},
     error: '',
-    orderId: ''
+    orderId: '',
+    redirect: false
   });
 
   const placeOrder = event => {
-    event.preventDefault();
 
     const {
       products,
@@ -90,32 +94,33 @@ export default function PlaceOrder(props) {
     return stripe
       .createToken(elements.getElement(CardElement))
       .then(payload => {
-        // console.log({payload})
+        console.log({payload})
 
         if (payload.error) {
           setValues({ ...values, error: payload.error.message });
         } else {
-          const jwt = auth.isAuthenticated();
 
-          createOrder(
-            { userId: jwt.user._id },
+         createOrder(
+            { userId: authUser._id },
             checkoutDetails,
             payload.token.id
           ).then(data => {
             if (data?.isAxiosError) {
               handleAxiosError(data);
-              setValues({ ...values, error: data.message });
-            } else {
-              cart.emptyCart(() => {
-                setValues({ ...values, orderId: data._id });
-                // console.log({data})
-                navigate(`/order/${data._id}`);
-              });
-            }
+            return setValues({ ...values, error: data.message });
+            } 
+            return cart.emptyCart(() => {
+              setValues({ ...values, orderId: data._id, redirect: true });
+            });
           });
+
         }
       });
   };
+
+  if(values.redirect){
+    return <Navigate to={`/order/${values.orderId}`} />
+  }
 
   return (
     <span>

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { Navigate, useParams } from 'react-router-dom';
 
 import { makeStyles } from '@material-ui/core/styles';
 import Card from '@material-ui/core/Card';
@@ -47,7 +47,6 @@ const useStyles = makeStyles(theme => ({
 }));
 
 export default function EditProfile() {
-  const navigate = useNavigate();
   const params = useParams();
 
   const classes = useStyles();
@@ -56,6 +55,7 @@ export default function EditProfile() {
     name: '',
     email: '',
     password: '',
+    userId:'',
     seller: false,
     redirectToProfile: false,
     error: ''
@@ -73,13 +73,14 @@ export default function EditProfile() {
     ).then(data => {
       if (data?.isAxiosError) {
         handleAxiosError(data);
-        setValues({ ...values, error: data.message });
+        setValues(prevValues => ({ ...prevValues, error: data.message }));
       }
       // console.log(data.user)
-      return setValues({ ...values, ...data.user, error: '' });
+      return setValues(prevValues => ({ ...prevValues, ...data.user, error: '' }));
     });
     return () => abortController.abort();
-  }, [params.userId, values]);
+  }, [params.userId]);
+
 
   const clickSubmit = () => {
     // must be turn to "undefined" if empty-string
@@ -102,7 +103,6 @@ export default function EditProfile() {
         return setValues({ ...values, error: data.message });
       }
       return auth.updateUser(data, () => {
-        navigate(`/user/${data._id}`);
         setValues({ ...values, userId: data._id, redirectToProfile: true });
       });
     });
@@ -117,6 +117,10 @@ export default function EditProfile() {
   const handleCheck = (event, checked) => {
     setValues({ ...values, seller: checked });
   };
+
+  if(values.redirectToProfile){
+    return <Navigate to={`/user/${values.userId}`} />
+  }
 
   return (
     <Card className={classes.card}>

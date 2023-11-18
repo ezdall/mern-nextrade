@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, Navigate } from 'react-router-dom';
 
 import { makeStyles } from '@material-ui/core/styles';
 import Card from '@material-ui/core/Card';
@@ -48,7 +48,6 @@ const useStyles = makeStyles(theme => ({
 }));
 
 export default function NewShop() {
-  const navigate = useNavigate();
   const authUser = auth.isAuthenticated().user;
 
   const classes = useStyles();
@@ -60,7 +59,7 @@ export default function NewShop() {
     error: '' // string
   });
 
-  console.log({ values });
+  // console.log({ values });
 
   const handleChange = ev => {
     const { name, value, files } = ev.target;
@@ -92,15 +91,16 @@ export default function NewShop() {
         if (data?.isAxiosError) {
           return setValues({ ...values, error: data.message });
         }
-
-        setValues({ ...values, error: '', redirect: true });
-        return navigate('/seller/shops');
+        return setValues({ ...values, error: '', redirect: true });
       })
       .catch(err => {
-        // console.error({ err });
         setValues({ ...values, error: err });
       });
   };
+
+  if(values.redirect){
+    return <Navigate to={'/seller/shops'} />;
+  }
 
   return (
     <div>

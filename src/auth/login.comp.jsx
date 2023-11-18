@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useLocation, Navigate } from 'react-router-dom';
 
 import Card from '@material-ui/core/Card';
 import CardActions from '@material-ui/core/CardActions';
@@ -42,7 +42,6 @@ const useStyles = makeStyles(theme => ({
 
 export default function Login() {
   const classes = useStyles();
-  const navigate = useNavigate();
   const location = useLocation();
   const from = location.state?.from?.pathname || '/';
 
@@ -69,19 +68,16 @@ export default function Login() {
         // console.log({data})
         if (data.isAxiosError) {
           console.log({ error: data.message });
-          return handleAxiosError(data, () => {
-            return setValues({
+          return handleAxiosError(data, () => setValues({
               ...values,
               email: '',
               password: '',
               error: data.message
-            });
-          });
+            }));
         }
 
         return auth.authenticate(data, () => {
           setValues({ ...values, error: '', redirectToReferrer: true });
-          return navigate(from, { replace: true });
         });
       })
       .catch(err => {
@@ -107,10 +103,15 @@ export default function Login() {
 
   const handleChange = event => {
     const { name, value } = event.target;
+    
     setValues({ ...values, error: '' });
 
     setValues({ ...values, [name]: value });
   };
+
+  if(values.redirectToReferrer) {
+    return <Navigate to={from} replace />
+  }
 
   return (
     <Card className={classes.card}>
@@ -140,7 +141,7 @@ export default function Login() {
           value={values.password}
           onChange={handleChange}
           required
-          error={values.password}
+          // error={values.password}
           margin="normal"
         />
         <br />
@@ -160,7 +161,7 @@ export default function Login() {
           onClick={clickSubmit}
           className={classes.submit}
         >
-          Submit
+          Login
         </Button>
       </CardActions>
     </Card>

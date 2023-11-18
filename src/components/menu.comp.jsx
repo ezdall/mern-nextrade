@@ -1,4 +1,5 @@
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { useState } from 'react';
+import { Link, useLocation, Navigate } from 'react-router-dom';
 
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
@@ -24,9 +25,16 @@ const isPartActive = (location, path) => {
   return { color: '#ffffff' };
 };
 
+const isAuth = auth.isAuthenticated()
+
 export default function Menu() {
   const location = useLocation();
-  const navigate = useNavigate();
+
+  const [redirectHome, setRedirectHome] = useState(false)
+
+  if(redirectHome){
+    return <Navigate to='/' replace />
+  }
 
   return (
     <AppBar position="static">
@@ -60,7 +68,7 @@ export default function Menu() {
         </div>
         <div style={{ position: 'absolute', right: '10px' }}>
           <span style={{ float: 'right' }}>
-            {!auth.isAuthenticated() && (
+            {!isAuth && (
               <span>
                 <Link to="/signup">
                   <Button style={isActive(location, '/signup')}>Sign up</Button>
@@ -70,20 +78,20 @@ export default function Menu() {
                 </Link>
               </span>
             )}
-            {auth.isAuthenticated() && (
+            {isAuth && (
               <span>
-                {auth.isAuthenticated().user.seller && (
+                {isAuth.user.seller && (
                   <Link to="/seller/shops">
                     <Button style={isPartActive(location, '/seller')}>
                       My Shops
                     </Button>
                   </Link>
                 )}
-                <Link to={`/user/${auth.isAuthenticated().user._id}`}>
+                <Link to={`/user/${isAuth.user._id}`}>
                   <Button
                     style={isActive(
                       location,
-                      `/user/${auth.isAuthenticated().user._id}`
+                      `/user/${isAuth.user._id}`
                     )}
                   >
                     My Profile
@@ -92,7 +100,7 @@ export default function Menu() {
                 <Button
                   color="inherit"
                   onClick={() => {
-                    auth.clearJWT(() => navigate('/', { replace: true }));
+                    auth.clearJWT(() => setRedirectHome(true));
                   }}
                 >
                   Log Out

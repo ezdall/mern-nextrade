@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { Link, Navigate, useParams } from 'react-router-dom';
 import { makeStyles } from '@material-ui/core/styles';
 
 import Card from '@material-ui/core/Card';
@@ -49,7 +49,6 @@ const useStyles = makeStyles(theme => ({
 
 export default function NewProduct() {
   const classes = useStyles();
-  const navigate = useNavigate();
   const params = useParams();
 
   const [values, setValues] = useState({
@@ -65,6 +64,7 @@ export default function NewProduct() {
 
   const handleChange = ev => {
     const { name, value, files } = ev.target;
+    setValues({ ...values, error: '' })
 
     const inputValue = name === 'image' ? files[0] : value;
 
@@ -99,10 +99,13 @@ export default function NewProduct() {
         handleAxiosError(data);
         return setValues({ ...values, error: data.message });
       }
-      setValues({ ...values, error: '', redirect: true });
-      return navigate(`/seller/shop/edit/${params.shopId}`);
+      return setValues({ ...values, error: '', redirect: true });
     });
   };
+
+  if(values.redirect){
+    return <Navigate to={`/seller/shop/edit/${params.shopId}`} />
+  }
 
   return (
     <div>
@@ -125,7 +128,7 @@ export default function NewProduct() {
               Upload Photo
               <FileUpload />
             </Button>
-          </label>{' '}
+          </label>
           <span className={classes.filename}>{values.image?.name ?? ''}</span>
           <br />
           <TextField

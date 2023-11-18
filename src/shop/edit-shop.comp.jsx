@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { Navigate, useParams } from 'react-router-dom';
 import { makeStyles } from '@material-ui/core/styles';
 import Card from '@material-ui/core/Card';
 import CardActions from '@material-ui/core/CardActions';
@@ -60,7 +60,6 @@ const useStyles = makeStyles(theme => ({
 }));
 
 export default function EditShop() {
-  const navigate = useNavigate();
   const params = useParams();
 
   const classes = useStyles();
@@ -133,8 +132,7 @@ export default function EditShop() {
         if (data.isAxiosError) {
           return setValues({ ...values, error: data.message });
         }
-        setValues({ ...values, error: '', redirect: true });
-        return navigate('/seller/shops');
+        return setValues({ ...values, error: '', redirect: true });
       })
       .catch(err => {
         console.error({ err });
@@ -145,6 +143,10 @@ export default function EditShop() {
   const logoUrl = values.id
     ? `${BASE_URL}/api/shops/logo/${values.id}?${new Date().getTime()}`
     : `${BASE_URL}/api/shops/defaultphoto`;
+
+  if(values.redirect){
+    return <Navigate to={'/seller/shops'} />
+  }
 
   return (
     <div className={classes.root}>

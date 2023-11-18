@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Navigate } from 'react-router-dom';
 // import PropTypes from 'prop-types'
 
 import IconButton from '@material-ui/core/IconButton';
@@ -17,9 +17,9 @@ import { handleAxiosError } from '../axios';
 
 export default function DeleteUser(props) {
   const { userId } = props;
-  const navigate = useNavigate();
 
   const [open, setOpen] = useState(false);
+  const [redirectHome, setRedirectHome] = useState(false)
 
   const clickButton = () => {
     setOpen(true);
@@ -39,9 +39,13 @@ export default function DeleteUser(props) {
         return handleAxiosError(data);
       }
       auth.clearJWT(() => console.log('deleted'));
-      return navigate('/', { replace: true });
+      return setRedirectHome(true)
     });
   };
+
+  if(redirectHome){
+    return <Navigate to='/' replace />
+  }
 
   return (
     <span>
