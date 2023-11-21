@@ -104,14 +104,22 @@ export const listByShop = async (params, signal) => {
   }
 };
 
-export const listByUser = async (params, signal) => {
+export const listByUser = async (
+  params,
+  signal,
+  accessToken2,
+  axiosPrivate
+) => {
   try {
-    const response = await axios.get(`/api/orders/user/${params.userId}`, {
-      signal,
-      headers: {
-        authorization: `Bearer ${accessToken}`
+    const response = await axiosPrivate.get(
+      `/api/orders/user/${params.userId}`,
+      {
+        signal,
+        headers: {
+          authorization: `Bearer ${accessToken2}`
+        }
       }
-    });
+    );
     return response.data;
   } catch (err) {
     // console.log(err)

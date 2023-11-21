@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useParams, useNavigate, useLocation } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 
 import { makeStyles } from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
@@ -45,9 +45,6 @@ const useStyles = makeStyles(theme => ({
 export default function ShopOrder() {
   const classes = useStyles();
   const params = useParams();
-  const navigate = useNavigate();
-
-  const location = useLocation();
 
   const [orders, setOrders] = useState([]);
   const [open, setOpen] = useState(0);
@@ -64,16 +61,13 @@ export default function ShopOrder() {
     ).then(data => {
       if (data.isAxiosError) {
         // console.log(data)
-        handleAxiosError(
-          data,
-          navigate('/login', { replace: true, state: { from: location } })
-        );
+        handleAxiosError(data);
       } else {
         setOrders(data);
       }
     });
     return () => abortController.abort();
-  }, [location, navigate, params.shopId]);
+  }, [params.shopId]);
 
   const handleClick = index => () => {
     setOpen(index);

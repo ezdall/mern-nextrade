@@ -3,13 +3,14 @@ import { Route, Routes } from 'react-router-dom';
 import Home from './components/home.comp';
 import Menu from './components/menu.comp';
 
+import PersistLogin from './auth/persist-login.comp';
 import SignUp from './user/sign-up.comp';
 import Login from './auth/login.comp';
 import RequireAuth from './auth/require-auth.comp';
 import Profile from './user/profile.comp';
 import Users from './user/users.comp';
 import EditProfile from './user/edit-profile.comp';
-import StripeConnect from './user/stripe-connect.comp'
+import StripeConnect from './user/stripe-connect.comp';
 
 import NewShop from './shop/new-shop.comp';
 import EditShop from './shop/edit-shop.comp';
@@ -42,23 +43,34 @@ export default function MainRouter() {
         <Route path="/shops/:shopId" element={<Shop />} />
 
         <Route path="/order/:orderId" element={<Order />} />
+
         {/* this route must be Private */}
-        <Route element={<RequireAuth />}>
-          <Route path="/user/:userId" element={<Profile />} />
-          <Route path="/user/edit/:userId" element={<EditProfile />} />
+        <Route element={<PersistLogin />}>
+          <Route element={<RequireAuth />}>
+            <Route path="/user/:userId" element={<Profile />} />
+            <Route path="/user/edit/:userId" element={<EditProfile />} />
 
-          <Route path="/seller/orders/:shop/:shopId" element={<ShopOrders />} />
+            <Route
+              path="/seller/orders/:shop/:shopId"
+              element={<ShopOrders />}
+            />
 
-          <Route path="/seller/shop/edit/:shopId" element={<EditShop />} />
-          <Route path="/seller/shop/new" element={<NewShop />} />
-          <Route path="/seller/shops" element={<MyShops />} />
+            <Route path="/seller/shop/edit/:shopId" element={<EditShop />} />
+            <Route path="/seller/shop/new" element={<NewShop />} />
+            <Route path="/seller/shops" element={<MyShops />} />
 
-          <Route
-            path="/seller/:shopId/:productId/edit"
-            element={<EditProduct />}
-          />
-          <Route path="/seller/:shopId/products/new" element={<NewProduct />} />
+            <Route
+              path="/seller/:shopId/:productId/edit"
+              element={<EditProduct />}
+            />
+            <Route
+              path="/seller/:shopId/products/new"
+              element={<NewProduct />}
+            />
+          </Route>
         </Route>
+
+        {/* catch others */}
         <Route path="*" element={<>Error Page</>} />
       </Routes>
     </div>
