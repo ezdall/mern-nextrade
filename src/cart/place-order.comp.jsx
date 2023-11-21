@@ -84,7 +84,6 @@ export default function PlaceOrder(props) {
       !country
     ) {
       return onError();
-      // return setValues({ ...values, error: 'lack of info' });
     }
 
     if (!elements || !stripe) {

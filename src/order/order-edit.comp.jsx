@@ -53,12 +53,12 @@ export default function ProductOrderEdit(props) {
   const { updateOrders, shopId, order, orderIndex } = props;
 
   const classes = useStyles();
-  const [values, setValues] = useState({
-    open: 0,
-    statusValues: [],
-    error: ''
-  });
+  const [open, setOpen] = useState(0);
+  const [statusList, setStatusList] = useState([])
+  const [error, setError] = useState('')
+
   const jwt = auth.isAuthenticated();
+
   useEffect(() => {
     const abortController = new AbortController();
     const { signal } = abortController;
@@ -67,16 +67,17 @@ export default function ProductOrderEdit(props) {
       // console.log({data})
       if (data.isAxiosError) {
         handleAxiosError(data);
-        setValues({ ...values, error: 'Could not get status' });
+        setError('Could not get status')
       } else {
-        setValues({ ...values, statusValues: data, error: '' });
+        setError('')
+        setStatusList(data)
       }
     });
     return () => {
       console.log('order-edit');
       abortController.abort();
     };
-  }, [values]);
+  }, []);
 
   const handleStatusChange = productIndex => event => {
     const { value } = event.target;
@@ -84,7 +85,7 @@ export default function ProductOrderEdit(props) {
     order.products[productIndex].status = value;
     const product = order.products[productIndex];
 
-    if (event.target.value === 'Cancelled') {
+    if (value === 'Cancelled') {
       cancelOrder(
         {
           shopId,
@@ -97,19 +98,13 @@ export default function ProductOrderEdit(props) {
         }
       ).then(data => {
         if (data.isAxiosError) {
-          setValues({
-            ...values,
-            error: 'Status not updated, try again'
-          });
+          setError('Status not updated, try again')
         } else {
           updateOrders(orderIndex, order);
-          setValues({
-            ...values,
-            error: ''
-          });
+          setError('')
         }
       });
-    } else if (event.target.value === 'Processing') {
+    } else if (value === 'Processing') {
       processCharge(
         {
           userId: jwt.user._id,
@@ -123,16 +118,10 @@ export default function ProductOrderEdit(props) {
         }
       ).then(data => {
         if (data.isAxiosError) {
-          setValues({
-            ...values,
-            error: 'Status not updated, try again'
-          });
+          setError('Status not updated, try again')
         } else {
           updateOrders(orderIndex, order);
-          setValues({
-            ...values,
-            error: ''
-          });
+          setError('')
         }
       });
       // delivered?
@@ -148,23 +137,17 @@ export default function ProductOrderEdit(props) {
       ).then(data => {
         console.log({ data1: data });
         if (data.isAxiosError) {
-          setValues({
-            ...values,
-            error: 'Status not updated, try again'
-          });
+          setError('Status not updated, try again')
         } else {
           updateOrders(orderIndex, order);
-          setValues({
-            ...values,
-            error: ''
-          });
+          setError('')
         }
       });
     }
   };
 
-  console.log({ values });
-  console.log({ products: order.products });
+  // console.log({ values });
+  // console.log({ products: order.products });
 
   return (
     <div>
@@ -173,7 +156,7 @@ export default function ProductOrderEdit(props) {
         color="error"
         className={classes.statusMessage}
       >
-        {values.error}
+        {error}
       </Typography>
       <List disablePadding style={{ backgroundColor: '#f8f8f8' }}>
         {order.products.map((item, index) => {
@@ -199,12 +182,13 @@ export default function ProductOrderEdit(props) {
                     }
                   />
                   <TextField
-                    error={Boolean(values.error)}
+                    // has is this? 
+                    error={!!error && !!statusList.length && !!item.status}
                     id="select-status"
                     select
                     label="Update Status"
                     className={classes.textField}
-                    value={values.statusValues.length ? item.status : ''}
+                    value={statusList.length ? item.status : ''}
                     onChange={handleStatusChange(index)}
                     SelectProps={{
                       MenuProps: {
@@ -213,7 +197,7 @@ export default function ProductOrderEdit(props) {
                     }}
                     margin="normal"
                   >
-                    {values.statusValues.map(option => (
+                    {statusList.map(option => (
                       <MenuItem key={option} value={option}>
                         {option}
                       </MenuItem>

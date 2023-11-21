@@ -50,6 +50,7 @@ export default function Checkout() {
 
   const [values, setValues] = useState({
     checkoutDetails: {
+      // replace this
       products: cart.getCart(),
       customer_name: user.name,
       customer_email: user.email,
@@ -60,15 +61,16 @@ export default function Checkout() {
         zipcode: '',
         country: ''
       }
-    },
-    error: ''
+    }
   });
+
+  const [error, setError] = useState('')
 
   const handleCustomerChange = event => {
     const { value, name } = event.target;
     const { checkoutDetails } = values;
 
-    setValues({ ...values, error: '' });
+    setError('')
 
     checkoutDetails[name] = value;
     setValues({ ...values, checkoutDetails });
@@ -78,7 +80,7 @@ export default function Checkout() {
     const { value, name } = event.target;
     const { checkoutDetails } = values; // || undefined
 
-    setValues({ ...values, error: '' });
+    setError('')
 
     // mutating
     checkoutDetails.delivery_address[name] = value; // || undefined
@@ -86,8 +88,8 @@ export default function Checkout() {
   };
 
   const handleError = ev => {
-    console.log({ ev });
-    setValues({ ...values, error: 'valid fields are required!' });
+    // console.log({ ev });
+    setError('valid fields are required!')
   };
 
   return (
@@ -96,7 +98,7 @@ export default function Checkout() {
         Checkout
       </Typography>
       <TextField
-        error={!!values.error}
+        error={!!error}
         id="name"
         label="Name"
         className={classes.textField}
@@ -107,7 +109,7 @@ export default function Checkout() {
       />
       <br />
       <TextField
-        error={!!values.error}
+        error={!!error}
         id="email"
         type="email"
         label="Email"
@@ -126,8 +128,8 @@ export default function Checkout() {
         Delivery Address
       </Typography>
       <TextField
-        error={!!values.error}
         autoFocus
+        error={!!error}
         id="street"
         label="Street Address"
         className={classes.streetField}
@@ -138,7 +140,7 @@ export default function Checkout() {
       />
       <br />
       <TextField
-        error={!!values.error}
+        error={!!error}
         id="city"
         label="City"
         className={classes.addressField}
@@ -158,7 +160,7 @@ export default function Checkout() {
       />
       <br />
       <TextField
-        error={!!values.error}
+        error={!!error}
         id="zipcode"
         label="Zip Code"
         className={classes.addressField}
@@ -168,7 +170,7 @@ export default function Checkout() {
         margin="normal"
       />
       <TextField
-        error={!!values.error}
+        error={!!error}
         id="country"
         label="Country"
         className={classes.addressField}
@@ -178,12 +180,12 @@ export default function Checkout() {
         margin="normal"
       />
       <br />
-      {values.error && (
+      {error && (
         <Typography component="p" color="error">
           <Icon color="error" className={classes.error}>
             error
           </Icon>
-          {values.error}
+          {error}
         </Typography>
       )}
       <div>

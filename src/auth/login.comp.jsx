@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useLocation, Navigate } from 'react-router-dom';
+import { useLocation, useNavigate, Navigate } from 'react-router-dom';
 
 import Card from '@material-ui/core/Card';
 import CardActions from '@material-ui/core/CardActions';
@@ -10,6 +10,7 @@ import Typography from '@material-ui/core/Typography';
 import Icon from '@material-ui/core/Icon';
 import { makeStyles } from '@material-ui/core/styles';
 
+import useAuth from './useAuth';
 import auth from './auth-helper';
 import { login } from './api-auth';
 import { handleAxiosError } from '../axios';
@@ -43,16 +44,16 @@ const useStyles = makeStyles(theme => ({
 export default function Login() {
   const classes = useStyles();
   const location = useLocation();
+  const navigate = useNavigate();
+  const { setAuth } = useAuth();
   const from = location.state?.from?.pathname || '/';
-
-  // console.log({location})
 
   const [values, setValues] = useState({
     email: '',
-    password: '',
-    error: '',
-    redirectToReferrer: false
+    password: ''
   });
+  const [error, setError] = useState('');
+  const [redirect, setRedirect] = useState(false);
 
   // console.log({location})
 
@@ -60,58 +61,49 @@ export default function Login() {
     const { email, password } = values;
 
     if (!email || !password) {
-      return setValues({ ...values, error: 'all fields are required' });
+      return setError('all fields are required');
     }
 
     return login({ email, password })
       .then(data => {
         // console.log({data})
         if (data.isAxiosError) {
-          console.log({ error: data.message });
-          return handleAxiosError(data, () => setValues({
-              ...values,
-              email: '',
-              password: '',
-              error: data.message
-            }));
+          // console.log({ error: data.message });
+          handleAxiosError(data);
+          // console.log({err:data})
+          setError(data.response.data.error);
+        } else {
+          setAuth(data);
+          setError('');
+          setValues({ email: '', password: '' });
+          setRedirect(true);
+          navigate(from, { replace: true });
+          // auth.authenticate(data, () => { });
         }
-
-        return auth.authenticate(data, () => {
-          setValues({ ...values, error: '', redirectToReferrer: true });
-        });
       })
       .catch(err => {
         console.log({ err });
 
         if (!err.response) {
-          return setValues({
-            ...values,
-            email: '',
-            password: '',
-            error: 'No Server Response'
-          });
+          return setError('No Server Response');
         }
-
-        return setValues({
-          ...values,
-          email: '',
-          password: '',
-          error: err.message
-        });
+        return setError(err.message);
       });
   };
 
   const handleChange = event => {
     const { name, value } = event.target;
-    
-    setValues({ ...values, error: '' });
+
+    setError('');
 
     setValues({ ...values, [name]: value });
   };
 
-  if(values.redirectToReferrer) {
-    return <Navigate to={from} replace />
-  }
+  // if(redirect) {
+  //   return <Navigate to={from} replace />
+  // }
+
+  // console.log({error})
 
   return (
     <Card className={classes.card}>
@@ -120,6 +112,7 @@ export default function Login() {
           Log In
         </Typography>
         <TextField
+          autoFocus
           id="email"
           type="email"
           name="email"
@@ -127,7 +120,7 @@ export default function Login() {
           className={classes.textField}
           value={values.email}
           onChange={handleChange}
-          // error={values.email === ''}
+          error={!!error}
           required
           margin="normal"
         />
@@ -141,16 +134,16 @@ export default function Login() {
           value={values.password}
           onChange={handleChange}
           required
-          // error={values.password}
+          error={!!error}
           margin="normal"
         />
         <br />
-        {values.error && (
+        {error && (
           <Typography component="p" color="error">
             <Icon color="error" className={classes.error}>
               error
             </Icon>
-            {values.error}
+            {error}
           </Typography>
         )}
       </CardContent>

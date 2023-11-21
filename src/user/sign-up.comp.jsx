@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { makeStyles } from '@material-ui/core/styles';
 
@@ -44,37 +44,73 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
+// just a sample regex
+const nameRegex = /^[a-zA-Z0-9-_]{1,23}$/;
+const passRegex = /^[a-zA-Z0-9]{4,24}$/;
+const emailRegex = /^[a-zA-Z0-9]*@[a-zA-Z0-9]+(?:\.[a-zA-Z0-9]+)*$/
+
 export default function Signup() {
   const classes = useStyles();
 
-  const [values, setValues] = useState({
-    name: '',
-    password: '',
-    email: '',
-    open: false,
-    error: ''
-  });
+  // name
+  const [name, setName] = useState('')
+  const [validName, setValidName] = useState(false)
 
-  const handleChange = event => {
-    const { name, value } = event.target;
-    setValues({ ...values, [name]: value });
-  };
+  // email
+  const [email, setEmail] = useState('')
+  const [validEmail, setValidEmail] = useState(false)
+
+  // pass
+  const [password, setPassword] = useState('')
+  const [validPass, setValidPass] = useState(false)
+
+  //
+  const [open, setOpen] = useState(false)
+  const [error, setError] = useState('')
+
+  useEffect(()=> {
+    const result = nameRegex.test(name)
+    setValidName(result)
+  }, [name])
+
+  useEffect(()=> {
+    const result = emailRegex.test(email)
+    setValidEmail(result)
+  }, [email])
+
+  useEffect(()=>{
+    const result = passRegex.test(password)
+    setValidPass(result)
+  },[password])
+
+// reset error
+  useEffect(() => {
+    setError('')
+  }, [name, email, password])
+
 
   const clickSubmit = () => {
-    const user = {
-      name: values.name || undefined,
-      email: values.email || undefined,
-      password: values.password || undefined
-    };
 
-    createUser(user).then(data => {
+    const vName = nameRegex.test(name)
+    const vEmail = emailRegex.test(email)
+    const vPass = passRegex.test(password)
+
+    if(!vName || !vEmail || !vPass){
+      return setError('valid fields are required')
+    }
+
+    return createUser({name, email,password}).then(data => {
       if (data?.isAxiosError) {
         handleAxiosError(data);
-        return setValues({ ...values, error: data.message });
+        console.log({data})
+        return setError(data.response.data.error);
       }
-      return setValues({ ...values, error: '', open: true });
+      setError('')
+      return setOpen(true);
     });
   };
+
+  // console.log(validName)
 
   const handleClose = (e, r) => {
     console.log({ e, r });
@@ -88,12 +124,15 @@ export default function Signup() {
             Sign Up
           </Typography>
           <TextField
+            autoFocus
             id="name"
             name="name"
             label="Name"
             className={classes.textField}
-            value={values.name}
-            onChange={handleChange}
+            value={name}
+            onChange={e=> setName(e.target.value)}
+            error={(!!name && !validName) || !!error}
+            required
             margin="normal"
           />
           <br />
@@ -103,8 +142,10 @@ export default function Signup() {
             type="email"
             label="Email"
             className={classes.textField}
-            value={values.email}
-            onChange={handleChange}
+            value={email}
+            onChange={e => setEmail(e.target.value)}
+            error={(!!email && !validEmail) || !!error}
+            required
             margin="normal"
           />
           <br />
@@ -114,17 +155,19 @@ export default function Signup() {
             type="password"
             label="Password"
             className={classes.textField}
-            value={values.password}
-            onChange={handleChange}
+            value={password}
+            onChange={e => setPassword(e.target.value)}
+            error={(!!password && !validPass) || !!error}
+            required
             margin="normal"
           />
           <br />
-          {values.error && (
+          {error && (
             <Typography component="p" color="error">
               <Icon color="error" className={classes.error}>
                 error
               </Icon>
-              {values.error}
+              {error}
             </Typography>
           )}
         </CardContent>
@@ -134,12 +177,13 @@ export default function Signup() {
             variant="contained"
             onClick={clickSubmit}
             className={classes.submit}
+            disabled={!validName || !validEmail || !validPass}
           >
             Submit
           </Button>
         </CardActions>
       </Card>
-      <Dialog open={values.open} onClose={handleClose}>
+      <Dialog open={open} onClose={handleClose}>
         <DialogTitle>New Account</DialogTitle>
         <DialogContent>
           <DialogContentText>
