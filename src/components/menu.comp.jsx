@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, useLocation, Navigate } from 'react-router-dom';
+import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom';
 
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
@@ -10,6 +10,9 @@ import Button from '@material-ui/core/Button';
 import CartIcon from '@material-ui/icons/ShoppingCart';
 import Badge from '@material-ui/core/Badge';
 
+import useAxiosPrivate from '../auth/useAxiosPrivate';
+import { logout } from '../auth/api-auth';
+import useDataContext from '../auth/useDataContext';
 import auth from '../auth/auth-helper';
 import cart from '../cart/cart-helper';
 
@@ -25,16 +28,15 @@ const isPartActive = (location, path) => {
   return { color: '#ffffff' };
 };
 
-const isAuth = auth.isAuthenticated()
-
 export default function Menu() {
+  // this must be inside function
+  // const isAuth = auth.isAuthenticated();
+  const { auth: auth2, setAuth } = useDataContext();
+  const axiosPrivate = useAxiosPrivate();
   const location = useLocation();
+  const navigate = useNavigate();
 
-  const [redirectHome, setRedirectHome] = useState(false)
-
-  if(redirectHome){
-    return <Navigate to='/' replace />
-  }
+  console.log({ authMenu: auth2 });
 
   return (
     <AppBar position="static">
@@ -43,15 +45,15 @@ export default function Menu() {
           MERN Marketplace
         </Typography>
         <div>
-          <Link to="/">
+          <NavLink to="/">
             <IconButton aria-label="Home" style={isActive(location, '/')}>
               <HomeIcon />
             </IconButton>
-          </Link>
-          <Link to="/shops/all">
+          </NavLink>
+          <NavLink to="/shops/all">
             <Button style={isActive(location, '/shops/all')}>All Shops</Button>
-          </Link>
-          <Link to="/cart">
+          </NavLink>
+          <NavLink to="/cart">
             <Button style={isActive(location, '/cart')}>
               Cart
               <Badge
@@ -64,43 +66,41 @@ export default function Menu() {
                 <CartIcon />
               </Badge>
             </Button>
-          </Link>
+          </NavLink>
         </div>
         <div style={{ position: 'absolute', right: '10px' }}>
           <span style={{ float: 'right' }}>
-            {!isAuth && (
+            {!auth2.user && (
               <span>
-                <Link to="/signup">
+                <NavLink to="/signup">
                   <Button style={isActive(location, '/signup')}>Sign up</Button>
-                </Link>
-                <Link to="/login">
+                </NavLink>
+                <NavLink to="/login">
                   <Button style={isActive(location, '/login')}>Log In</Button>
-                </Link>
+                </NavLink>
               </span>
             )}
-            {isAuth && (
+            {auth2.user && (
               <span>
-                {isAuth.user.seller && (
-                  <Link to="/seller/shops">
+                {auth2?.user?.seller && (
+                  <NavLink to="/seller/shops">
                     <Button style={isPartActive(location, '/seller')}>
                       My Shops
                     </Button>
-                  </Link>
+                  </NavLink>
                 )}
-                <Link to={`/user/${isAuth.user._id}`}>
-                  <Button
-                    style={isActive(
-                      location,
-                      `/user/${isAuth.user._id}`
-                    )}
-                  >
+                <NavLink to={`/user/${auth2.user._id}`}>
+                  <Button style={isActive(location, `/user/${auth2.user._id}`)}>
                     My Profile
                   </Button>
-                </Link>
+                </NavLink>
                 <Button
                   color="inherit"
                   onClick={() => {
-                    auth.clearJWT(() => setRedirectHome(true));
+                    logout({
+                      setAuth: setAuth({}),
+                      navigate: navigate('/', { replace: true })
+                    });
                   }}
                 >
                   Log Out

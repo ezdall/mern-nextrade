@@ -4,18 +4,17 @@ import auth from '../auth/auth-helper';
 const { accessToken } = auth.isAuthenticated();
 
 // obj:params, str:accesstoken, shop:shopData
-export const createShop = (params, shop) => {
-  return axios
+export const createShop = (params, shop, accessToken2, axiosPrivate) => {
+  return axiosPrivate
     .post(`/api/shops/by/${params.userId}`, shop, {
       headers: {
-        authorization: `Bearer ${accessToken}`
+        authorization: `Bearer ${accessToken2}`
       }
     })
     .then(resp => {
       return resp.data;
     })
     .catch(err => {
-      console.log(err);
       return err;
     });
 };
@@ -32,11 +31,11 @@ export const readShop = async (params, signal) => {
   }
 };
 
-export const updateShop = async (params, shop) => {
+export const updateShop = async (params, shop, accessToken2, axiosPrivate) => {
   try {
-    const response = await axios.patch(`/api/shops/${params.shopId}`, shop, {
+    const response = await axiosPrivate.patch(`/api/shops/${params.shopId}`, shop, {
       headers: {
-        authorization: `Bearer ${accessToken}`
+        authorization: `Bearer ${accessToken2}`
       }
     });
 
@@ -46,11 +45,11 @@ export const updateShop = async (params, shop) => {
   }
 };
 
-export const removeShop = async params => {
+export const removeShop = async (params, accessToken2, axiosPrivate) => {
   try {
-    const response = await axios.delete(`/api/shops/${params.shopId}`, {
+    const response = await axiosPrivate.delete(`/api/shops/${params.shopId}`, {
       headers: {
-        authorization: `Bearer ${accessToken}`
+        authorization: `Bearer ${accessToken2}`
       }
     });
 
@@ -71,12 +70,12 @@ export const list = async signal => {
   }
 };
 
-export const listByOwner = async (params, signal) => {
+export const listByOwner = async (params, signal, accessToken2, axiosPrivate) => {
   try {
-    const response = await axios.get(`/api/shops/by/${params.userId}`, {
+    const response = await axiosPrivate.get(`/api/shops/by/${params.userId}`, {
       signal,
       headers: {
-        authorization: `Bearer ${accessToken}`
+        authorization: `Bearer ${accessToken2}`
       }
     });
 

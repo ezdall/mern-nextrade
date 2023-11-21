@@ -10,7 +10,7 @@ import Typography from '@material-ui/core/Typography';
 import Icon from '@material-ui/core/Icon';
 import { makeStyles } from '@material-ui/core/styles';
 
-import useAuth from './useAuth';
+import useDataContext from './useDataContext';
 import auth from './auth-helper';
 import { login } from './api-auth';
 import { handleAxiosError } from '../axios';
@@ -45,7 +45,7 @@ export default function Login() {
   const classes = useStyles();
   const location = useLocation();
   const navigate = useNavigate();
-  const { setAuth } = useAuth();
+  const { setAuth } = useDataContext();
   const from = location.state?.from?.pathname || '/';
 
   const [values, setValues] = useState({
@@ -78,7 +78,6 @@ export default function Login() {
           setValues({ email: '', password: '' });
           setRedirect(true);
           navigate(from, { replace: true });
-          // auth.authenticate(data, () => { });
         }
       })
       .catch(err => {
@@ -102,8 +101,6 @@ export default function Login() {
   // if(redirect) {
   //   return <Navigate to={from} replace />
   // }
-
-  // console.log({error})
 
   return (
     <Card className={classes.card}>

@@ -13,6 +13,8 @@ import Icon from '@material-ui/core/Icon';
 
 import { createProduct } from './api-product';
 import { handleAxiosError } from '../axios';
+import useDataContext from '../auth/useDataContext';
+import useAxiosPrivate from '../auth/useAxiosPrivate';
 
 const useStyles = makeStyles(theme => ({
   card: {
@@ -50,6 +52,8 @@ const useStyles = makeStyles(theme => ({
 export default function NewProduct() {
   const classes = useStyles();
   const params = useParams();
+  const { auth: auth2 } = useDataContext();
+  const axiosPrivate = useAxiosPrivate();
 
   const [values, setValues] = useState({
     name: '',
@@ -64,7 +68,7 @@ export default function NewProduct() {
 
   const handleChange = ev => {
     const { name, value, files } = ev.target;
-    setValues({ ...values, error: '' })
+    setValues({ ...values, error: '' });
 
     const inputValue = name === 'image' ? files[0] : value;
 
@@ -92,7 +96,9 @@ export default function NewProduct() {
       {
         shopId: params.shopId
       },
-      productData
+      productData,
+      auth2.accessToken,
+      axiosPrivate
     ).then(data => {
       if (data?.isAxiosError) {
         // console.log({data})
@@ -103,8 +109,8 @@ export default function NewProduct() {
     });
   };
 
-  if(values.redirect){
-    return <Navigate to={`/seller/shop/edit/${params.shopId}`} />
+  if (values.redirect) {
+    return <Navigate to={`/seller/shop/edit/${params.shopId}`} />;
   }
 
   return (

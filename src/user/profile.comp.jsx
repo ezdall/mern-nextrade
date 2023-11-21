@@ -17,7 +17,9 @@ import Person from '@material-ui/icons/Person';
 import Divider from '@material-ui/core/Divider';
 
 import DeleteUser from './delete-user.comp';
+import useAxiosPrivate from '../auth/useAxiosPrivate';
 import auth from '../auth/auth-helper';
+import useDataContext from '../auth/useDataContext';
 import { handleAxiosError } from '../axios';
 
 import { read } from './api-user';
@@ -53,11 +55,14 @@ const useStyles = makeStyles(theme => ({
 
 export default function Profile() {
   const classes = useStyles();
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
   const params = useParams();
-  const location = useLocation();
+  // const location = useLocation();
+  const authUser = useDataContext().auth.user;
+  const { auth: auth2 } = useDataContext();
+  const axiosPrivate = useAxiosPrivate();
 
-  const { user: authUser } = auth.isAuthenticated();
+  // const { user: authUser } = auth.isAuthenticated();
 
   const [user, setUser] = useState({});
   const [isError, setIsError] = useState(false);
@@ -68,12 +73,10 @@ export default function Profile() {
 
     setIsError(false);
 
-    read({ userId: params.userId }, signal)
+    read({ userId: params.userId }, signal, auth2.accessToken, axiosPrivate)
       .then(data => {
         if (data?.isAxiosError) {
-          handleAxiosError(data, () =>
-            navigate('/login', { replace: true, state: { from: location } })
-          );
+          handleAxiosError(data);
           return setIsError(true);
         }
 
@@ -83,7 +86,7 @@ export default function Profile() {
       .catch(err => setIsError(true));
 
     return () => abortController.abort();
-  }, [location, navigate, params.userId]);
+  }, [auth2.accessToken, axiosPrivate, params.userId]);
 
   if (isError) return <p>Error...</p>;
 

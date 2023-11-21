@@ -12,6 +12,8 @@ import Avatar from '@material-ui/core/Avatar';
 import FileUpload from '@material-ui/icons/AddPhotoAlternate';
 import Grid from '@material-ui/core/Grid';
 
+import useAxiosPrivate from '../auth/useAxiosPrivate';
+import useDataContext from '../auth/useDataContext';
 import { readShop, updateShop } from './api-shop';
 import { BASE_URL } from '../axios';
 import MyProducts from '../product/my-products.comp';
@@ -61,6 +63,8 @@ const useStyles = makeStyles(theme => ({
 
 export default function EditShop() {
   const params = useParams();
+  const { auth: auth2 } = useDataContext();
+  const axiosPrivate = useAxiosPrivate();
 
   const classes = useStyles();
 
@@ -77,12 +81,7 @@ export default function EditShop() {
     const abortController = new AbortController();
     const { signal } = abortController;
 
-    readShop(
-      {
-        shopId: params.shopId
-      },
-      signal
-    ).then(data => {
+    readShop({ shopId: params.shopId }, signal).then(data => {
       if (data.isAxiosError) {
         return setValues(v => ({ ...v, error: data.message }));
       }
@@ -127,7 +126,12 @@ export default function EditShop() {
     if (description) shopData.append('description', description);
     if (image) shopData.append('image', image);
 
-    return updateShop({ shopId: params.shopId }, shopData)
+    return updateShop(
+      { shopId: params.shopId },
+      shopData,
+      auth2.accessToken,
+      axiosPrivate
+    )
       .then(data => {
         if (data.isAxiosError) {
           return setValues({ ...values, error: data.message });
@@ -144,8 +148,8 @@ export default function EditShop() {
     ? `${BASE_URL}/api/shops/logo/${values.id}?${new Date().getTime()}`
     : `${BASE_URL}/api/shops/defaultphoto`;
 
-  if(values.redirect){
-    return <Navigate to={'/seller/shops'} />
+  if (values.redirect) {
+    return <Navigate to="/seller/shops" />;
   }
 
   return (
@@ -183,12 +187,14 @@ export default function EditShop() {
               </span>
               <br />
               <TextField
+                autoFocus
                 id="name"
                 name="name"
                 label="Name"
                 className={classes.textField}
                 value={values.name}
                 onChange={handleChange}
+                error={!!values.error && !!values.name}
                 margin="normal"
               />
               <br />

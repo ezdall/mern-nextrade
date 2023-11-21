@@ -10,11 +10,15 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 
+import useDataContext from '../auth/useDataContext';
+import useAxiosPrivate from '../auth/useAxiosPrivate';
 import auth from '../auth/auth-helper';
 import { removeProduct } from './api-product';
 
 export default function DeleteProduct(props) {
   const { shopId, product, onRemoveProduct } = props;
+  const { auth: auth2 } = useDataContext();
+  const axiosPrivate = useAxiosPrivate();
 
   const [open, setOpen] = useState(false);
 
@@ -25,10 +29,14 @@ export default function DeleteProduct(props) {
   };
 
   const deleteProduct = () => {
-    removeProduct({
-      shopId,
-      productId: product._id
-    }).then(data => {
+    removeProduct(
+      {
+        shopId,
+        productId: product._id
+      },
+      auth2.accessToken,
+      axiosPrivate
+    ).then(data => {
       if (data.error) {
         return console.log(data.error);
       }

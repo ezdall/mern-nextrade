@@ -10,6 +10,8 @@ import Typography from '@material-ui/core/Typography';
 import Divider from '@material-ui/core/Divider';
 
 import { listByUser } from './api-order';
+import useDataContext from '../auth/useDataContext';
+import useAxiosPrivate from '../auth/useAxiosPrivate';
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -27,7 +29,10 @@ const useStyles = makeStyles(theme => ({
 export default function MyOrders() {
   const classes = useStyles();
   const params = useParams();
-  console.log({ params });
+  const axiosPrivate = useAxiosPrivate();
+  const { auth: auth2 } = useDataContext();
+  
+  // console.log({ params });
 
   const [orders, setOrders] = useState([]);
 
@@ -39,7 +44,9 @@ export default function MyOrders() {
       {
         userId: params.userId // jwt.user._id
       },
-      signal
+      signal,
+      auth2.accessToken,
+      axiosPrivate
     ).then(data => {
       if (data.isAxiosError) {
         console.log(data);
@@ -51,16 +58,16 @@ export default function MyOrders() {
       console.log('abort my-order');
       abortController.abort();
     };
-  }, [params.userId]);
+  }, [auth2.accessToken, axiosPrivate, params.userId]);
 
   return (
     <Paper className={classes.root} elevation={4}>
       <Typography type="title" className={classes.title}>
         Your Orders
       </Typography>
-      <List dense>
-        {orders.length &&
-          orders.map(order => {
+      {orders.length && (
+        <List dense>
+          {orders.map(order => {
             return (
               <span key={order._id}>
                 <Link to={`/order/${order._id}`}>
@@ -75,7 +82,8 @@ export default function MyOrders() {
               </span>
             );
           })}
-      </List>
+        </List>
+      )}
     </Paper>
   );
 }

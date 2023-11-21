@@ -13,6 +13,7 @@ import Divider from '@material-ui/core/Divider';
 
 import cart from './cart-helper';
 import auth from '../auth/auth-helper';
+import useDataContext from '../auth/useDataContext';
 
 const useStyles = makeStyles(theme => ({
   card: {
@@ -95,6 +96,7 @@ const useStyles = makeStyles(theme => ({
 
 export default function CartItems(props) {
   const location = useLocation();
+  const { auth: auth2 } = useDataContext();
 
   const { checkout, setCheckout } = props;
 
@@ -217,7 +219,7 @@ export default function CartItems(props) {
           <div className={classes.checkout}>
             <span className={classes.total}>Total: ${getTotal()}</span>
             {!checkout &&
-              (auth.isAuthenticated() ? (
+              (auth2.user ? (
                 <Button
                   color="secondary"
                   variant="contained"

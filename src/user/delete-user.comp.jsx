@@ -11,15 +11,20 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 
+import useAxiosPrivate from '../auth/useAxiosPrivate';
+import useDataContext from '../auth/useDataContext';
 import auth from '../auth/auth-helper';
 import { removeUser } from './api-user';
 import { handleAxiosError } from '../axios';
 
 export default function DeleteUser(props) {
+  const { auth: auth2 } = useDataContext();
+  const axiosPrivate = useAxiosPrivate();
+
   const { userId } = props;
 
   const [open, setOpen] = useState(false);
-  const [redirectHome, setRedirectHome] = useState(false)
+  const [redirectHome, setRedirectHome] = useState(false);
 
   const clickButton = () => {
     setOpen(true);
@@ -30,26 +35,24 @@ export default function DeleteUser(props) {
   };
 
   const deleteAccount = () => {
-    removeUser({
-      userId
-    }).then(data => {
+    removeUser({ userId }, auth2.accessToken, axiosPrivate).then(data => {
       if (data?.isAxiosError) {
         // console.log(data.message)
         handleRequestClose();
         return handleAxiosError(data);
       }
       auth.clearJWT(() => console.log('deleted'));
-      return setRedirectHome(true)
+      return setRedirectHome(true);
     });
   };
 
-  if(redirectHome){
-    return <Navigate to='/' replace />
+  if (redirectHome) {
+    return <Navigate to="/" replace />;
   }
 
   return (
     <span>
-      <IconButton aria-label="Delete" onClick={clickButton} color="secondary">
+      <IconButton aria-label="Delete" onClick={clickButton}>
         <DeleteIcon />
       </IconButton>
 

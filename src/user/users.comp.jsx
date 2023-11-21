@@ -14,6 +14,7 @@ import Typography from '@material-ui/core/Typography';
 import ArrowForward from '@material-ui/icons/ArrowForward';
 import Person from '@material-ui/icons/Person';
 
+import useDataContext from '../auth/useDataContext';
 import { usersList } from './api-user';
 import { handleAxiosError } from '../axios';
 
@@ -31,6 +32,7 @@ const useStyles = makeStyles(theme => ({
 export default function Users() {
   const classes = useStyles();
   const [users, setUsers] = useState([]);
+  const { auth: auth2 } = useDataContext();
 
   useEffect(() => {
     const abortController = new AbortController();

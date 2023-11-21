@@ -59,12 +59,13 @@ export default function Shops() {
       return setShops(data);
     });
 
-    return function cleanup() {
+    return () => {
+      console.log('abort shop-list')
       abortController.abort();
     };
   }, []);
 
-  console.log({ shops });
+  // console.log({ shops });
 
   return (
     <div>
@@ -73,7 +74,7 @@ export default function Shops() {
           All Shops
         </Typography>
         <List dense>
-          {shops.map(shop => {
+          {shops?.length && shops.map(shop => {
             return (
               <Link to={`/shops/${shop._id}`} key={shop._id}>
                 <Divider />

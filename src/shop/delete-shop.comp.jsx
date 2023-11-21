@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState } from 'react';
 // import PropTypes from 'prop-types'
 
 import IconButton from '@material-ui/core/IconButton';
@@ -12,10 +12,13 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 
 import { removeShop } from './api-shop';
 import { handleAxiosError } from '../axios';
+import useDataContext from '../auth/useDataContext';
+import useAxiosPrivate from '../auth/useAxiosPrivate';
 
 export default function DeleteShop(props) {
   const { shop, onRemoveShop } = props;
-  const dialogRef = useRef();
+  const { auth: auth2 } = useDataContext();
+  const axiosPrivate = useAxiosPrivate();
 
   const [open, setOpen] = useState(false);
 
@@ -24,17 +27,17 @@ export default function DeleteShop(props) {
   };
 
   const deleteShop = () => {
-    removeShop({
-      shopId: shop._id
-    }).then(data => {
-      if (data?.isAxiosError) {
-        console.log(data.message);
-        return handleAxiosError(data);
-      }
-      setOpen(false);
+    removeShop({ shopId: shop._id }, auth2.accessToken, axiosPrivate).then(
+      data => {
+        if (data?.isAxiosError) {
+          console.log(data.message);
+          return handleAxiosError(data);
+        }
+        setOpen(false);
 
-      return onRemoveShop(shop);
-    });
+        return onRemoveShop(shop);
+      }
+    );
   };
 
   const handleRequestClose = () => {
@@ -47,7 +50,7 @@ export default function DeleteShop(props) {
         <DeleteIcon />
       </IconButton>
 
-      <Dialog ref={dialogRef} open={open} onClose={handleRequestClose}>
+      <Dialog open={open} onClose={handleRequestClose}>
         <DialogTitle>{`Delete ${shop.name}`}</DialogTitle>
         <DialogContent>
           <DialogContentText>

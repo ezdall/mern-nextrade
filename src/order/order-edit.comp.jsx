@@ -73,6 +73,7 @@ export default function ProductOrderEdit(props) {
         setStatusList(data)
       }
     });
+
     return () => {
       console.log('order-edit');
       abortController.abort();
@@ -145,9 +146,6 @@ export default function ProductOrderEdit(props) {
       });
     }
   };
-
-  // console.log({ values });
-  // console.log({ products: order.products });
 
   return (
     <div>

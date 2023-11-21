@@ -5,6 +5,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import Card from '@material-ui/core/Card';
 import CardActions from '@material-ui/core/CardActions';
 import CardContent from '@material-ui/core/CardContent';
+import Icon from '@material-ui/core/Icon';
 import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
 import Typography from '@material-ui/core/Typography';
@@ -12,6 +13,8 @@ import FileUpload from '@material-ui/icons/AddPhotoAlternate';
 
 import { createShop } from './api-shop';
 import auth from '../auth/auth-helper';
+import useAxiosPrivate from '../auth/useAxiosPrivate';
+import useDataContext from '../auth/useDataContext';
 
 // style
 const useStyles = makeStyles(theme => ({
@@ -48,7 +51,12 @@ const useStyles = makeStyles(theme => ({
 }));
 
 export default function NewShop() {
-  const authUser = auth.isAuthenticated().user;
+
+  const { auth: auth2 } = useDataContext();
+  const authUser = useDataContext().auth.user;
+  const axiosPrivate = useAxiosPrivate();
+
+  console.log({ authNewShop: auth2 });
 
   const classes = useStyles();
   const [values, setValues] = useState({
@@ -64,12 +72,10 @@ export default function NewShop() {
   const handleChange = ev => {
     const { name, value, files } = ev.target;
 
-    setValues({ ...values, error: '' });
-
     // console.log(values)
 
     const inputValue = name === 'image' ? files[0] : value;
-    setValues({ ...values, [name]: inputValue });
+    setValues({ ...values, [name]: inputValue, error: '' });
   };
 
   const onClickSubmit = () => {
@@ -85,7 +91,12 @@ export default function NewShop() {
     if (description) shopData.append('description', description);
     if (image) shopData.append('image', image);
 
-    return createShop({ userId: authUser._id }, shopData)
+    return createShop(
+      { userId: authUser._id },
+      shopData,
+      auth2.accessToken,
+      axiosPrivate
+    )
       .then(data => {
         console.log({ data });
         if (data?.isAxiosError) {
@@ -98,8 +109,8 @@ export default function NewShop() {
       });
   };
 
-  if(values.redirect){
-    return <Navigate to={'/seller/shops'} />;
+  if (values.redirect) {
+    return <Navigate to="/seller/shops" />;
   }
 
   return (
@@ -151,7 +162,9 @@ export default function NewShop() {
           <br />
           {values.error && (
             <Typography component="p" color="error">
-              {/* <Icon color="error" className={classes.error}>error: </Icon> */}
+              <Icon color="error" className={classes.error}>
+                error:{' '}
+              </Icon>
               {values.error}
             </Typography>
           )}

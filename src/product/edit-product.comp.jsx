@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import { Link, Navigate, useParams } from 'react-router-dom';
 
 import { makeStyles } from '@material-ui/core/styles';
-// import {withStyles} from '@material-ui/core/styles'
 import Card from '@material-ui/core/Card';
 import CardActions from '@material-ui/core/CardActions';
 import CardContent from '@material-ui/core/CardContent';
@@ -15,6 +14,8 @@ import FileUpload from '@material-ui/icons/AddPhotoAlternate';
 
 import { readProduct, updateProduct } from './api-product';
 import { BASE_URL } from '../axios';
+import useDataContext from '../auth/useDataContext';
+import useAxiosPrivate from '../auth/useAxiosPrivate';
 
 const useStyles = makeStyles(theme => ({
   card: {
@@ -58,6 +59,8 @@ const useStyles = makeStyles(theme => ({
 export default function EditProduct() {
   const classes = useStyles();
   const params = useParams();
+  const { auth: auth2 } = useDataContext();
+  const axiosPrivate = useAxiosPrivate();
 
   const [values, setValues] = useState({
     name: '',
@@ -65,14 +68,15 @@ export default function EditProduct() {
     image: '',
     category: '',
     quantity: '',
-    price: '',
-    redirect: false,
-    error: ''
+    price: ''
   });
+
+  const [error, setError] = useState('')
+  const [redirect, setRedirect] = useState(false)
 
   useEffect(() => {
     const abortController = new AbortController();
-    const { signal } = abortController.signal;
+    const { signal } = abortController;
 
     readProduct(
       {
@@ -81,18 +85,20 @@ export default function EditProduct() {
       signal
     ).then(data => {
       if (data?.isAxiosError) {
-        return setValues(prevValues => ({ ...prevValues, error: data.message }));
+        return setError(data.message)
       }
+
       return setValues(prevValues => ({
-              ...prevValues,
-              id: data._id,
-              name: data.name,
-              description: data.description,
-              category: data.category,
-              quantity: data.quantity,
-              price: data.price
-            }));
+        ...prevValues,
+        id: data._id,
+        name: data.name,
+        description: data.description,
+        category: data.category,
+        quantity: data.quantity,
+        price: data.price
+      }));
     });
+
     return () => {
       console.log('abort edit-prod read');
       abortController.abort();
@@ -103,7 +109,7 @@ export default function EditProduct() {
     const { name, description, category, quantity, price, image } = values;
 
     if (!name || !quantity || !price) {
-      return setValues({ ...values, error: 'fill-up the required field!' });
+      return setError('fill-up the required field!')
     }
 
     const productData = new FormData();
@@ -121,12 +127,14 @@ export default function EditProduct() {
         shopId: params.shopId,
         productId: params.productId
       },
-      productData
+      productData,
+      auth2.accessToken,
+      axiosPrivate
     ).then(data => {
       if (data?.isAxiosError) {
-        return setValues({ ...values, error: data.message });
+        return setError(data.message)
       }
-      return setValues({ ...values, redirect: true });
+      return setRedirect(true)
     });
   };
 
@@ -142,8 +150,8 @@ export default function EditProduct() {
     ? `${BASE_URL}/api/product/image/${values.id}?${new Date().getTime()}`
     : `${BASE_URL}/api/products/defaultphoto`;
 
-  if(values.redirect){
-    return <Navigate to={`/seller/shop/edit/${params.shopId}`} />
+  if (values.redirect) {
+    return <Navigate to={`/seller/shop/edit/${params.shopId}`} />;
   }
 
   return (
@@ -177,8 +185,10 @@ export default function EditProduct() {
             label="Name"
             className={classes.textField}
             name="name"
+            required
             value={values.name}
             onChange={handleChange}
+            error={!!error}
             margin="normal"
           />
           <br />
@@ -211,6 +221,7 @@ export default function EditProduct() {
             name="quantity"
             value={values.quantity}
             onChange={handleChange}
+            error={!!error}
             type="number"
             margin="normal"
           />
@@ -222,16 +233,17 @@ export default function EditProduct() {
             name="price"
             value={values.price}
             onChange={handleChange}
+            error={!!error}
             type="number"
             margin="normal"
           />
           <br />
-          {values.error && (
+          {error && (
             <Typography component="p" color="error">
               <Icon color="error" className={classes.error}>
                 error
               </Icon>
-              {values.error}
+              {error}
             </Typography>
           )}
         </CardContent>
