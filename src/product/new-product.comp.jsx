@@ -61,14 +61,15 @@ export default function NewProduct() {
     image: '',
     category: '',
     quantity: '',
-    price: '',
-    redirect: false,
-    error: ''
+    price: ''
   });
+
+  const [error, setError] = useState('');
+  const [redirect, setRedirect] = useState(false);
 
   const handleChange = ev => {
     const { name, value, files } = ev.target;
-    setValues({ ...values, error: '' });
+    setError('');
 
     const inputValue = name === 'image' ? files[0] : value;
 
@@ -79,7 +80,7 @@ export default function NewProduct() {
     const { name, description, category, quantity, price, image } = values;
 
     if (!name || !quantity || !price) {
-      return setValues({ ...values, error: 'fill-up the required field!' });
+      return setError('fill-up the required field!');
     }
 
     const productData = new FormData();
@@ -92,24 +93,23 @@ export default function NewProduct() {
     if (quantity) productData.append('quantity', quantity);
     if (price) productData.append('price', price);
 
-    return createProduct(
-      {
-        shopId: params.shopId
-      },
+    return createProduct({
       productData,
-      auth2.accessToken,
-      axiosPrivate
-    ).then(data => {
+      axiosPrivate,
+      shopId: params.shopId,
+      accessToken2: auth2.accessToken
+    }).then(data => {
+      console.log({ dataCrtProd: data });
       if (data?.isAxiosError) {
-        // console.log({data})
         handleAxiosError(data);
-        return setValues({ ...values, error: data.message });
+        return setError(data.response.data.error);
       }
-      return setValues({ ...values, error: '', redirect: true });
+      setError('');
+      return setRedirect(true);
     });
   };
 
-  if (values.redirect) {
+  if (redirect) {
     return <Navigate to={`/seller/shop/edit/${params.shopId}`} />;
   }
 
@@ -140,9 +140,10 @@ export default function NewProduct() {
           <TextField
             id="name"
             label="Name"
-            className={classes.textField}
-            required
             name="name"
+            required
+            error={!!error}
+            className={classes.textField}
             value={values.name}
             onChange={handleChange}
             margin="normal"
@@ -163,8 +164,9 @@ export default function NewProduct() {
           <TextField
             id="category"
             label="Category"
-            className={classes.textField}
+            type="text"
             name="category"
+            className={classes.textField}
             value={values.category}
             onChange={handleChange}
             margin="normal"
@@ -173,33 +175,35 @@ export default function NewProduct() {
           <TextField
             id="quantity"
             label="Quantity"
-            className={classes.textField}
-            required
+            type="number"
             name="quantity"
+            required
+            error={!!error}
+            className={classes.textField}
             value={values.quantity}
             onChange={handleChange}
-            type="number"
             margin="normal"
           />
           <br />
           <TextField
             id="price"
             label="Price"
-            className={classes.textField}
-            required
+            type="number"
             name="price"
+            required
+            className={classes.textField}
+            error={!!error}
             value={values.price}
             onChange={handleChange}
-            type="number"
             margin="normal"
           />
           <br />
-          {values.error && (
+          {error && (
             <Typography component="p" color="error">
               <Icon color="error" className={classes.error}>
                 error
               </Icon>
-              {values.error}
+              {error}
             </Typography>
           )}
         </CardContent>

@@ -1,71 +1,88 @@
 import axios from '../axios';
 
-import auth from '../auth/auth-helper';
-
-const { accessToken } = auth.isAuthenticated();
-
-export const createOrder = async (params, order, token) => {
+export const createOrder = async ({
+  userId,
+  accessToken2,
+  axiosPrivate,
+  order,
+  token
+}) => {
   try {
-    const response = await axios.post(
-      `/api/orders/${params.userId}`,
+    const response = await axiosPrivate.post(
+      `/api/orders/${userId}`,
       { order, token },
       {
         headers: {
-          authorization: `Bearer ${accessToken}`
+          authorization: `Bearer ${accessToken2}`
         }
       }
     );
     return response.data;
   } catch (err) {
-    // console.log(err)
     return err;
   }
 };
 
-export const update = async (params, product) => {
+export const update = async ({
+  shopId,
+  axiosPrivate,
+  accessToken2,
+  product
+}) => {
   try {
-    const response = await axios.patch(
-      `/api/order/status/${params.shopId}`,
+    const response = await axiosPrivate.patch(
+      `/api/order/status/${shopId}`,
       product,
       {
         headers: {
-          authorization: `Bearer ${accessToken}`
+          authorization: `Bearer ${accessToken2}`
         }
       }
     );
     return response.data;
   } catch (err) {
-    // console.log(err)
     return err;
   }
 };
 
-export const cancelOrder = async (params, product) => {
+export const cancelOrder = async ({
+  shopId,
+  productId,
+  product,
+  axiosPrivate,
+  accessToken2
+}) => {
   try {
-    const response = await axios.patch(
-      `/api/order/${params.shopId}/cancel/${params.productId}`,
+    const response = await axiosPrivate.patch(
+      `/api/order/${shopId}/cancel/${productId}`,
       product,
       {
         headers: {
-          authorization: `Bearer ${accessToken}`
+          authorization: `Bearer ${accessToken2}`
         }
       }
     );
     return response.data;
   } catch (err) {
-    // console.log(err)
     return err;
   }
 };
 
-export const processCharge = async (params, product) => {
+export const processCharge = async ({
+  shopId,
+  orderId,
+  userId,
+  product,
+  accessToken2,
+  axiosPrivate
+}) => {
   try {
-    const response = await axios.patch(
-      `/api/order/${params.orderId}/charge/${params.userId}/${params.shopId}`,
+    const response = await axiosPrivate.patch(
+      `/api/order/${orderId}/charge/${userId}/${shopId}`,
       product,
       {
         headers: {
-          authorization: `Bearer ${accessToken}`
+          authorization: `Bearer ${accessToken2}`
         }
       }
     );
@@ -83,61 +100,56 @@ export const getStatusValues = async signal => {
     });
     return response.data;
   } catch (err) {
-    // console.log(err)
     return err;
   }
 };
 
-export const listByShop = async (params, signal) => {
+export const listByShop = async ({
+  shopId,
+  signal,
+  axiosPrivate,
+  accessToken2
+}) => {
   try {
-    console.log({ accessToken });
-    const response = await axios.get(`/api/orders/shop/${params.shopId}`, {
+    const response = await axiosPrivate.get(`/api/orders/shop/${shopId}`, {
       signal,
       headers: {
-        authorization: `Bearer ${accessToken}`
+        authorization: `Bearer ${accessToken2}`
       }
     });
     return response.data;
   } catch (err) {
-    // console.log(err)
     return err;
   }
 };
 
-export const listByUser = async (
-  params,
+export const listByUser = async ({
+  userId,
   signal,
   accessToken2,
   axiosPrivate
-) => {
+}) => {
   try {
-    const response = await axiosPrivate.get(
-      `/api/orders/user/${params.userId}`,
-      {
-        signal,
-        headers: {
-          authorization: `Bearer ${accessToken2}`
-        }
+    const response = await axiosPrivate.get(`/api/orders/user/${userId}`, {
+      signal,
+      headers: {
+        authorization: `Bearer ${accessToken2}`
       }
-    );
+    });
     return response.data;
   } catch (err) {
-    // console.log(err)
     return err;
   }
 };
 
-export const readOrder = async (params, signal) => {
+export const readOrder = async ({ orderId, signal }) => {
   try {
-    const response = await axios.get(`/api/order/${params.orderId}`, {
-      headers: {
-        authorization: `Bearer ${accessToken}`
-      },
+    const response = await axios.get(`/api/order/${orderId}`, {
       signal
     });
+
     return response.data;
   } catch (err) {
-    // console.log(err)
     return err;
   }
 };

@@ -48,9 +48,10 @@ export default function Search({ categories }) {
   const [values, setValues] = useState({
     category: '',
     search: '',
-    results: [],
-    searched: false
+    results: []
   });
+
+  const [searched, setSearched] = useState(false);
 
   const handleChange = event => {
     const { name, value } = event.target;
@@ -61,13 +62,14 @@ export default function Search({ categories }) {
   const search = () => {
     if (values.search) {
       list({
-        search: values.search || undefined,
+        search: values.search,
         category: values.category
       }).then(data => {
-        if (data.error) {
-          console.log(data.error);
+        if (data.isAxiosError) {
+          console.log({ errSearch: data.response.data.error });
         } else {
-          setValues({ ...values, results: data, searched: true });
+          setSearched(true);
+          setValues({ ...values, results: data });
         }
       });
     }
@@ -89,7 +91,7 @@ export default function Search({ categories }) {
           label="Select category"
           className={classes.textField}
           name="category"
-          value={values.category}
+          value={values.category || 'All'}
           onChange={handleChange}
           SelectProps={{
             MenuProps: {
@@ -99,11 +101,12 @@ export default function Search({ categories }) {
           margin="normal"
         >
           <MenuItem value="All">All</MenuItem>
-          {categories.map(option => (
-            <MenuItem key={option} value={option}>
-              {option}
-            </MenuItem>
-          ))}
+          {categories.length &&
+            categories.map(option => (
+              <MenuItem key={option} value={option}>
+                {option}
+              </MenuItem>
+            ))}
         </TextField>
         <TextField
           id="search"
@@ -124,7 +127,7 @@ export default function Search({ categories }) {
           <SearchIcon />
         </Button>
         <Divider />
-        <Products products={values.results} searched={values.searched} />
+        <Products products={values.results} searched={searched} />
       </Card>
     </div>
   );

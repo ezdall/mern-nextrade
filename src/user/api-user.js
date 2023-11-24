@@ -10,9 +10,9 @@ export const createUser = async userData => {
   }
 };
 
-export const read = async (params, signal, accessToken2, axiosPrivate) => {
+export const read = async ({ userId, signal, accessToken2, axiosPrivate }) => {
   try {
-    const response = await axiosPrivate.get(`/api/users/${params.userId}`, {
+    const response = await axiosPrivate.get(`/api/users/${userId}`, {
       signal,
       headers: {
         authorization: `Bearer ${accessToken2}`
@@ -24,9 +24,14 @@ export const read = async (params, signal, accessToken2, axiosPrivate) => {
   }
 };
 
-export const updateUser = async (params, userData, accessToken2, axiosPrivate) => {
+export const updateUser = async ({
+  userId,
+  user,
+  accessToken2,
+  axiosPrivate
+}) => {
   try {
-    const response = await axiosPrivate.patch(`/api/users/${params.userId}`, userData, {
+    const response = await axiosPrivate.patch(`/api/users/${userId}`, user, {
       headers: {
         authorization: `Bearer ${accessToken2}`
       }
@@ -37,9 +42,9 @@ export const updateUser = async (params, userData, accessToken2, axiosPrivate) =
   }
 };
 
-export const removeUser = async (params, accessToken2, axiosPrivate) => {
+export const removeUser = async ({ userId, accessToken2, axiosPrivate }) => {
   try {
-    const response = await axiosPrivate.delete(`/api/users/${params.userId}`, {
+    const response = await axiosPrivate.delete(`/api/users/${userId}`, {
       headers: {
         authorization: `Bearer ${accessToken2}`
       }
@@ -50,19 +55,29 @@ export const removeUser = async (params, accessToken2, axiosPrivate) => {
   }
 };
 
-export const stripeUpdate = async (authCode, signal, user, accessToken2, axiosPrivate) => {
+export const stripeUpdate = async (
+  code,
+  signal,
+  user,
+  accessToken2,
+  axiosPrivate
+) => {
   try {
-    const response = await axiosPrivate.patch(`/api/stripe-auth/${user._id}`, {stripe: authCode}, {
-      signal,
-      headers: {
-        authorization: `Bearer ${accessToken2}`
+    const response = await axiosPrivate.patch(
+      `/api/stripe-auth/${user._id}`,
+      { stripe: code },
+      {
+        signal,
+        headers: {
+          authorization: `Bearer ${accessToken2}`
+        }
       }
-    })
-    return response.data
-  } catch(err) {
-    return err
+    );
+    return response.data;
+  } catch (err) {
+    return err;
   }
-}
+};
 
 export const usersList = async signal => {
   try {

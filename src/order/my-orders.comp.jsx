@@ -31,7 +31,7 @@ export default function MyOrders() {
   const params = useParams();
   const axiosPrivate = useAxiosPrivate();
   const { auth: auth2 } = useDataContext();
-  
+
   // console.log({ params });
 
   const [orders, setOrders] = useState([]);
@@ -40,14 +40,12 @@ export default function MyOrders() {
     const abortController = new AbortController();
     const { signal } = abortController;
 
-    listByUser(
-      {
-        userId: params.userId // jwt.user._id
-      },
+    listByUser({
+      userId: params.userId,
+      accessToken2: auth2.accessToken,
       signal,
-      auth2.accessToken,
       axiosPrivate
-    ).then(data => {
+    }).then(data => {
       if (data.isAxiosError) {
         console.log(data);
       } else {
@@ -60,12 +58,14 @@ export default function MyOrders() {
     };
   }, [auth2.accessToken, axiosPrivate, params.userId]);
 
+  // console.log(orders.length)
+
   return (
     <Paper className={classes.root} elevation={4}>
       <Typography type="title" className={classes.title}>
         Your Orders
       </Typography>
-      {orders.length && (
+      {orders.length ? (
         <List dense>
           {orders.map(order => {
             return (
@@ -83,7 +83,7 @@ export default function MyOrders() {
             );
           })}
         </List>
-      )}
+      ) : null}
     </Paper>
   );
 }

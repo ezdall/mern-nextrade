@@ -18,7 +18,6 @@ import Divider from '@material-ui/core/Divider';
 
 import DeleteUser from './delete-user.comp';
 import useAxiosPrivate from '../auth/useAxiosPrivate';
-import auth from '../auth/auth-helper';
 import useDataContext from '../auth/useDataContext';
 import { handleAxiosError } from '../axios';
 
@@ -62,8 +61,6 @@ export default function Profile() {
   const { auth: auth2 } = useDataContext();
   const axiosPrivate = useAxiosPrivate();
 
-  // const { user: authUser } = auth.isAuthenticated();
-
   const [user, setUser] = useState({});
   const [isError, setIsError] = useState(false);
 
@@ -73,14 +70,18 @@ export default function Profile() {
 
     setIsError(false);
 
-    read({ userId: params.userId }, signal, auth2.accessToken, axiosPrivate)
+    read({ 
+      signal,
+      axiosPrivate,
+      userId: params.userId, 
+      accessToken2: auth2.accessToken
+    })
       .then(data => {
         if (data?.isAxiosError) {
+          console.log(data.response.data.error)
           handleAxiosError(data);
           return setIsError(true);
         }
-
-        // console.log({ data });
         return setUser(data.user);
       })
       .catch(err => setIsError(true));
@@ -105,7 +106,7 @@ export default function Profile() {
             </Avatar>
           </ListItemAvatar>
           <ListItemText primary={user.name} secondary={user.email} />
-          {authUser && String(authUser._id) === String(user._id) && (
+          {authUser && authUser._id === user._id && (
             <ListItemSecondaryAction>
               {user.seller &&
                 (user.stripe_seller ? (

@@ -13,7 +13,6 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 
 import useAxiosPrivate from '../auth/useAxiosPrivate';
 import useDataContext from '../auth/useDataContext';
-import auth from '../auth/auth-helper';
 import { removeUser } from './api-user';
 import { handleAxiosError } from '../axios';
 
@@ -35,13 +34,16 @@ export default function DeleteUser(props) {
   };
 
   const deleteAccount = () => {
-    removeUser({ userId }, auth2.accessToken, axiosPrivate).then(data => {
+    removeUser({ 
+      userId,
+      axiosPrivate,
+      accessToken2: auth2.accessToken
+    }).then(data => {
       if (data?.isAxiosError) {
-        // console.log(data.message)
+        console.log(data.response.data.error)
         handleRequestClose();
         return handleAxiosError(data);
       }
-      auth.clearJWT(() => console.log('deleted'));
       return setRedirectHome(true);
     });
   };

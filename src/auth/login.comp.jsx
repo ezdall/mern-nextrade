@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
 import { useLocation, useNavigate, Navigate } from 'react-router-dom';
 
 import Card from '@material-ui/core/Card';
@@ -10,8 +11,8 @@ import Typography from '@material-ui/core/Typography';
 import Icon from '@material-ui/core/Icon';
 import { makeStyles } from '@material-ui/core/styles';
 
+import { addAuth } from '../redux/auth.slice';
 import useDataContext from './useDataContext';
-import auth from './auth-helper';
 import { login } from './api-auth';
 import { handleAxiosError } from '../axios';
 
@@ -42,11 +43,17 @@ const useStyles = makeStyles(theme => ({
 }));
 
 export default function Login() {
+  // const auth = useSelector(state => state.auth);
+  const dispatch = useDispatch();
+
   const classes = useStyles();
   const location = useLocation();
   const navigate = useNavigate();
   const { setAuth } = useDataContext();
   const from = location.state?.from?.pathname || '/';
+
+  // console.log({ auth });
+   // console.log({location})
 
   const [values, setValues] = useState({
     email: '',
@@ -54,8 +61,6 @@ export default function Login() {
   });
   const [error, setError] = useState('');
   const [redirect, setRedirect] = useState(false);
-
-  // console.log({location})
 
   const clickSubmit = () => {
     const { email, password } = values;
@@ -68,11 +73,11 @@ export default function Login() {
       .then(data => {
         // console.log({data})
         if (data.isAxiosError) {
-          // console.log({ error: data.message });
           handleAxiosError(data);
-          // console.log({err:data})
+          console.log({errLogin:data.response.data})
           setError(data.response.data.error);
         } else {
+          dispatch(addAuth(data));
           setAuth(data);
           setError('');
           setValues({ email: '', password: '' });

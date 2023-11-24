@@ -11,7 +11,6 @@ import Grid from '@material-ui/core/Grid';
 
 import { readProduct, listRelated } from './api-product';
 import { BASE_URL } from '../axios';
-
 import Suggestions from './suggestions.comp';
 import AddToCart from '../cart/add-cart.comp';
 
@@ -77,9 +76,9 @@ export default function Product() {
     const abortController = new AbortController();
     const { signal } = abortController;
 
-    readProduct({ productId }, signal).then(data => {
+    readProduct({ productId, signal }).then(data => {
       if (data?.isAxiosError) {
-        return setError(data.message);
+        return setError(data.response.data.error);
       }
       return setProduct(data);
     });
@@ -95,9 +94,9 @@ export default function Product() {
     const abortController = new AbortController();
     const { signal } = abortController;
 
-    listRelated({ productId }, signal).then(data => {
+    listRelated({ productId, signal }).then(data => {
       if (data?.isAxiosError) {
-        return setError(data.message);
+        return setError(data.response.data.error);
       }
       return setSuggestions(data);
     });
@@ -121,7 +120,11 @@ export default function Product() {
           <Card className={classes.card}>
             <CardHeader
               title={product.name}
-              subheader={product.quantity > 0 ? 'In Stock' : 'Out of Stock'}
+              subheader={
+                product.quantity > 0
+                  ? `(${product.quantity}) in Stock`
+                  : 'Out of Stock'
+              }
               action={
                 <span className={classes.action}>
                   <AddToCart cartStyle={classes.addCart} item={product} />

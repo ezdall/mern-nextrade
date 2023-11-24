@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Navigate, useParams } from 'react-router-dom';
+
 import { makeStyles } from '@material-ui/core/styles';
 import Card from '@material-ui/core/Card';
 import CardActions from '@material-ui/core/CardActions';
@@ -72,10 +73,11 @@ export default function EditShop() {
     name: '',
     description: '',
     image: '',
-    redirect: false,
-    error: '',
     id: ''
   });
+
+  const [error, setError] = useState('');
+  const [redirect, setRedirect] = useState(false);
 
   useEffect(() => {
     const abortController = new AbortController();
@@ -83,11 +85,11 @@ export default function EditShop() {
 
     readShop({ shopId: params.shopId }, signal).then(data => {
       if (data.isAxiosError) {
-        return setValues(v => ({ ...v, error: data.message }));
+        return setError(data.response.data.error);
       }
-      console.log({ data });
-      return setValues(v => ({
-        ...v,
+
+      return setValues(prev => ({
+        ...prev,
         id: data._id,
         name: data.name,
         description: data.description,
@@ -100,16 +102,14 @@ export default function EditShop() {
       abortController.abort();
     };
   }, [params.shopId]);
-  // auto-loop when add [ ,values]
 
   const handleChange = ev => {
     const { name, value, files } = ev.target;
 
-    setValues({ ...values, error: '' });
-
-    // console.log(values)
+    setError('');
 
     const inputValue = name === 'image' ? files[0] : value;
+
     setValues({ ...values, [name]: inputValue });
   };
 
@@ -117,7 +117,7 @@ export default function EditShop() {
     const { name, description, image } = values;
 
     if (!name) {
-      return setValues({ ...values, error: 'name is required' });
+      return setError('name is required');
     }
 
     const shopData = new FormData();
@@ -126,29 +126,25 @@ export default function EditShop() {
     if (description) shopData.append('description', description);
     if (image) shopData.append('image', image);
 
-    return updateShop(
-      { shopId: params.shopId },
+    return updateShop({
       shopData,
-      auth2.accessToken,
-      axiosPrivate
-    )
-      .then(data => {
-        if (data.isAxiosError) {
-          return setValues({ ...values, error: data.message });
-        }
-        return setValues({ ...values, error: '', redirect: true });
-      })
-      .catch(err => {
-        console.error({ err });
-        setValues({ ...values, error: err });
-      });
+      axiosPrivate,
+      shopId: params.shopId,
+      accessToken2: auth2.accessToken
+    }).then(data => {
+      if (data.isAxiosError) {
+        return setError(data.response.data.error);
+      }
+      setError('');
+      return setRedirect(true);
+    });
   };
 
   const logoUrl = values.id
     ? `${BASE_URL}/api/shops/logo/${values.id}?${new Date().getTime()}`
     : `${BASE_URL}/api/shops/defaultphoto`;
 
-  if (values.redirect) {
+  if (redirect) {
     return <Navigate to="/seller/shops" />;
   }
 
@@ -189,12 +185,14 @@ export default function EditShop() {
               <TextField
                 autoFocus
                 id="name"
+                type="text"
                 name="name"
                 label="Name"
+                required
+                error={!!error}
                 className={classes.textField}
                 value={values.name}
                 onChange={handleChange}
-                error={!!values.error && !!values.name}
                 margin="normal"
               />
               <br />
@@ -218,12 +216,12 @@ export default function EditShop() {
                 Owner: {values.owner}
               </Typography>
               <br />
-              {values.error && (
+              {error && (
                 <Typography component="p" color="error">
                   <Icon color="error" className={classes.error}>
                     error
                   </Icon>
-                  {values.error}
+                  {error}
                 </Typography>
               )}
             </CardContent>

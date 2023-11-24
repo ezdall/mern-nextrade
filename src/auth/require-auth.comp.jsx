@@ -6,7 +6,7 @@ export default function RequireAuth() {
   const location = useLocation();
   const { auth } = useDataContext();
 
-  console.log({ reqiureAuth: auth });
+  console.log({ requireAuth: auth });
 
   return auth?.user ? (
     <Outlet />

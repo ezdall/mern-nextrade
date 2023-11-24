@@ -1,7 +1,7 @@
 // import PropTypes from 'prop-types'
 import { Link } from 'react-router-dom';
-import { makeStyles } from '@material-ui/core/styles';
 
+import { makeStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 import ImageList from '@material-ui/core/ImageList';
 import ImageListItem from '@material-ui/core/ImageListItem';
@@ -62,7 +62,7 @@ export default function Products(props) {
   const classes = useStyles();
   return (
     <div className={classes.root}>
-      {products.length ? (
+      {products?.length ? (
         <div className={classes.container}>
           <ImageList rowHeight={200} className={classes.gridList} cols={3}>
             {products.map(product => (
@@ -94,11 +94,11 @@ export default function Products(props) {
       ) : (
         searched && (
           <Typography
-            variant="subheading"
+            variant="subtitle1"
             component="h4"
             className={classes.title}
           >
-            No products found! :(
+            No products found!
           </Typography>
         )
       )}

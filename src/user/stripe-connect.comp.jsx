@@ -65,7 +65,12 @@ export default function StripeConnect() {
       }));
       // post call to stripe, get credentials and update user data
 
-      stripeUpdate(code, signal, auth2.user, auth2.accessToken, axiosPrivate).then(data => {
+      stripeUpdate({
+        code, signal, axiosPrivate,
+        user: auth2.user, 
+        accessToken2: auth2.accessToken
+      })
+      .then(data => {
         if (data.isAxiosError) {
           setValues(prevValues => ({
             ...prevValues,
@@ -76,18 +81,19 @@ export default function StripeConnect() {
         } else {
           setValues(prevValues => ({
             ...prevValues,
+            error: false,
             connected: true,
-            connecting: false,
-            error: false
+            connecting: false
           }));
         }
       });
     }
+    
     return () => {
       console.log('abort stripe-connect');
       abortController.abort();
     };
-  }, []);
+  }, [auth2.accessToken, auth2.user, axiosPrivate, location.search]);
 
   return (
     <div>

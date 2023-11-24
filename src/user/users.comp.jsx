@@ -32,7 +32,7 @@ const useStyles = makeStyles(theme => ({
 export default function Users() {
   const classes = useStyles();
   const [users, setUsers] = useState([]);
-  const { auth: auth2 } = useDataContext();
+  // const { auth: auth2 } = useDataContext();
 
   useEffect(() => {
     const abortController = new AbortController();
@@ -40,7 +40,7 @@ export default function Users() {
 
     usersList(signal).then(data => {
       if (data?.isAxiosError) {
-        console.log(data.message);
+        console.log({ errUserComp: data.response.data.error });
         return handleAxiosError(data);
       }
       return setUsers(data);
@@ -55,7 +55,7 @@ export default function Users() {
         All Users
       </Typography>
       <List dense>
-        {users.map(item => {
+        {users.length && users.map(item => {
           return (
             <Link to={`/user/${item._id}`} key={item._id}>
               <ListItem button>

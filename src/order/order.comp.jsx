@@ -10,7 +10,7 @@ import Grid from '@material-ui/core/Grid';
 import Divider from '@material-ui/core/Divider';
 
 import { readOrder } from './api-order';
-import { handleAxiosError } from '../axios';
+import { handleAxiosError, BASE_URL } from '../axios';
 
 const useStyles = makeStyles(theme => ({
   card: {
@@ -109,16 +109,14 @@ export default function Order() {
     const abortController = new AbortController();
     const { signal } = abortController;
 
-    readOrder(
-      {
-        orderId: params.orderId
-      },
+    readOrder({
+      orderId: params.orderId,
       signal
-    ).then(data => {
+    }).then(data => {
       console.log({ data });
       if (data.isAxiosError) {
+        console.log(data.response.data.error);
         handleAxiosError(data);
-        // console.log(data.error)
       } else {
         setOrder(data);
       }
@@ -148,8 +146,8 @@ export default function Order() {
         component="h2"
         className={classes.subheading}
       >
-        Order Code: <strong>{order._id}</strong> <br /> Placed on{' '}
-        {new Date(order.createdAt).toDateString()}
+        Order Code: <strong>{order._id}</strong> <br />
+        Placed on {new Date(order.createdAt).toDateString()}
       </Typography>
       <br />
       <Grid container spacing={4}>
@@ -161,7 +159,7 @@ export default function Order() {
                   <Card className={classes.cart}>
                     <CardMedia
                       className={classes.cover}
-                      image={`/api/product/image/${item.product._id}`}
+                      image={`${BASE_URL}/api/product/image/${item.product._id}`}
                       title={item.product.name}
                     />
                     <div className={classes.details}>

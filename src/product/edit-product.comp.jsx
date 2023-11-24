@@ -59,8 +59,8 @@ const useStyles = makeStyles(theme => ({
 export default function EditProduct() {
   const classes = useStyles();
   const params = useParams();
-  const { auth: auth2 } = useDataContext();
   const axiosPrivate = useAxiosPrivate();
+  const { auth: auth2 } = useDataContext();
 
   const [values, setValues] = useState({
     name: '',
@@ -71,21 +71,19 @@ export default function EditProduct() {
     price: ''
   });
 
-  const [error, setError] = useState('')
-  const [redirect, setRedirect] = useState(false)
+  const [error, setError] = useState('');
+  const [redirect, setRedirect] = useState(false);
 
   useEffect(() => {
     const abortController = new AbortController();
     const { signal } = abortController;
 
-    readProduct(
-      {
-        productId: params.productId
-      },
+    readProduct({
+      productId: params.productId,
       signal
-    ).then(data => {
+    }).then(data => {
       if (data?.isAxiosError) {
-        return setError(data.message)
+        return setError(data.response.data.error);
       }
 
       return setValues(prevValues => ({
@@ -109,7 +107,7 @@ export default function EditProduct() {
     const { name, description, category, quantity, price, image } = values;
 
     if (!name || !quantity || !price) {
-      return setError('fill-up the required field!')
+      return setError('fill-up the required field!');
     }
 
     const productData = new FormData();
@@ -122,19 +120,17 @@ export default function EditProduct() {
     if (quantity) productData.append('quantity', quantity);
     if (price) productData.append('price', price);
 
-    return updateProduct(
-      {
-        shopId: params.shopId,
-        productId: params.productId
-      },
+    return updateProduct({
       productData,
-      auth2.accessToken,
-      axiosPrivate
-    ).then(data => {
+      axiosPrivate,
+      shopId: params.shopId,
+      productId: params.productId,
+      accessToken2: auth2.accessToken
+    }).then(data => {
       if (data?.isAxiosError) {
-        return setError(data.message)
+        return setError(data.message);
       }
-      return setRedirect(true)
+      return setRedirect(true);
     });
   };
 

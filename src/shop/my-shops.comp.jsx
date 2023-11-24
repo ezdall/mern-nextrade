@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 
 import { makeStyles } from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
@@ -46,7 +46,6 @@ const useStyles = makeStyles(theme => ({
 }));
 
 export default function MyShops() {
-  const navigate = useNavigate();
   const { auth: auth2 } = useDataContext();
   const axiosPrivate = useAxiosPrivate();
   const userId = auth2.user._id;
@@ -54,25 +53,24 @@ export default function MyShops() {
   const classes = useStyles();
 
   const [shops, setShops] = useState([]);
-  // const [redirectToSignin, setRedirectToSignin] = useState(false);
-
-  // console.log({ userId });
 
   // all you shop
   useEffect(() => {
     const abortController = new AbortController();
     const { signal } = abortController;
 
-    listByOwner({ userId }, signal, auth2.accessToken, axiosPrivate).then(
-      data => {
-        if (data?.isAxiosError) {
-          return handleAxiosError(data);
-          // return setIsError(true);
-        }
-        console.log({ data });
-        return setShops(data);
+    listByOwner({
+      userId,
+      signal,
+      axiosPrivate,
+      accessToken2: auth2.accessToken
+    }).then(data => {
+      if (data?.isAxiosError) {
+        console.log({ errMyShop: data.response.data.error });
+        return handleAxiosError(data);
       }
-    );
+      return setShops(data);
+    });
 
     return () => {
       console.log('abort-my-shop');

@@ -1,13 +1,10 @@
 import queryString from 'query-string';
 
 import axios from '../axios';
-import auth from '../auth/auth-helper';
 
-const { accessToken } = auth.isAuthenticated();
-
-export const readProduct = async (params, signal) => {
+export const readProduct = async ({ productId, signal }) => {
   try {
-    const response = await axios.get(`/api/product/${params.productId}`, {
+    const response = await axios.get(`/api/product/${productId}`, {
       signal
     });
 
@@ -17,13 +14,18 @@ export const readProduct = async (params, signal) => {
   }
 };
 
-export const createProduct = async (params, product) => {
+export const createProduct = async ({
+  shopId,
+  productData,
+  accessToken2,
+  axiosPrivate
+}) => {
   try {
-    const response = await axios.post(
-      `/api/products/by/${params.shopId}`,
-      product,
+    const response = await axiosPrivate.post(
+      `/api/products/by/${shopId}`,
+      productData,
       {
-        headers: { authorization: `Bearer ${accessToken}` }
+        headers: { authorization: `Bearer ${accessToken2}` }
       }
     );
 
@@ -33,13 +35,19 @@ export const createProduct = async (params, product) => {
   }
 };
 
-export const updateProduct = async (params, product) => {
+export const updateProduct = async ({
+  shopId,
+  productId,
+  productData,
+  accessToken2,
+  axiosPrivate
+}) => {
   try {
-    const response = await axios.patch(
-      `/api/product/${params.shopId}/${params.productId}`,
-      product,
+    const response = await axiosPrivate.patch(
+      `/api/product/${shopId}/${productId}`,
+      productData,
       {
-        headers: { authorization: `Bearer ${accessToken}` }
+        headers: { authorization: `Bearer ${accessToken2}` }
       }
     );
 
@@ -49,13 +57,18 @@ export const updateProduct = async (params, product) => {
   }
 };
 
-export const removeProduct = async params => {
+export const removeProduct = async ({
+  accessToken2,
+  axiosPrivate,
+  productId,
+  shopId
+}) => {
   try {
-    const response = await axios.delete(
-      `/api/product/${params.shopId}/${params.productId}`,
+    const response = await axiosPrivate.delete(
+      `/api/product/${shopId}/${productId}`,
       {
         headers: {
-          authorization: `Bearer ${accessToken}`
+          authorization: `Bearer ${accessToken2}`
         }
       }
     );
@@ -85,47 +98,44 @@ export const listCategories = async signal => {
     });
     return response.data;
   } catch (err) {
-    // console.log(err)
     return err;
   }
 };
 
-export const listRelated = async (params, signal) => {
+export const listRelated = async ({ productId, signal }) => {
   try {
-    const response = await axios.get(
-      `/api/products/related/${params.productId}`,
-      {
-        signal
-      }
-    );
+    const response = await axios.get(`/api/products/related/${productId}`, {
+      signal
+    });
     return response.data;
   } catch (err) {
     return err;
   }
 };
 
-export const listByShop = async (params, signal) => {
+export const listByShop = async ({ shopId, signal }) => {
   try {
-    const response = await axios.get(`/api/products/by/${params.shopId}`, {
+    const response = await axios.get(`/api/products/by/${shopId}`, {
       signal
     });
 
     return response.data;
   } catch (err) {
-    // console.log(err)
     return err;
   }
 };
 
-export const list = async (params, signal) => {
+export const list = async ({ search, category, signal }) => {
   try {
-    const query = queryString.stringify(params);
+    const query = queryString.stringify({ search, category });
+
+    console.log({ query });
+
     const response = await axios.get(`/api/products?${query}`, {
       signal
     });
     return response.data;
   } catch (err) {
-    // console.log(err)
     return err;
   }
 };

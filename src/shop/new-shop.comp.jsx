@@ -12,7 +12,6 @@ import Typography from '@material-ui/core/Typography';
 import FileUpload from '@material-ui/icons/AddPhotoAlternate';
 
 import { createShop } from './api-shop';
-import auth from '../auth/auth-helper';
 import useAxiosPrivate from '../auth/useAxiosPrivate';
 import useDataContext from '../auth/useDataContext';
 
@@ -51,7 +50,6 @@ const useStyles = makeStyles(theme => ({
 }));
 
 export default function NewShop() {
-
   const { auth: auth2 } = useDataContext();
   const authUser = useDataContext().auth.user;
   const axiosPrivate = useAxiosPrivate();
@@ -62,27 +60,26 @@ export default function NewShop() {
   const [values, setValues] = useState({
     name: '',
     description: '',
-    image: '',
-    redirect: false,
-    error: '' // string
+    image: ''
   });
 
-  // console.log({ values });
+  const [error, setError] = useState('');
+  const [redirect, setRedirect] = useState(false);
 
   const handleChange = ev => {
     const { name, value, files } = ev.target;
 
-    // console.log(values)
+    setError('');
 
     const inputValue = name === 'image' ? files[0] : value;
-    setValues({ ...values, [name]: inputValue, error: '' });
+    setValues({ ...values, [name]: inputValue });
   };
 
   const onClickSubmit = () => {
     const { name, description, image } = values;
 
     if (!name) {
-      return setValues({ ...values, error: 'name is required' });
+      return setError('name is required');
     }
 
     const shopData = new FormData();
@@ -91,25 +88,23 @@ export default function NewShop() {
     if (description) shopData.append('description', description);
     if (image) shopData.append('image', image);
 
-    return createShop(
-      { userId: authUser._id },
+    return createShop({
       shopData,
-      auth2.accessToken,
-      axiosPrivate
-    )
-      .then(data => {
-        console.log({ data });
-        if (data?.isAxiosError) {
-          return setValues({ ...values, error: data.message });
-        }
-        return setValues({ ...values, error: '', redirect: true });
-      })
-      .catch(err => {
-        setValues({ ...values, error: err });
-      });
+      axiosPrivate,
+      userId: authUser._id,
+      accessToken2: auth2.accessToken
+    }).then(data => {
+      console.log({ data });
+      if (data?.isAxiosError) {
+        console.log({ errCrtShop: data });
+        return setError(data.response.data.error);
+      }
+      setError('');
+      return setRedirect(true);
+    });
   };
 
-  if (values.redirect) {
+  if (redirect) {
     return <Navigate to="/seller/shops" />;
   }
 
@@ -135,17 +130,18 @@ export default function NewShop() {
               <FileUpload />
             </Button>
           </label>
-          <span className={classes.filename}>{values.image?.name ?? ''}</span>
+          <span className={classes.filename}>{values.image?.name || ''}</span>
           <br />
           <TextField
             id="name"
             name="name"
             label="Name"
             margin="normal"
-            className={classes.textField}
-            value={values.name}
-            onChange={handleChange}
             required
+            error={!!error}
+            className={classes.textField}
+            onChange={handleChange}
+            value={values.name}
           />
           <br />
           <TextField
@@ -160,12 +156,12 @@ export default function NewShop() {
             margin="normal"
           />
           <br />
-          {values.error && (
+          {error && (
             <Typography component="p" color="error">
               <Icon color="error" className={classes.error}>
-                error:{' '}
+                error:
               </Icon>
-              {values.error}
+              {error}
             </Typography>
           )}
         </CardContent>

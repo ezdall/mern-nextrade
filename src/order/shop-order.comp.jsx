@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useSelector } from 'react-redux'
 import { useParams } from 'react-router-dom';
 
 import { makeStyles } from '@material-ui/core/styles';
@@ -12,8 +13,10 @@ import ExpandMore from '@material-ui/icons/ExpandMore';
 import Collapse from '@material-ui/core/Collapse';
 import Divider from '@material-ui/core/Divider';
 
+import useAxiosPrivate from '../auth/useAxiosPrivate';
+import useDataContext from '../auth/useDataContext';
+import OrderEdit from './order-edit.comp';
 import { listByShop } from './api-order';
-import ProductOrderEdit from './order-edit.comp';
 import { handleAxiosError } from '../axios';
 
 const useStyles = makeStyles(theme => ({
@@ -45,6 +48,11 @@ const useStyles = makeStyles(theme => ({
 export default function ShopOrder() {
   const classes = useStyles();
   const params = useParams();
+  const axiosPrivate = useAxiosPrivate()
+  const { auth } = useDataContext()
+  // const auth = useSelector(state => state.auth3)
+
+  console.log({auth})
 
   const [orders, setOrders] = useState([]);
   const [open, setOpen] = useState(0);
@@ -53,28 +61,32 @@ export default function ShopOrder() {
     const abortController = new AbortController();
     const { signal } = abortController;
 
-    listByShop(
-      {
-        shopId: params.shopId
-      },
-      signal
-    ).then(data => {
+    listByShop({
+        shopId: params.shopId,
+        accessToken2: auth.accessToken,
+        axiosPrivate,
+        signal
+      })
+      .then(data => {
       if (data.isAxiosError) {
-        // console.log(data)
+        console.log({ error: data.response.data.error })
         handleAxiosError(data);
       } else {
         setOrders(data);
       }
     });
+      
     return () => abortController.abort();
-  }, [params.shopId]);
+  }, [auth.accessToken, axiosPrivate, params.shopId]);
 
-  const handleClick = index => () => {
-    setOpen(index);
+  const handleClick = orderId => {
+    console.log({orderId})
+    setOpen(orderId);
   };
 
   const updateOrders = (index, updatedOrder) => {
     const updatedOrders = orders;
+
     updatedOrders[index] = updatedOrder;
     setOrders([...updatedOrders]);
   };
@@ -86,15 +98,15 @@ export default function ShopOrder() {
           Orders in {params.shop}
         </Typography>
         <List dense>
-          {orders.map((order, index) => {
+          {orders.length && orders.map((order, index) => {
             return (
               <span key={order._id}>
-                <ListItem button onClick={handleClick(index)}>
+                <ListItem button onClick={() => handleClick(index)}>
                   <ListItemText
                     primary={`Order # ${order._id}`}
                     secondary={new Date(order.createdAt).toDateString()}
                   />
-                  {open === index ? <ExpandLess /> : <ExpandMore />}
+                  {open !== index && <ExpandMore />}
                 </ListItem>
                 <Divider />
                 <Collapse
@@ -103,11 +115,13 @@ export default function ShopOrder() {
                   timeout="auto"
                   unmountOnExit
                 >
-                  <ProductOrderEdit
+                  <OrderEdit
                     shopId={params.shopId}
                     order={order}
                     orderIndex={index}
                     updateOrders={updateOrders}
+                    axiosPrivate={axiosPrivate}
+                    auth={auth}
                   />
                   <div className={classes.customerDetails}>
                     <Typography
@@ -137,8 +151,8 @@ export default function ShopOrder() {
                       component="h3"
                       color="primary"
                     >
-                      {order.delivery_address.city},{' '}
-                      {order.delivery_address.state}{' '}
+                      {order.delivery_address.city}, 
+                      {order.delivery_address.state} 
                       {order.delivery_address.zipcode}
                     </Typography>
                     <Typography

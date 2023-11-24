@@ -59,15 +59,12 @@ export default function EditProfile() {
   const classes = useStyles();
 
   // name
-  // const [name, setName] = useState('')
   const [validName, setValidName] = useState(false);
 
   // email
-  // const [email, setEmail] = useState('')
   const [validEmail, setValidEmail] = useState(false);
 
   // pass
-  // const [password, setPassword] = useState('')
   const [validPass, setValidPass] = useState(false);
 
   const [values, setValues] = useState({
@@ -89,26 +86,25 @@ export default function EditProfile() {
 
   useEffect(() => {
     const result = emailRegex.test(values.email);
-    setValidEmail(result);
+    setValidEmail({result});
   }, [values.email]);
 
   useEffect(() => {
     const result = passRegex.test(values.password);
-    setValidPass(result);
+    setValidPass({result});
   }, [values.password]);
 
   useEffect(() => {
     const abortController = new AbortController();
     const { signal } = abortController;
 
-    read(
-      {
-        userId: params.userId
-      },
-      signal,
-      auth2.accessToken,
-      axiosPrivate
-    ).then(data => {
+    read({
+        signal,
+        axiosPrivate,
+        userId: params.userId,
+        accessToken2: auth2.accessToken
+      })
+      .then(data => {
       if (data?.isAxiosError) {
         handleAxiosError(data);
         return setError(data.response.data.error);
@@ -118,7 +114,7 @@ export default function EditProfile() {
       return setValues(prev => ({ ...prev, ...data.user }));
     });
     return () => abortController.abort();
-  }, [params.userId]);
+  }, [params.userId, axiosPrivate, auth2.accessToken]);
 
   const handleChange = ev => {
     const { value, name } = ev.target;
@@ -139,8 +135,7 @@ export default function EditProfile() {
     let vPass = null;
     const vName = nameRegex.test(values.name);
     const vEmail = emailRegex.test(values.email);
-    const vSeller =
-      typeof values.seller === 'boolean' ? values.seller : undefined;
+    const vSeller = typeof values.seller === 'boolean'
 
     if (values.password) {
       vPass = passRegex.test(values.password);
@@ -154,16 +149,16 @@ export default function EditProfile() {
       name: values.name || undefined,
       email: values.email || undefined,
       password: values.password || undefined,
-      seller: values.seller || undefined
+      seller: values.seller
     };
 
     return updateUser(
       {
-        userId: params.userId
-      },
-      user,
-      auth2.accessToken,
-      axiosPrivate
+        user,
+        axiosPrivate,
+        userId: params.userId,
+        accessToken2: auth2.accessToken
+      }
     ).then(data => {
       if (data.isAxiosError) {
         handleAxiosError(data);
@@ -171,8 +166,6 @@ export default function EditProfile() {
       }
       setValues({ ...values, userId: data._id });
       return setRedirect(true);
-
-      // return auth.updateUser(data, () => {});
     });
   };
 

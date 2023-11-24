@@ -27,17 +27,19 @@ export default function DeleteShop(props) {
   };
 
   const deleteShop = () => {
-    removeShop({ shopId: shop._id }, auth2.accessToken, axiosPrivate).then(
-      data => {
-        if (data?.isAxiosError) {
-          console.log(data.message);
-          return handleAxiosError(data);
-        }
-        setOpen(false);
-
-        return onRemoveShop(shop);
+    removeShop({
+      shopId: shop._id,
+      accessToken2: auth2.accessToken,
+      axiosPrivate
+    }).then(data => {
+      if (data?.isAxiosError) {
+        console.log(data.response.data.error);
+        return handleAxiosError(data);
       }
-    );
+      setOpen(false);
+
+      return onRemoveShop(shop);
+    });
   };
 
   const handleRequestClose = () => {

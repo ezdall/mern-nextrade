@@ -1,12 +1,13 @@
 import axios from '../axios';
-import auth from '../auth/auth-helper';
 
-const { accessToken } = auth.isAuthenticated();
-
-// obj:params, str:accesstoken, shop:shopData
-export const createShop = (params, shop, accessToken2, axiosPrivate) => {
+export const createShop = ({
+  userId,
+  shopData,
+  accessToken2,
+  axiosPrivate
+}) => {
   return axiosPrivate
-    .post(`/api/shops/by/${params.userId}`, shop, {
+    .post(`/api/shops/by/${userId}`, shopData, {
       headers: {
         authorization: `Bearer ${accessToken2}`
       }
@@ -19,9 +20,9 @@ export const createShop = (params, shop, accessToken2, axiosPrivate) => {
     });
 };
 
-export const readShop = async (params, signal) => {
+export const readShop = async ({ shopId, signal }) => {
   try {
-    const response = await axios.get(`/api/shop/${params.shopId}`, {
+    const response = await axios.get(`/api/shop/${shopId}`, {
       signal
     });
 
@@ -31,13 +32,22 @@ export const readShop = async (params, signal) => {
   }
 };
 
-export const updateShop = async (params, shop, accessToken2, axiosPrivate) => {
+export const updateShop = async ({
+  shopId,
+  shopData,
+  accessToken2,
+  axiosPrivate
+}) => {
   try {
-    const response = await axiosPrivate.patch(`/api/shops/${params.shopId}`, shop, {
-      headers: {
-        authorization: `Bearer ${accessToken2}`
+    const response = await axiosPrivate.patch(
+      `/api/shops/${shopId}`,
+      shopData,
+      {
+        headers: {
+          authorization: `Bearer ${accessToken2}`
+        }
       }
-    });
+    );
 
     return response.data;
   } catch (err) {
@@ -45,9 +55,9 @@ export const updateShop = async (params, shop, accessToken2, axiosPrivate) => {
   }
 };
 
-export const removeShop = async (params, accessToken2, axiosPrivate) => {
+export const removeShop = async ({ shopId, accessToken2, axiosPrivate }) => {
   try {
-    const response = await axiosPrivate.delete(`/api/shops/${params.shopId}`, {
+    const response = await axiosPrivate.delete(`/api/shops/${shopId}`, {
       headers: {
         authorization: `Bearer ${accessToken2}`
       }
@@ -70,9 +80,14 @@ export const list = async signal => {
   }
 };
 
-export const listByOwner = async (params, signal, accessToken2, axiosPrivate) => {
+export const listByOwner = async ({
+  userId,
+  signal,
+  accessToken2,
+  axiosPrivate
+}) => {
   try {
-    const response = await axiosPrivate.get(`/api/shops/by/${params.userId}`, {
+    const response = await axiosPrivate.get(`/api/shops/by/${userId}`, {
       signal,
       headers: {
         authorization: `Bearer ${accessToken2}`

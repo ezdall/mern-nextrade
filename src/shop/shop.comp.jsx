@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
+
 import { makeStyles } from '@material-ui/core/styles';
 import Card from '@material-ui/core/Card';
 import CardContent from '@material-ui/core/CardContent';
@@ -7,11 +8,10 @@ import Typography from '@material-ui/core/Typography';
 import Avatar from '@material-ui/core/Avatar';
 import Grid from '@material-ui/core/Grid';
 
-
 import { readShop } from './api-shop';
-import Products from '../product/products.comp';
 import { listByShop } from '../product/api-product';
 import { BASE_URL } from '../axios';
+import Products from '../product/products.comp';
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -54,33 +54,29 @@ export default function Shop() {
   const [products, setProducts] = useState([]);
   const [error, setError] = useState('');
 
-  // console.log({shopId})
-
   useEffect(() => {
     const abortController = new AbortController();
     const { signal } = abortController;
 
-    listByShop(
-      {
-        shopId
-      },
+    listByShop({
+      shopId,
       signal
-    ).then(data => {
+    }).then(data => {
       if (data?.isAxiosError) {
-        return setError(data.message);
+        return setError(data.response.data.error);
       }
+      setError('');
       return setProducts(data);
     });
 
-    readShop(
-      {
-        shopId
-      },
+    readShop({
+      shopId,
       signal
-    ).then(data => {
+    }).then(data => {
       if (data?.isAxiosError) {
-        return setError(data.message);
+        return setError(data.response.data.error);
       }
+      setError('');
       return setShop(data);
     });
 
@@ -90,31 +86,11 @@ export default function Shop() {
     };
   }, [shopId]);
 
-  // useEffect(() => {
-  //   const abortController = new AbortController();
-  //   const { signal } = abortController;
-
-  //   listByShop(
-  //     {
-  //       shopId
-  //     },
-  //     signal
-  //   ).then(data => {
-  //     if (data?.isAxiosError) {
-  //       return setError(data.message);
-  //     }
-  //     return setProducts(data);
-  //   });
-
-  //   return function cleanup() {
-  //     console.log('shop-comp list-by-shop');
-  //     abortController.abort();
-  //   };
-  // }, [shopId]);
-
   const logoUrl = shop._id
     ? `${BASE_URL}/api/shops/logo/${shop._id}?${new Date().getTime()}`
     : `${BASE_URL}/api/shops/defaultphoto`;
+
+  if (error) return <p>Error...</p>;
 
   return (
     <div className={classes.root}>

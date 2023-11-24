@@ -49,20 +49,19 @@ const useStyles = makeStyles(theme => ({
 }));
 
 export default function MyProducts(props) {
-  const { shopId } = props;
   const classes = useStyles();
+
+  const { shopId } = props;
   const [products, setProducts] = useState([]);
 
   useEffect(() => {
     const abortController = new AbortController();
     const { signal } = abortController;
 
-    listByShop(
-      {
-        shopId
-      },
+    listByShop({
+      shopId,
       signal
-    ).then(data => {
+    }).then(data => {
       console.log({ data });
       if (data.isAxiosError) {
         console.log(data.message);
@@ -74,7 +73,7 @@ export default function MyProducts(props) {
       console.log('my-prod listByShop');
       abortController.abort();
     };
-  }, []);
+  }, [shopId]);
 
   const onRemoveProduct = product => {
     const filteredProducts = products.filter(prod => prod._id !== product._id);
@@ -95,51 +94,54 @@ export default function MyProducts(props) {
         </span>
       </Typography>
       <List dense>
-        {products.map(product => {
-          return (
-            <span key={product._id}>
-              <ListItem>
-                <CardMedia
-                  className={classes.cover}
-                  image={`${BASE_URL}/api/product/image/${
-                    product._id
-                  }?${new Date().getTime()}`}
-                  title={product.name}
-                />
-                <div className={classes.details}>
-                  <Typography
-                    type="headline"
-                    component="h2"
-                    color="primary"
-                    className={classes.productTitle}
-                  >
-                    {product.name}
-                  </Typography>
-                  <Typography
-                    type="subheading"
-                    component="h4"
-                    className={classes.subheading}
-                  >
-                    Quantity: {product.quantity} | Price: ${product.price}
-                  </Typography>
-                </div>
-                <ListItemSecondaryAction>
-                  <Link to={`/seller/${product.shop._id}/${product._id}/edit`}>
-                    <IconButton aria-label="Edit" color="primary">
-                      <Edit />
-                    </IconButton>
-                  </Link>
-                  <DeleteProduct
-                    product={product}
-                    shopId={shopId}
-                    onRemoveProduct={onRemoveProduct}
+        {products.length &&
+          products.map(product => {
+            return (
+              <span key={product._id}>
+                <ListItem>
+                  <CardMedia
+                    className={classes.cover}
+                    image={`${BASE_URL}/api/product/image/${
+                      product._id
+                    }?${new Date().getTime()}`}
+                    title={product.name}
                   />
-                </ListItemSecondaryAction>
-              </ListItem>
-              <Divider />
-            </span>
-          );
-        })}
+                  <div className={classes.details}>
+                    <Typography
+                      type="headline"
+                      component="h2"
+                      color="primary"
+                      className={classes.productTitle}
+                    >
+                      {product.name}
+                    </Typography>
+                    <Typography
+                      type="subheading"
+                      component="h4"
+                      className={classes.subheading}
+                    >
+                      Quantity: {product.quantity} | Price: ${product.price}
+                    </Typography>
+                  </div>
+                  <ListItemSecondaryAction>
+                    <Link
+                      to={`/seller/${product.shop._id}/${product._id}/edit`}
+                    >
+                      <IconButton aria-label="Edit" color="primary">
+                        <Edit />
+                      </IconButton>
+                    </Link>
+                    <DeleteProduct
+                      product={product}
+                      shopId={shopId}
+                      onRemoveProduct={onRemoveProduct}
+                    />
+                  </ListItemSecondaryAction>
+                </ListItem>
+                <Divider />
+              </span>
+            );
+          })}
       </List>
     </Card>
   );
