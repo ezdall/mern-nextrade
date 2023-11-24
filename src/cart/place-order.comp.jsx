@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
 // import PropTypes from 'prop-types'
 import { Navigate, useLocation } from 'react-router-dom';
 
@@ -9,9 +10,9 @@ import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
 import Icon from '@material-ui/core/Icon';
 
-import auth from '../auth/auth-helper';
-import cart from './cart-helper';
-
+import useDataContext from '../auth/useDataContext';
+import useAxiosPrivate from '../auth/useAxiosPrivate';
+import { emptyCart } from '../redux/cart.slice';
 import { createOrder } from '../order/api-order';
 import { handleAxiosError } from '../axios';
 
@@ -43,28 +44,29 @@ const useStyles = makeStyles(() => ({
   }
 }));
 
-const authUser = auth.isAuthenticated().user;
-
 export default function PlaceOrder(props) {
   const { checkoutDetails, onError } = props;
+  const { user: authUser, accessToken } = useDataContext().auth;
+  const axiosPrivate = useAxiosPrivate();
 
+  // const {user: authUser} = useSelector(state => state.auth3)
+  const dispatch = useDispatch();
   const stripe = useStripe();
   const elements = useElements();
-  const location = useLocation()
+  const location = useLocation();
 
-  console.log({location})
+  console.log({ authUser });
   // console.log({ stripe, elements });
 
   const classes = useStyles();
   const [values, setValues] = useState({
     order: {},
-    error: '',
-    orderId: '',
-    redirect: false
+    orderId: ''
   });
+  const [error, setError] = useState('');
+  const [redirect, setRedirect] = useState(false);
 
-  const placeOrder = event => {
-
+  const placeOrder = () => {
     const {
       products,
       customer_name,
@@ -87,38 +89,39 @@ export default function PlaceOrder(props) {
     }
 
     if (!elements || !stripe) {
-      return setValues({ ...values, error: 'no stripe yet' });
+      return setError('no stripe yet');
     }
 
     return stripe
       .createToken(elements.getElement(CardElement))
       .then(payload => {
-        console.log({payload})
+        console.log({ payload });
 
         if (payload.error) {
-          setValues({ ...values, error: payload.error.message });
+          setError(payload.error.message);
         } else {
-
-         createOrder(
-            { userId: authUser._id },
-            checkoutDetails,
-            payload.token.id
-          ).then(data => {
+          createOrder({
+            axiosPrivate,
+            userId: authUser._id,
+            order: checkoutDetails,
+            token: payload.token.id,
+            accessToken2: accessToken
+          }).then(data => {
             if (data?.isAxiosError) {
               handleAxiosError(data);
-            return setValues({ ...values, error: data.message });
-            } 
-            return cart.emptyCart(() => {
-              setValues({ ...values, orderId: data._id, redirect: true });
-            });
-          });
+              return setError(data.response.data.error);
+            }
 
+            setValues({ ...values, orderId: data._id });
+            dispatch(emptyCart());
+            return setRedirect(true);
+          });
         }
       });
   };
 
-  if(values.redirect){
-    return <Navigate to={`/order/${values.orderId}`} />
+  if (redirect) {
+    return <Navigate to={`/order/${values.orderId}`} />;
   }
 
   return (
@@ -149,12 +152,12 @@ export default function PlaceOrder(props) {
         }}
       />
       <div className={classes.checkout}>
-        {values.error && (
+        {error && (
           <Typography component="span" color="error" className={classes.error}>
             <Icon color="error" className={classes.errorIcon}>
               error
             </Icon>
-            {values.error}
+            {error}
           </Typography>
         )}
         <Button

@@ -1,4 +1,6 @@
-import { useState } from 'react';
+import { useEffect, useCallback } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+
 // import PropTypes from 'prop-types'
 import { Link, useLocation } from 'react-router-dom';
 import { makeStyles } from '@material-ui/core/styles';
@@ -11,9 +13,8 @@ import TextField from '@material-ui/core/TextField';
 import Typography from '@material-ui/core/Typography';
 import Divider from '@material-ui/core/Divider';
 
-import cart from './cart-helper';
-import auth from '../auth/auth-helper';
 import useDataContext from '../auth/useDataContext';
+import { selectCartItems, updateCart, removeProd } from '../redux/cart.slice';
 
 const useStyles = makeStyles(theme => ({
   card: {
@@ -97,45 +98,38 @@ const useStyles = makeStyles(theme => ({
 export default function CartItems(props) {
   const location = useLocation();
   const { auth: auth2 } = useDataContext();
+  const cart3 = useSelector(selectCartItems);
+  const dispatch = useDispatch();
+
+  console.log({ cart3 });
 
   const { checkout, setCheckout } = props;
 
   const classes = useStyles();
-  const [cartItems, setCartItems] = useState(cart.getCart());
 
-  // console.log(cartItems)
+  const getTotal = useCallback(() => {
+    console.log('callback');
+    return cart3.reduce((a, b) => {
+      return a + b.quantity * b.product.price;
+    }, 0);
+  }, [cart3]);
+
+  console.log(getTotal());
+
+  useEffect(() => {
+    if (getTotal() === 0) {
+      setCheckout(false);
+    }
+  }, [getTotal, setCheckout]);
 
   const handleChange = prodId => event => {
     const { value } = event.target;
 
-    const updatedCartItems = cartItems.map(c => {
-      if (c.id === prodId) {
-        if (value === 0) {
-          return { ...c, quantity: 1 };
-        }
-        return { ...c, quantity: Number(value) };
-      }
-      return c;
-    });
-
-    setCartItems(updatedCartItems);
-
-    cart.updateCart(prodId, Number(value));
+    dispatch(updateCart({ prodId, quantity: Number(value) }));
   };
 
-  const getTotal = () => {
-    return cartItems.reduce((a, b) => {
-      return a + b.quantity * b.product.price;
-    }, 0);
-  };
-
-  const removeItem = (index, prodId) => () => {
-    const updatedCartItems = cart.removeItem(index, prodId);
-
-    if (updatedCartItems.length === 0) {
-      setCheckout(false);
-    }
-    setCartItems(updatedCartItems);
+  const removeItem = prodId => {
+    dispatch(removeProd({ prodId }));
   };
 
   const openCheckout = () => {
@@ -147,9 +141,9 @@ export default function CartItems(props) {
       <Typography type="title" className={classes.title}>
         Shopping Cart
       </Typography>
-      {cartItems.length ? (
+      {cart3.length ? (
         <span>
-          {cartItems.map((item, i) => {
+          {cart3.map(item => {
             return (
               <span key={item.product._id}>
                 <Card className={classes.cart}>
@@ -205,7 +199,7 @@ export default function CartItems(props) {
                       <Button
                         className={classes.removeButton}
                         color="primary"
-                        onClick={removeItem(i, item.product._id)}
+                        onClick={() => removeItem(item.product._id)}
                       >
                         x Remove
                       </Button>
@@ -219,6 +213,7 @@ export default function CartItems(props) {
           <div className={classes.checkout}>
             <span className={classes.total}>Total: ${getTotal()}</span>
             {!checkout &&
+              getTotal() !== 0 &&
               (auth2.user ? (
                 <Button
                   color="secondary"

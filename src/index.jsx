@@ -1,8 +1,10 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { BrowserRouter } from 'react-router-dom';
+import { Provider } from 'react-redux';
 
 import { DataProvider } from './auth/data-provider.ctx';
+import { store } from './redux/store';
 
 // style
 import './index.css';
@@ -13,7 +15,9 @@ ReactDOM.render(
   <React.StrictMode>
     <BrowserRouter>
       <DataProvider>
-        <App />
+        <Provider store={store}>
+          <App />
+        </Provider>
       </DataProvider>
     </BrowserRouter>
   </React.StrictMode>,

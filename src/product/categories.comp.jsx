@@ -19,20 +19,23 @@ const useStyles = makeStyles(theme => ({
     display: 'flex',
     flexWrap: 'wrap',
     justifyContent: 'space-around',
-    overflow: 'hidden',
+    // overflow: 'hidden',
     background: theme.palette.background.paper
   },
   gridList: {
+    display: 'flex',
     flexWrap: 'nowrap',
+    columnGap: 2,
     width: '100%',
     transform: 'translateZ(0)'
+    // overflow: 'hidden'
   },
   tileTitle: {
     verticalAlign: 'middle',
     lineHeight: 2.5,
     textAlign: 'center',
     fontSize: '1.35em',
-    margin: '0 4px 0 0'
+    cursor: 'pointer'
   },
   card: {
     margin: 'auto',
@@ -62,6 +65,8 @@ export default function Categories(props) {
   const { categories } = props;
   const classes = useStyles();
 
+  console.log({ categories });
+
   const [products, setProducts] = useState([]);
   const [selected, setSelected] = useState(categories[0]);
 
@@ -69,14 +74,12 @@ export default function Categories(props) {
     const abortController = new AbortController();
     const { signal } = abortController;
 
-    list(
-      {
-        category: categories[0]
-      },
+    list({
+      category: categories[0],
       signal
-    ).then(data => {
+    }).then(data => {
       if (data.isAxiosError) {
-        console.log(data.message);
+        console.log(data.response.data.error);
         return handleAxiosError(data);
       }
       return setProducts(data);
@@ -101,7 +104,7 @@ export default function Categories(props) {
       return setProducts(data);
     });
   };
-  console.log({ categories });
+  // console.log({ categories });
 
   return (
     <div>
@@ -110,26 +113,21 @@ export default function Categories(props) {
           Explore by category
         </Typography>
         <div className={classes.root}>
-          <ImageList className={classes.gridList} cols={4}>
+          <ImageList className={classes.gridList} cols={4} rowHeight="auto">
             {categories.length &&
               categories.map(tile => (
                 <ImageListItem
                   key={tile}
                   className={classes.tileTitle}
+                  onClick={() => listbyCategory(tile)}
                   style={{
-                    height: '64px',
                     backgroundColor:
                       selected === tile
                         ? 'rgba(95, 139, 137, 0.56)'
                         : 'rgba(95, 124, 139, 0.32)'
                   }}
                 >
-                  <span
-                    className={classes.link}
-                    role="link"
-                    tabIndex="-1"
-                    onClick={() => listbyCategory(tile)}
-                  >
+                  <span className={classes.link}>
                     {tile}
                     <Icon className={classes.icon}>
                       {selected === tile && 'arrow_drop_down'}

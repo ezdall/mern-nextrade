@@ -1,13 +1,13 @@
-import { useState } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
 // import PropTypes from 'prop-types'
-import { Navigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { makeStyles } from '@material-ui/core/styles';
 
 import IconButton from '@material-ui/core/IconButton';
 import AddCartIcon from '@material-ui/icons/AddShoppingCart';
 import DisabledCartIcon from '@material-ui/icons/RemoveShoppingCart';
 
-import cart from './cart-helper';
+import { selectCartItems, addProd } from '../redux/cart.slice';
 
 const useStyles = makeStyles(() => ({
   iconButton: {
@@ -23,20 +23,17 @@ const useStyles = makeStyles(() => ({
 
 export default function AddToCart(props) {
   const { item, cartStyle } = props;
+  // const cart3 = useSelector(selectCartItems);
 
-  const [redirect, setRedirect] = useState(false) 
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const classes = useStyles();
 
   const addToCart = () => {
-    cart.addItem(item, () => {
-      setRedirect(true);
-    });
+    dispatch(addProd(item));
+    navigate('/cart');
   };
-
-if(redirect){
-  return <Navigate to='/cart' />
-}
 
   return (
     <span>

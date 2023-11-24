@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useSelector } from 'react-redux';
 
 import { makeStyles } from '@material-ui/core/styles';
 import Card from '@material-ui/core/Card';
@@ -6,9 +7,8 @@ import TextField from '@material-ui/core/TextField';
 import Typography from '@material-ui/core/Typography';
 import Icon from '@material-ui/core/Icon';
 
+import useDataContext from '../auth/useDataContext';
 import PlaceOrder from './place-order.comp';
-import auth from '../auth/auth-helper';
-import cart from './cart-helper';
 
 const useStyles = makeStyles(theme => ({
   card: {
@@ -45,13 +45,14 @@ const useStyles = makeStyles(theme => ({
 
 export default function Checkout() {
   const classes = useStyles();
+  const cart3 = useSelector(state => state.cart3);
 
-  const { user } = auth.isAuthenticated();
+  const { user } = useDataContext().auth;
 
   const [values, setValues] = useState({
     checkoutDetails: {
       // replace this
-      products: cart.getCart(),
+      products: cart3,
       customer_name: user.name,
       customer_email: user.email,
       delivery_address: {
@@ -64,13 +65,13 @@ export default function Checkout() {
     }
   });
 
-  const [error, setError] = useState('')
+  const [error, setError] = useState('');
 
   const handleCustomerChange = event => {
     const { value, name } = event.target;
     const { checkoutDetails } = values;
 
-    setError('')
+    setError('');
 
     checkoutDetails[name] = value;
     setValues({ ...values, checkoutDetails });
@@ -80,16 +81,16 @@ export default function Checkout() {
     const { value, name } = event.target;
     const { checkoutDetails } = values; // || undefined
 
-    setError('')
+    setError('');
 
     // mutating
     checkoutDetails.delivery_address[name] = value; // || undefined
     setValues({ ...values, checkoutDetails });
   };
 
-  const handleError = ev => {
+  const handleError = () => {
     // console.log({ ev });
-    setError('valid fields are required!')
+    setError('valid fields are required!');
   };
 
   return (
