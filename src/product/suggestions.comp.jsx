@@ -1,4 +1,4 @@
-// import PropTypes from 'prop-types'
+import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import { makeStyles } from '@material-ui/core/styles';
 
@@ -153,7 +153,7 @@ export default function Suggestions(props) {
   );
 }
 
-// Suggestions.propTypes = {
-//   products: PropTypes.array.isRequired,
-//   title: PropTypes.string.isRequired
-// }
+Suggestions.propTypes = {
+  products: PropTypes.arrayOf(PropTypes.shape).isRequired,
+  title: PropTypes.string.isRequired
+}

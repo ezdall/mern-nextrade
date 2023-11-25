@@ -1,10 +1,9 @@
 import { useEffect, useCallback } from 'react';
+import PropTypes from 'prop-types'
 import { useSelector, useDispatch } from 'react-redux';
-
-// import PropTypes from 'prop-types'
 import { Link, useLocation } from 'react-router-dom';
-import { makeStyles } from '@material-ui/core/styles';
 
+import { makeStyles } from '@material-ui/core/styles';
 import Card from '@material-ui/core/Card';
 import CardContent from '@material-ui/core/CardContent';
 import CardMedia from '@material-ui/core/CardMedia';
@@ -243,7 +242,7 @@ export default function CartItems(props) {
   );
 }
 
-// CartItems.propTypes = {
-//   checkout: PropTypes.bool.isRequired,
-//   setCheckout: PropTypes.func.isRequired
-// }
+CartItems.propTypes = {
+  checkout: PropTypes.bool.isRequired,
+  setCheckout: PropTypes.func.isRequired
+}

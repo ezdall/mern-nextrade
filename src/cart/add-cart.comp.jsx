@@ -1,5 +1,6 @@
 import { useSelector, useDispatch } from 'react-redux';
-// import PropTypes from 'prop-types'
+import PropTypes from 'prop-types';
+
 import { useNavigate } from 'react-router-dom';
 import { makeStyles } from '@material-ui/core/styles';
 
@@ -35,6 +36,8 @@ export default function AddToCart(props) {
     navigate('/cart');
   };
 
+  console.log({item})
+
   return (
     <span>
       {item.quantity >= 0 ? (
@@ -52,7 +55,9 @@ export default function AddToCart(props) {
   );
 }
 
-// AddToCart.propTypes = {
-//   item: PropTypes.object.isRequired,
-//   cartStyle: PropTypes.string
-// }
+AddToCart.propTypes = {
+  cartStyle: PropTypes.string.isRequired,
+  item: PropTypes.shape({
+    quantity: PropTypes.number.isRequired
+  }).isRequired
+}

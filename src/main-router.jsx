@@ -29,7 +29,11 @@ import Cart from './cart/cart.comp';
 export default function MainRouter() {
   return (
     <div>
-      <Menu />
+      <Routes>
+        <Route element={<PersistLogin />}>
+          <Route path="*" element={<Menu />} />
+        </Route>
+      </Routes>
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />

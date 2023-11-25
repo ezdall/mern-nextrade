@@ -1,5 +1,5 @@
 import { useState } from 'react';
-// import PropTypes from 'prop-types'
+import PropTypes from 'prop-types';
 
 import { makeStyles } from '@material-ui/core/styles';
 import Card from '@material-ui/core/Card';
@@ -132,6 +132,6 @@ export default function Search({ categories }) {
     </div>
   );
 }
-// Search.propTypes = {
-//   categories: PropTypes.array.isRequired
-// }
+Search.propTypes = {
+  categories: PropTypes.arrayOf(PropTypes.string).isRequired
+}

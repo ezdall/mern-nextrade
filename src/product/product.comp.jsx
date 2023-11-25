@@ -67,7 +67,10 @@ export default function Product() {
   const classes = useStyles();
   const { productId } = useParams();
 
-  const [product, setProduct] = useState({ shop: {} });
+  const [product, setProduct] = useState({ 
+    quantity: 0,
+    shop: {} 
+  });
   const [suggestions, setSuggestions] = useState([]);
   const [error, setError] = useState('');
 

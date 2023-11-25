@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Navigate } from 'react-router-dom';
-// import PropTypes from 'prop-types'
+import PropTypes from 'prop-types';
 
 import IconButton from '@material-ui/core/IconButton';
 import Button from '@material-ui/core/Button';
@@ -17,10 +17,10 @@ import { removeUser } from './api-user';
 import { handleAxiosError } from '../axios';
 
 export default function DeleteUser(props) {
+  const { userId } = props;
+
   const { auth: auth2 } = useDataContext();
   const axiosPrivate = useAxiosPrivate();
-
-  const { userId } = props;
 
   const [open, setOpen] = useState(false);
   const [redirectHome, setRedirectHome] = useState(false);
@@ -40,7 +40,7 @@ export default function DeleteUser(props) {
       accessToken2: auth2.accessToken
     }).then(data => {
       if (data?.isAxiosError) {
-        console.log(data.response.data.error)
+        console.log({errDelUsr: data.response.data.error})
         handleRequestClose();
         return handleAxiosError(data);
       }
@@ -80,6 +80,6 @@ export default function DeleteUser(props) {
   );
 }
 
-// DeleteUser.propTypes = {
-//   userId: PropTypes.string.isRequired
-// }
+DeleteUser.propTypes = {
+  userId: PropTypes.string.isRequired
+}

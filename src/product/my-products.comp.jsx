@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-// import PropTypes from 'prop-types'
+import PropTypes from 'prop-types';
 
 import { makeStyles } from '@material-ui/core/styles';
 
@@ -147,6 +147,6 @@ export default function MyProducts(props) {
   );
 }
 
-// MyProducts.propTypes = {
-//   shopId: PropTypes.string.isRequired
-// }
+MyProducts.propTypes = {
+  shopId: PropTypes.string.isRequired
+}

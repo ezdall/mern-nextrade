@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-// import PropTypes from 'prop-types'
+import PropTypes from 'prop-types';
 
 import { makeStyles } from '@material-ui/core/styles';
 import Card from '@material-ui/core/Card';
@@ -98,13 +98,13 @@ export default function Categories(props) {
       category
     }).then(data => {
       if (data.isAxiosError) {
-        console.log(data.message);
+        console.log(data.response.data.error);
         return handleAxiosError(data);
       }
       return setProducts(data);
     });
   };
-  // console.log({ categories });
+  console.log({ categories });
 
   return (
     <div>
@@ -143,6 +143,7 @@ export default function Categories(props) {
     </div>
   );
 }
-// Categories.propTypes = {
-//   categories: PropTypes.array.isRequired
-// }
+
+Categories.propTypes = {
+  categories: PropTypes.arrayOf(PropTypes.string.isRequired).isRequired
+}

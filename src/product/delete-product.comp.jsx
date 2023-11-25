@@ -1,5 +1,5 @@
 import { useState } from 'react';
-// import PropTypes from 'prop-types'
+import PropTypes from 'prop-types';
 
 import IconButton from '@material-ui/core/IconButton';
 import Button from '@material-ui/core/Button';
@@ -12,11 +12,11 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 
 import useDataContext from '../auth/useDataContext';
 import useAxiosPrivate from '../auth/useAxiosPrivate';
-
 import { removeProduct } from './api-product';
 
 export default function DeleteProduct(props) {
   const { shopId, product, onRemoveProduct } = props;
+
   const { auth: auth2 } = useDataContext();
   const axiosPrivate = useAxiosPrivate();
 
@@ -41,9 +41,12 @@ export default function DeleteProduct(props) {
       return onRemoveProduct(product);
     });
   };
+
   const handleRequestClose = () => {
     setOpen(false);
   };
+
+  console.log({product})
 
   return (
     <span>
@@ -73,8 +76,12 @@ export default function DeleteProduct(props) {
     </span>
   );
 }
-// DeleteProduct.propTypes = {
-//   shopId: PropTypes.string.isRequired,
-//   product: PropTypes.object.isRequired,
-//   onRemove: PropTypes.func.isRequired
-// }
+
+DeleteProduct.propTypes = {
+  product: PropTypes.shape({
+    _id: PropTypes.string.isRequired,
+    name: PropTypes.string.isRequired,
+  }).isRequired,
+  shopId: PropTypes.string.isRequired,
+  onRemoveProduct: PropTypes.func.isRequired
+}

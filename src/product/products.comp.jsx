@@ -1,4 +1,4 @@
-// import PropTypes from 'prop-types'
+import PropTypes from 'prop-types'
 import { Link } from 'react-router-dom';
 
 import { makeStyles } from '@material-ui/core/styles';
@@ -59,6 +59,8 @@ export default function Products(props) {
   // console.log({ props });
   const { products, searched } = props;
 
+  console.log({products})
+
   const classes = useStyles();
   return (
     <div className={classes.root}>
@@ -106,7 +108,7 @@ export default function Products(props) {
   );
 }
 
-// Products.propTypes = {
-//   products: PropTypes.array.isRequired,
-//   searched: PropTypes.bool.isRequired
-// }
+Products.propTypes = {
+  products: PropTypes.arrayOf(PropTypes.shape).isRequired,
+  searched: PropTypes.bool.isRequired
+}

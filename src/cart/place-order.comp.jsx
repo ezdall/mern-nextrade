@@ -1,8 +1,7 @@
 import { useState } from 'react';
+import PropTypes from 'prop-types'
 import { useSelector, useDispatch } from 'react-redux';
-// import PropTypes from 'prop-types'
 import { Navigate, useLocation } from 'react-router-dom';
-
 import { CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
 
 import { makeStyles } from '@material-ui/core/styles';
@@ -124,6 +123,8 @@ export default function PlaceOrder(props) {
     return <Navigate to={`/order/${values.orderId}`} />;
   }
 
+  console.log({checkoutDetails})
+
   return (
     <span>
       <Typography
@@ -172,6 +173,18 @@ export default function PlaceOrder(props) {
     </span>
   );
 }
-// PlaceOrder.propTypes = {
-//   checkoutDetails: PropTypes.object.isRequired
-// }
+
+PlaceOrder.propTypes = {
+  onError: PropTypes.func.isRequired,
+  checkoutDetails: PropTypes.shape({
+    products: PropTypes.arrayOf(PropTypes.shape.isRequired),
+    customer_name: PropTypes.string.isRequired,
+    customer_email: PropTypes.string.isRequired,
+    delivery_address: PropTypes.shape({
+      street: PropTypes.string.isRequired,
+      city: PropTypes.string.isRequired,
+      zipcode: PropTypes.string.isRequired,
+      country: PropTypes.string.isRequired
+    }).isRequired
+  }).isRequired
+}

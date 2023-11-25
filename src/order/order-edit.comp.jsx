@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-// import PropTypes from 'prop-types'
+import PropTypes from 'prop-types'
 
 import { makeStyles } from '@material-ui/core/styles';
 import List from '@material-ui/core/List';
@@ -51,6 +51,8 @@ const useStyles = makeStyles(theme => ({
 
 export default function ProductOrderEdit(props) {
   const { updateOrders, shopId, order, orderIndex, axiosPrivate, auth } = props;
+
+  console.log({order})
 
   const classes = useStyles();
   const [open, setOpen] = useState(0);
@@ -157,6 +159,8 @@ export default function ProductOrderEdit(props) {
     }
   };
 
+  
+
   return (
     <div>
       <Typography
@@ -222,9 +226,32 @@ export default function ProductOrderEdit(props) {
     </div>
   );
 }
-// ProductOrderEdit.propTypes = {
-//   shopId: PropTypes.string.isRequired,
-//   order: PropTypes.object.isRequired,
-//   orderIndex: PropTypes.number.isRequired,
-//   updateOrders: PropTypes.func.isRequired
-// }
+
+ProductOrderEdit.propTypes = {
+  axiosPrivate: PropTypes.func.isRequired,
+  shopId: PropTypes.string.isRequired,
+  orderIndex: PropTypes.number.isRequired,
+  updateOrders: PropTypes.func.isRequired,
+
+  auth: PropTypes.shape({
+    accessToken: PropTypes.string.isRequired,
+    user: PropTypes.shape({
+      _id: PropTypes.string.isRequired
+    }).isRequired
+  }).isRequired,
+  
+  order: PropTypes.shape({
+    _id: PropTypes.string.isRequired,
+
+    products: PropTypes.arrayOf(PropTypes.shape({
+      _id: PropTypes.string.isRequired,
+      quantity: PropTypes.number.isRequired,
+      status: PropTypes.string.isRequired,
+      product: PropTypes.shape({
+        _id: PropTypes.string,
+        name: PropTypes.string,
+        price: PropTypes.number
+      })
+    }))
+  }).isRequired
+}
