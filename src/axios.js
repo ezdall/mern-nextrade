@@ -4,12 +4,14 @@ export const BASE_URL = process.env.REACT_APP_API_URL;
 // 'http://localhost:3000';
 
 export default axios.create({
-  baseURL: BASE_URL
+  baseURL: BASE_URL,
+  timeout: 2000
 });
 
 export const axiosPrivate = axios.create({
   baseURL: BASE_URL,
-  withCredentials: true
+  withCredentials: true,
+  timeout: 3500
 });
 
 export const handleAxiosError = (
