@@ -1,18 +1,16 @@
 import { ThemeProvider } from '@material-ui/styles';
 
-//
 import MainRouter from './main-router';
-import ErrorBoundry from './components/error-boundry.comp'
+import ErrorBoundary from './components/error-boundary.comp';
 
-// style
 import theme from './theme';
 
 export default function App() {
   return (
     <ThemeProvider theme={theme}>
-      <ErrorBoundry>
+      <ErrorBoundary>
         <MainRouter />
-      </ErrorBoundry>
+      </ErrorBoundary>
     </ThemeProvider>
   );
 }

@@ -16,7 +16,7 @@ import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 
 import { createUser } from './api-user';
-import { handleAxiosError } from '../axios';
+// import { handleAxiosError } from '../axios';
 
 const useStyles = makeStyles(theme => ({
   card: {
@@ -47,70 +47,69 @@ const useStyles = makeStyles(theme => ({
 // just a sample regex
 const nameRegex = /^[a-zA-Z0-9-_]{1,23}$/;
 const passRegex = /^[a-zA-Z0-9]{4,24}$/;
-const emailRegex = /^[a-zA-Z0-9]*@[a-zA-Z0-9]+(?:\.[a-zA-Z0-9]+)*$/
+const emailRegex = /^[a-zA-Z0-9]*@[a-zA-Z0-9]+(?:\.[a-zA-Z0-9]+)*$/;
 
-export default function Signup() {
+export default function SignUp() {
   const classes = useStyles();
 
   // name
-  const [name, setName] = useState('')
-  const [validName, setValidName] = useState(false)
+  const [name, setName] = useState('');
+  const [validName, setValidName] = useState(false);
 
   // email
-  const [email, setEmail] = useState('')
-  const [validEmail, setValidEmail] = useState(false)
+  const [email, setEmail] = useState('');
+  const [validEmail, setValidEmail] = useState(false);
 
   // pass
-  const [password, setPassword] = useState('')
-  const [validPass, setValidPass] = useState(false)
+  const [password, setPassword] = useState('');
+  const [validPass, setValidPass] = useState(false);
 
   //
-  const [open, setOpen] = useState(false)
-  const [error, setError] = useState('')
+  const [open, setOpen] = useState(false);
+  const [error, setError] = useState('');
 
-  useEffect(()=> {
-    const result = nameRegex.test(name)
-    setValidName(result)
-  }, [name])
-
-  useEffect(()=> {
-    const result = emailRegex.test(email)
-    setValidEmail(result)
-  }, [email])
-
-  useEffect(()=>{
-    const result = passRegex.test(password)
-    setValidPass(result)
-  },[password])
-
-// reset error
   useEffect(() => {
-    setError('')
-  }, [name, email, password])
+    const result = nameRegex.test(name);
+    setValidName(result);
+  }, [name]);
 
+  useEffect(() => {
+    const result = emailRegex.test(email);
+    setValidEmail(result);
+  }, [email]);
+
+  useEffect(() => {
+    const result = passRegex.test(password);
+    setValidPass(result);
+  }, [password]);
+
+  // reset error
+  useEffect(() => {
+    setError('');
+  }, [name, email, password]);
 
   const clickSubmit = () => {
+    const vName = nameRegex.test(name);
+    const vEmail = emailRegex.test(email);
+    const vPass = passRegex.test(password);
 
-    const vName = nameRegex.test(name)
-    const vEmail = emailRegex.test(email)
-    const vPass = passRegex.test(password)
-
-    if(!vName || !vEmail || !vPass){
-      return setError('valid fields are required')
+    if (!vName || !vEmail || !vPass) {
+      return setError('valid fields are required');
     }
 
-    return createUser({name, email,password}).then(data => {
+    return createUser({
+      name,
+      email,
+      password
+    }).then(data => {
       if (data?.isAxiosError) {
-        handleAxiosError(data);
-        console.log({data})
+        console.log({ data });
         return setError(data.response.data.error);
       }
-      setError('')
+      setError('');
       return setOpen(true);
     });
   };
-
-  // console.log(validName)
 
   const handleClose = (e, r) => {
     console.log({ e, r });
@@ -130,7 +129,7 @@ export default function Signup() {
             label="Name"
             className={classes.textField}
             value={name}
-            onChange={e=> setName(e.target.value)}
+            onChange={e => setName(e.target.value)}
             error={(!!name && !validName) || !!error}
             required
             margin="normal"

@@ -1,26 +1,24 @@
 import { createSlice } from '@reduxjs/toolkit';
 
-const initialState = {
-  accessToken: '',
-  user: {}
-};
+const initialState = {};
+
+// JSON.parse(window?.sessionStorage?.getItem('cart')) ||
 
 export const authSlice = createSlice({
   name: 'auth',
   initialState,
   reducers: {
     addAuth(state, action) {
-      // console.log({ action });
+      // console.log({payload: action})
       return { ...state, ...action.payload };
     },
-    resetAuth(state, action) {
+    resetAuth() {
       return initialState;
     }
   }
+  // selectors: {}
 });
 
 export const { addAuth, resetAuth } = authSlice.actions;
 
 export default authSlice.reducer;
-
-// const [auth, setAuth] = useState({});

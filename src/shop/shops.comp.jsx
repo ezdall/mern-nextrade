@@ -10,8 +10,8 @@ import Avatar from '@material-ui/core/Avatar';
 import Typography from '@material-ui/core/Typography';
 import Divider from '@material-ui/core/Divider';
 
-import { list } from './api-shop';
 import { BASE_URL } from '../axios';
+import { list } from './api-shop';
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -51,16 +51,19 @@ export default function Shops() {
     const abortController = new AbortController();
     const { signal } = abortController;
 
-    list(signal).then(data => {
-      if (data?.isAxiosError) {
-        return console.log(data.response.data.error);
-      }
-      return setShops(data);
-    });
+    list({ signal })
+      .then(data => {
+        if (data?.isAxiosError) {
+          return console.error(data.response.data.error);
+        }
+
+        return setShops(data);
+      })
+      .catch(err => console.error(err));
 
     return () => {
-      console.log('abort shop-list');
       abortController.abort();
+      console.log('abort shop-lists');
     };
   }, []);
 
@@ -108,7 +111,7 @@ export default function Shops() {
               );
             })
           ) : (
-            <p>Error...</p>
+            <p>Loading...</p>
           )}
         </List>
       </Paper>

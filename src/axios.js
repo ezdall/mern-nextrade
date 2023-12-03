@@ -3,15 +3,42 @@ import axios from 'axios';
 export const BASE_URL = process.env.REACT_APP_API_URL;
 // 'http://localhost:3000';
 
-export default axios.create({
+const instance = axios.create({
   baseURL: BASE_URL,
-  timeout: 2000
+  withCredentials: true,
+  timeout: 1000 * 3 // 3sec
 });
+
+instance.interceptors.response.use(
+  response => response, // nothing here
+
+  error => {
+    // handle axios-abort somewhat conflict w/ React-18
+    if (error.code === 'ERR_CANCELED') {
+      console.log('canceled axios');
+      return null;
+    }
+
+    // error handling
+    console.log('Intercept resP');
+    if (error?.response) {
+      console.error({ errIntResP: error.response.data });
+    } else if (error?.request) {
+      console.log({ errIntReQ: error });
+    } else {
+      console.log({ errIntGeN: error });
+    }
+
+    return Promise.reject(error);
+  }
+);
+
+export default instance;
 
 export const axiosPrivate = axios.create({
   baseURL: BASE_URL,
   withCredentials: true,
-  timeout: 3500
+  timeout: 1000 * 3 // 3sec
 });
 
 export const handleAxiosError = (

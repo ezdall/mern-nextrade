@@ -4,15 +4,18 @@ import axios from '../axios';
 // to receive cookie
 // and to send req with cookie
 
-export const login = async user => {
+export const login = async ({ user }) => {
   try {
     const response = await axios.post('/auth/login', user, {
-      withCredentials: true
+      timeout: 1000 * 5 // 5s
     });
 
+    console.log({ respLogin: response });
+
     return response.data;
-  } catch (err) {
-    return err;
+  } catch (error) {
+    console.log({ errLogin: error });
+    throw error;
   }
 };
 
@@ -29,8 +32,8 @@ export const logout = async ({ navigateHome, setAuth, dispatchResetAuth }) => {
     }
 
     return null;
-  } catch (err) {
-    return console.error({ errLogout: err });
-    // return err;
+  } catch (error) {
+    return console.error({ errLogout: error });
+    // return error
   }
 };

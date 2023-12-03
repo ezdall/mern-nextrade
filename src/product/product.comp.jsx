@@ -67,32 +67,32 @@ export default function Product() {
   const classes = useStyles();
   const { productId } = useParams();
 
-  const [product, setProduct] = useState({ 
+  const [product, setProduct] = useState({
     quantity: 0,
-    shop: {} 
+    shop: {}
   });
   const [suggestions, setSuggestions] = useState([]);
   const [error, setError] = useState('');
 
-  // change product-page due productId
   useEffect(() => {
     const abortController = new AbortController();
     const { signal } = abortController;
 
     readProduct({ productId, signal }).then(data => {
       if (data?.isAxiosError) {
+        console.log({ errProd: data.response.data.error });
         return setError(data.response.data.error);
+        // return handleAxiosError(data);
       }
       return setProduct(data);
     });
 
     return () => {
-      console.log('abort prod.comp');
       abortController.abort();
+      console.log('abort prod-comp');
     };
   }, [productId]);
 
-  // change related-prod due productId
   useEffect(() => {
     const abortController = new AbortController();
     const { signal } = abortController;
@@ -105,8 +105,8 @@ export default function Product() {
     });
 
     return () => {
-      console.log('abort prod-related');
       abortController.abort();
+      console.log('abort prod-related');
     };
   }, [productId]);
 
