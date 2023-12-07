@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import PropTypes from 'prop-types'
+import { useSelector } from 'react-redux';
+import PropTypes from 'prop-types';
 
 import IconButton from '@material-ui/core/IconButton';
 import Button from '@material-ui/core/Button';
@@ -12,29 +13,28 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 
 import { removeShop } from './api-shop';
 import { handleAxiosError } from '../axios';
-import useDataContext from '../auth/useDataContext';
+// import useDataContext from '../auth/useDataContext';
 import useAxiosPrivate from '../auth/useAxiosPrivate';
 
 export default function DeleteShop(props) {
   const { shop, onRemoveShop } = props;
-  const { auth: auth2 } = useDataContext();
+  const auth = useSelector(state => state.auth);
   const axiosPrivate = useAxiosPrivate();
 
   const [open, setOpen] = useState(false);
 
   const clickButton = () => {
-    setOpen(true);
+    return setOpen(true);
   };
 
   const deleteShop = () => {
     removeShop({
-      axiosPrivate,
       shopId: shop._id,
-      accessToken2: auth2.accessToken
+      axiosPrivate2: axiosPrivate
     }).then(data => {
       if (data?.isAxiosError) {
-        console.log({errDelShp: data.response.data.error});
-        return handleAxiosError(data);
+        return console.log({ errDelShp: data.response.data.error });
+        // return handleAxiosError(data);
       }
       setOpen(false);
 
@@ -43,10 +43,8 @@ export default function DeleteShop(props) {
   };
 
   const handleRequestClose = () => {
-    setOpen(false);
+    return setOpen(false);
   };
-
-  // console.log({shop})
 
   return (
     <span>
@@ -80,4 +78,4 @@ DeleteShop.propTypes = {
     name: PropTypes.string.isRequired
   }).isRequired,
   onRemoveShop: PropTypes.func.isRequired
-}
+};

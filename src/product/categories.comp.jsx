@@ -12,7 +12,6 @@ import Icon from '@material-ui/core/Icon';
 
 import { list } from './api-product';
 import Products from './products.comp';
-import { handleAxiosError } from '../axios';
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -61,50 +60,51 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-export default function Categories(props) {
-  const { categories } = props;
+export default function Categories({ categories }) {
   const classes = useStyles();
-
-  console.log({ categories });
 
   const [products, setProducts] = useState([]);
   const [selected, setSelected] = useState(categories[0]);
 
   useEffect(() => {
+    // let isMounted = true;
     const abortController = new AbortController();
     const { signal } = abortController;
 
     list({
-      category: categories[0],
+      category: selected, // categories[0]?
       signal
-    }).then(data => {
-      if (data.isAxiosError) {
-        console.log(data.response.data.error);
-        return handleAxiosError(data);
-      }
-      return setProducts(data);
-    });
+    })
+      .then(data => {
+        if (data?.isAxiosError) {
+          return console.error(data?.response?.data?.error);
+          // return handleAxiosError(data);
+        }
+        return setProducts(data);
+      })
+      .catch(err => console.log(err));
 
     return () => {
-      console.log('abort cat-list');
+      // isMounted = false;
       abortController.abort();
+      console.log('abort @categories-list');
     };
-  }, [categories]);
+  }, [selected]);
 
-  const listbyCategory = category => {
+  const listByCategory = category => {
     setSelected(category);
 
-    list({
-      category
-    }).then(data => {
-      if (data.isAxiosError) {
-        console.log(data.response.data.error);
-        return handleAxiosError(data);
+    list({ category }).then(data => {
+      if (data?.isAxiosError) {
+        return console.log(data?.response?.data?.error);
+
+        // return handleAxiosError(data);
       }
       return setProducts(data);
     });
   };
-  console.log({ categories });
+
+  // console.log({ categories });
 
   return (
     <div>
@@ -114,12 +114,12 @@ export default function Categories(props) {
         </Typography>
         <div className={classes.root}>
           <ImageList className={classes.gridList} cols={4} rowHeight="auto">
-            {categories.length &&
+            {categories?.length &&
               categories.map(tile => (
                 <ImageListItem
                   key={tile}
                   className={classes.tileTitle}
-                  onClick={() => listbyCategory(tile)}
+                  onClick={() => listByCategory(tile)}
                   style={{
                     backgroundColor:
                       selected === tile
@@ -146,4 +146,4 @@ export default function Categories(props) {
 
 Categories.propTypes = {
   categories: PropTypes.arrayOf(PropTypes.string.isRequired).isRequired
-}
+};

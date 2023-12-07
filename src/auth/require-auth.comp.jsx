@@ -1,17 +1,18 @@
 import { useLocation, Navigate, Outlet } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 
-import useDataContext from './useDataContext';
+// import useDataContext from './useDataContext';
 
 export default function RequireAuth() {
+  // const { auth } = useDataContext();
   const location = useLocation();
-  const { auth } = useDataContext();
+  const auth = useSelector(state => state.auth);
 
-  console.log({ requireAuth: auth });
+  // console.log({ requireAuth: auth });
 
   return auth?.user ? (
     <Outlet />
   ) : (
-    // <div />
     <Navigate to="/login" state={{ from: location }} replace />
   );
 }

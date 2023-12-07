@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useSelector } from 'react-redux';
 import { useLocation } from 'react-router-dom';
 import { makeStyles } from '@material-ui/core/styles';
 import queryString from 'query-string';
@@ -7,7 +8,7 @@ import Paper from '@material-ui/core/Paper';
 import Typography from '@material-ui/core/Typography';
 
 import useAxiosPrivate from '../auth/useAxiosPrivate';
-import useDataContext from '../auth/useDataContext';
+// import useDataContext from '../auth/useDataContext';
 import { stripeUpdate } from './api-user';
 
 const useStyles = makeStyles(theme => ({
@@ -31,13 +32,16 @@ const useStyles = makeStyles(theme => ({
 }));
 
 export default function StripeConnect() {
+  const classes = useStyles();
+
+  const { user } = useSelector(state => state.auth);
   const location = useLocation();
-  const { auth: auth2 } = useDataContext();
+
+  // const { userId } = user;
+
+  // console.log({ user });
   const axiosPrivate = useAxiosPrivate();
 
-  // console.log({location})
-
-  const classes = useStyles();
   const [values, setValues] = useState({
     error: false,
     connecting: false,
@@ -45,55 +49,73 @@ export default function StripeConnect() {
   });
 
   useEffect(() => {
+    let isMounted = true;
     const abortController = new AbortController();
     const { signal } = abortController;
 
-    // eslint-disable-next-line
+    // reads ?code=xxxxx
     const { error, code } = queryString.parse(location.search);
-    // return from stripe
-    // ?scope=read_write&code=ac_MokNx6hHYzYIWeYnFhnOKforjz05gfaT
+
+    console.log({ code, error });
 
     if (error) {
-      setValues(prevValues => ({ ...prevValues, error: true }));
+      return setValues(prev => ({ ...prev, error: true }));
     }
 
     if (code) {
-      setValues(prevValues => ({
-        ...prevValues,
+      setValues(prev => ({
+        ...prev,
         connecting: true,
         error: false
       }));
-      // post call to stripe, get credentials and update user data
+    }
 
-      stripeUpdate({
-        code, signal, axiosPrivate,
-        user: auth2.user, 
-        accessToken2: auth2.accessToken
-      })
+    stripeUpdate({
+      code,
+      signal,
+      axiosPrivate2: axiosPrivate,
+      userId: user?._id
+    })
       .then(data => {
-        if (data.isAxiosError) {
-          setValues(prevValues => ({
-            ...prevValues,
+        if (data?.isAxiosError) {
+          console.log({ err: data });
+          setValues(prev => ({
+            ...prev,
             error: true,
             connected: false,
             connecting: false
           }));
-        } else {
-          setValues(prevValues => ({
-            ...prevValues,
+        } else if (isMounted) {
+          console.log({ mount: data });
+          setValues(prev => ({
+            ...prev,
             error: false,
             connected: true,
             connecting: false
           }));
         }
+      })
+      .catch(err => {
+        console.log(err.response);
+
+        setValues(prev => ({
+          ...prev,
+          error: true,
+          connected: false,
+          connecting: false
+        }));
       });
-    }
-    
+
     return () => {
-      console.log('abort stripe-connect');
-      abortController.abort();
+      isMounted = false;
+      if (isMounted) {
+        abortController.abort();
+        console.log('abort stripe-connect');
+      }
     };
-  }, [auth2.accessToken, auth2.user, axiosPrivate, location.search]);
+  }, [user._id, axiosPrivate, location.search]);
+
+  console.log({ values });
 
   return (
     <div>

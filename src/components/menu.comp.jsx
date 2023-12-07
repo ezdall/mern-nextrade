@@ -12,10 +12,8 @@ import CartIcon from '@material-ui/icons/ShoppingCart';
 import Badge from '@material-ui/core/Badge';
 
 import { resetAuth } from '../redux/auth.slice';
-import useAxiosPrivate from '../auth/useAxiosPrivate';
 import { logout } from '../auth/api-auth';
-import useDataContext from '../auth/useDataContext';
-
+// import useDataContext from '../auth/useDataContext';
 
 const isActive = (location, path) => {
   if (location.pathname === path) return { color: '#bef67a' };
@@ -30,24 +28,19 @@ const isPartActive = (location, path) => {
 };
 
 export default function Menu() {
-  // this must be inside function
-  const { auth: auth2, setAuth } = useDataContext();
-  const auth3 = useSelector(state => state.auth3);
-  const cart3 = useSelector(state => state.cart3)
+  const { auth, cart } = useSelector(state => state);
   const dispatch = useDispatch();
-
-  const axiosPrivate = useAxiosPrivate();
   const location = useLocation();
   const navigate = useNavigate();
 
-  console.log({ authAtMenu: auth2 });
-  console.log({ authSlice: auth3 });
+  // check if you need to Persist route the menu
+  // console.log({ auth, cart });
 
   return (
     <AppBar position="static">
       <Toolbar>
         <Typography variant="h6" color="inherit">
-          MERN Marketplace
+          Market
         </Typography>
         <div>
           <NavLink to="/">
@@ -55,9 +48,15 @@ export default function Menu() {
               <HomeIcon />
             </IconButton>
           </NavLink>
-          <NavLink to="/shops/all">
-            <Button style={isActive(location, '/shops/all')}>All Shops</Button>
+
+          <NavLink to="/users">
+            <Button style={isActive(location, '/users')}>Users</Button>
           </NavLink>
+
+          <NavLink to="/shops/all">
+            <Button style={isActive(location, '/shops/all')}>Shops</Button>
+          </NavLink>
+
           <NavLink to="/cart">
             <Button style={isActive(location, '/cart')}>
               Cart
@@ -65,7 +64,7 @@ export default function Menu() {
                 invisible={false}
                 overlap="rectangular"
                 color="secondary"
-                badgeContent={cart3.length}
+                badgeContent={cart?.length}
                 style={{ marginLeft: '7px' }}
               >
                 <CartIcon />
@@ -73,9 +72,10 @@ export default function Menu() {
             </Button>
           </NavLink>
         </div>
+
         <div style={{ position: 'absolute', right: '10px' }}>
           <span style={{ float: 'right' }}>
-            {!auth2?.user && (
+            {!auth?.user && (
               <span>
                 <NavLink to="/signup">
                   <Button style={isActive(location, '/signup')}>Sign up</Button>
@@ -85,17 +85,17 @@ export default function Menu() {
                 </NavLink>
               </span>
             )}
-            {auth2?.user && (
+            {auth?.user && (
               <span>
-                {auth2?.user?.seller && (
+                {auth?.user?.seller && (
                   <NavLink to="/seller/shops">
                     <Button style={isPartActive(location, '/seller')}>
                       My Shops
                     </Button>
                   </NavLink>
                 )}
-                <NavLink to={`/user/${auth2.user._id}`}>
-                  <Button style={isActive(location, `/user/${auth2.user._id}`)}>
+                <NavLink to={`/user/${auth.user._id}`}>
+                  <Button style={isActive(location, `/user/${auth.user._id}`)}>
                     My Profile
                   </Button>
                 </NavLink>
@@ -103,7 +103,6 @@ export default function Menu() {
                   color="inherit"
                   onClick={() => {
                     logout({
-                      setAuth: setAuth({}),
                       dispatchResetAuth: dispatch(resetAuth()),
                       navigateHome: navigate('/', { replace: true })
                     });

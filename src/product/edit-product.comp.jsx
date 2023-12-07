@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useSelector } from 'react-redux';
 import { Link, Navigate, useParams } from 'react-router-dom';
 
 import { makeStyles } from '@material-ui/core/styles';
@@ -14,7 +15,7 @@ import FileUpload from '@material-ui/icons/AddPhotoAlternate';
 
 import { readProduct, updateProduct } from './api-product';
 import { BASE_URL } from '../axios';
-import useDataContext from '../auth/useDataContext';
+// import useDataContext from '../auth/useDataContext';
 import useAxiosPrivate from '../auth/useAxiosPrivate';
 
 const useStyles = makeStyles(theme => ({
@@ -58,9 +59,9 @@ const useStyles = makeStyles(theme => ({
 
 export default function EditProduct() {
   const classes = useStyles();
-  const params = useParams();
+  const { productId, shopId } = useParams();
   const axiosPrivate = useAxiosPrivate();
-  const { auth: auth2 } = useDataContext();
+  const auth = useSelector(state => state.auth);
 
   const [values, setValues] = useState({
     name: '',
@@ -79,21 +80,17 @@ export default function EditProduct() {
     const { signal } = abortController;
 
     readProduct({
-      productId: params.productId,
+      productId,
       signal
     }).then(data => {
       if (data?.isAxiosError) {
-        return setError(data.response.data.error);
+        return setError(data.response?.data?.error);
       }
 
-      return setValues(prevValues => ({
-        ...prevValues,
-        id: data._id,
-        name: data.name,
-        description: data.description,
-        category: data.category,
-        quantity: data.quantity,
-        price: data.price
+      return setValues(prev => ({
+        ...prev,
+        ...data,
+        id: data._id
       }));
     });
 
@@ -101,7 +98,7 @@ export default function EditProduct() {
       console.log('abort edit-prod read');
       abortController.abort();
     };
-  }, [params.productId]);
+  }, [productId]);
 
   const clickSubmit = () => {
     const { name, description, category, quantity, price, image } = values;
@@ -122,10 +119,9 @@ export default function EditProduct() {
 
     return updateProduct({
       productData,
-      axiosPrivate,
-      shopId: params.shopId,
-      productId: params.productId,
-      accessToken2: auth2.accessToken
+      shopId,
+      productId,
+      axiosPrivate2: axiosPrivate
     }).then(data => {
       if (data?.isAxiosError) {
         return setError(data.message);
@@ -137,17 +133,21 @@ export default function EditProduct() {
   const handleChange = event => {
     const { name, value, files } = event.target;
 
+    setError('');
+
     const inputValue = name === 'image' ? files[0] : value;
 
     setValues({ ...values, [name]: inputValue });
   };
 
-  const imageUrl = values.id
-    ? `${BASE_URL}/api/product/image/${values.id}?${new Date().getTime()}`
+  const imageUrl = values._id
+    ? `${BASE_URL}/api/product/image/${values._id}?${new Date().getTime()}`
     : `${BASE_URL}/api/products/defaultphoto`;
 
-  if (values.redirect) {
-    return <Navigate to={`/seller/shop/edit/${params.shopId}`} />;
+  const { category } = values;
+
+  if (redirect) {
+    return <Navigate to={`/seller/shop/edit/${shopId}`} />;
   }
 
   return (
@@ -174,7 +174,7 @@ export default function EditProduct() {
               <FileUpload />
             </Button>
           </label>
-          <span className={classes.filename}>{values.image.name ?? ''}</span>
+          <span className={classes.filename}>{values.image.name}</span>
           <br />
           <TextField
             id="name"
@@ -188,18 +188,21 @@ export default function EditProduct() {
             margin="normal"
           />
           <br />
+
           <TextField
-            id="multiline-flexible"
+            id="multiline-flexible" // "description"
             label="Description"
             multiline
-            minRows="3"
+            minRows="2"
             name="description"
             value={values.description}
             onChange={handleChange}
             className={classes.textField}
             margin="normal"
           />
+
           <br />
+
           <TextField
             id="category"
             label="Category"
@@ -209,6 +212,7 @@ export default function EditProduct() {
             onChange={handleChange}
             margin="normal"
           />
+
           <br />
           <TextField
             id="quantity"
@@ -252,10 +256,7 @@ export default function EditProduct() {
           >
             Update
           </Button>
-          <Link
-            to={`/seller/shop/edit/${params.shopId}`}
-            className={classes.submit}
-          >
+          <Link to={`/seller/shop/edit/${shopId}`} className={classes.submit}>
             <Button variant="contained">Cancel</Button>
           </Link>
         </CardActions>

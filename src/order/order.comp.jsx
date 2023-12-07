@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useParams, useNavigate } from 'react-router-dom';
 
 import { makeStyles } from '@material-ui/core/styles';
 import Card from '@material-ui/core/Card';
@@ -9,8 +9,9 @@ import Typography from '@material-ui/core/Typography';
 import Grid from '@material-ui/core/Grid';
 import Divider from '@material-ui/core/Divider';
 
+import useAxiosPrivate from '../auth/useAxiosPrivate';
 import { readOrder } from './api-order';
-import { handleAxiosError, BASE_URL } from '../axios';
+import { BASE_URL } from '../axios';
 
 const useStyles = makeStyles(theme => ({
   card: {
@@ -100,32 +101,41 @@ const useStyles = makeStyles(theme => ({
 }));
 
 export default function Order() {
-  const params = useParams();
-
   const classes = useStyles();
-  const [order, setOrder] = useState({ products: [], delivery_address: {} });
+  const { orderId } = useParams();
+  const axiosPrivate = useAxiosPrivate();
+  const navigate = useNavigate();
+
+  const [order, setOrder] = useState({
+    products: [],
+    delivery_address: {}
+  });
 
   useEffect(() => {
     const abortController = new AbortController();
     const { signal } = abortController;
 
     readOrder({
-      orderId: params.orderId,
-      signal
+      orderId,
+      signal,
+      axiosPrivate2: axiosPrivate
     }).then(data => {
-      console.log({ data });
-      if (data.isAxiosError) {
-        console.log(data.response.data.error);
-        handleAxiosError(data);
+      // console.log({ data });
+      if (data?.isAxiosError) {
+        console.log(data?.response?.data);
+        // handleAxiosError(data);
+
+        if (data.response.status === 401) navigate('/users', { replace: true });
       } else {
-        setOrder(data);
+        console.log(data);
+        setOrder(prev => ({ ...prev, ...data }));
       }
     });
     return () => {
-      console.log('order -read');
       abortController.abort();
+      console.log('abort order -read');
     };
-  }, [params.orderId]);
+  }, [orderId, axiosPrivate, navigate]);
 
   const getTotal = () => {
     return order.products.reduce((a, b) => {
@@ -153,7 +163,7 @@ export default function Order() {
       <Grid container spacing={4}>
         <Grid item xs={7} sm={7}>
           <Card className={classes.innerCardItems}>
-            {order.products.length &&
+            {!!order.products?.length &&
               order.products.map(item => (
                 <span key={item._id}>
                   <Card className={classes.cart}>

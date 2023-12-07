@@ -14,9 +14,9 @@ import Typography from '@material-ui/core/Typography';
 import ArrowForward from '@material-ui/icons/ArrowForward';
 import Person from '@material-ui/icons/Person';
 
-import useDataContext from '../auth/useDataContext';
+// import useDataContext from '../auth/useDataContext';
 import { usersList } from './api-user';
-import { handleAxiosError } from '../axios';
+// import { handleAxiosError } from '../axios';
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -32,21 +32,24 @@ const useStyles = makeStyles(theme => ({
 export default function Users() {
   const classes = useStyles();
   const [users, setUsers] = useState([]);
-  // const { auth: auth2 } = useDataContext();
 
   useEffect(() => {
     const abortController = new AbortController();
     const { signal } = abortController;
 
-    usersList(signal).then(data => {
+    usersList({ signal }).then(data => {
       if (data?.isAxiosError) {
-        console.log({ errUserComp: data.response.data.error });
-        return handleAxiosError(data);
+        return console.log({ errUserComp: data?.response?.data?.error });
+        // return handleAxiosError(data);
       }
       return setUsers(data);
     });
+    // .catch(err => console.log(err));
 
-    return () => abortController.abort();
+    return () => {
+      abortController.abort();
+      console.log('abort user list');
+    };
   }, []);
 
   return (
@@ -55,7 +58,7 @@ export default function Users() {
         All Users
       </Typography>
       <List dense>
-        {users.length && users.map(item => {
+        {users?.map(item => {
           return (
             <Link to={`/user/${item._id}`} key={item._id}>
               <ListItem button>

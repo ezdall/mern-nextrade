@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 
 import { makeStyles } from '@material-ui/core/styles';
@@ -18,7 +19,7 @@ import Divider from '@material-ui/core/Divider';
 import DeleteShop from './delete-shop.comp';
 import { handleAxiosError, BASE_URL } from '../axios';
 import useAxiosPrivate from '../auth/useAxiosPrivate';
-import useDataContext from '../auth/useDataContext';
+// import useDataContext from '../auth/useDataContext';
 
 import { listByOwner } from './api-shop';
 
@@ -46,41 +47,42 @@ const useStyles = makeStyles(theme => ({
 }));
 
 export default function MyShops() {
-  const { auth: auth2 } = useDataContext();
-  const axiosPrivate = useAxiosPrivate();
-  const userId = auth2.user._id;
-
   const classes = useStyles();
+  const axiosPrivate = useAxiosPrivate();
 
   const [shops, setShops] = useState([]);
+  const auth = useSelector(state => state.auth);
+  const userId = auth.user._id;
+  const { accessToken } = auth;
 
-  // all you shop
   useEffect(() => {
+    let isMounted = true;
     const abortController = new AbortController();
     const { signal } = abortController;
 
     listByOwner({
-      userId,
       signal,
-      axiosPrivate,
-      accessToken2: auth2.accessToken
+      userId,
+      axiosPrivate2: axiosPrivate
     }).then(data => {
       if (data?.isAxiosError) {
         console.log({ errMyShop: data.response.data.error });
         return handleAxiosError(data);
       }
-      return setShops(data);
+      return isMounted && setShops(data);
     });
 
     return () => {
-      console.log('abort-my-shop');
-      abortController.abort();
+      isMounted = false;
+      if (isMounted) abortController.abort();
+      console.log('abort my-shops');
     };
-  }, [auth2.accessToken, axiosPrivate, userId]);
+  }, [axiosPrivate, userId]);
 
   const onRemoveShop = shop => {
-    const filteredShops = shops.filter(s => s._id !== shop._id);
-    setShops(filteredShops);
+    const filterShops = shops.filter(s => s._id !== shop._id);
+
+    return setShops(filterShops);
   };
 
   return (
@@ -97,7 +99,7 @@ export default function MyShops() {
             </Link>
           </span>
         </Typography>
-        {shops.length ? (
+        {shops?.length ? (
           shops.map(shop => {
             return (
               <List key={shop._id} dense>

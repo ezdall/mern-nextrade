@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useLocation, useNavigate, Navigate } from 'react-router-dom';
 
 import Card from '@material-ui/core/Card';
@@ -14,7 +14,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import { addAuth } from '../redux/auth.slice';
 import useDataContext from './useDataContext';
 import { login } from './api-auth';
-import { handleAxiosError } from '../axios';
+// import { handleAxiosError } from '../axios';
 
 const useStyles = makeStyles(theme => ({
   card: {
@@ -43,17 +43,15 @@ const useStyles = makeStyles(theme => ({
 }));
 
 export default function Login() {
-  // const auth = useSelector(state => state.auth);
-  const dispatch = useDispatch();
-
   const classes = useStyles();
-  const location = useLocation();
-  const navigate = useNavigate();
-  const { setAuth } = useDataContext();
-  const from = location.state?.from?.pathname || '/';
 
-  // console.log({ auth });
-   // console.log({location})
+  const dispatch = useDispatch();
+  const location = useLocation();
+  // const navigate = useNavigate();
+  const auth = useSelector(state => state.auth);
+
+  // const { setAuth } = useDataContext();
+  const from = location.state?.from?.pathname || '/';
 
   const [values, setValues] = useState({
     email: '',
@@ -69,27 +67,27 @@ export default function Login() {
       return setError('all fields are required');
     }
 
-    return login({ email, password })
+    return login({
+      user: { email, password }
+    })
       .then(data => {
-        // console.log({data})
-        if (data.isAxiosError) {
-          handleAxiosError(data);
-          console.log({errLogin:data.response.data})
-          setError(data.response.data.error);
-        } else {
-          dispatch(addAuth(data));
-          setAuth(data);
-          setError('');
-          setValues({ email: '', password: '' });
-          setRedirect(true);
-          navigate(from, { replace: true });
+        if (data?.response) {
+          // handleAxiosError(data);
+          console.log({ errLogin: data?.response?.data });
+          return setError(data.response?.data?.error);
         }
+        dispatch(addAuth(data));
+        // setAuth(data);
+        setError('');
+        setValues({ email: '', password: '' });
+        return setRedirect(true);
+        // return navigate(from, { replace: true });
       })
       .catch(err => {
         console.log({ err });
 
-        if (!err.response) {
-          return setError('No Server Response');
+        if (err.request) {
+          return setError(err.message);
         }
         return setError(err.message);
       });
@@ -99,13 +97,12 @@ export default function Login() {
     const { name, value } = event.target;
 
     setError('');
-
     setValues({ ...values, [name]: value });
   };
 
-  // if(redirect) {
-  //   return <Navigate to={from} replace />
-  // }
+  if (auth?.user) return <Navigate to="/" />;
+
+  if (redirect) return <Navigate to={from} replace />;
 
   return (
     <Card className={classes.card}>

@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { Link, Navigate } from 'react-router-dom';
+import { useSelector } from 'react-redux';
+import { Link, useNavigate } from 'react-router-dom';
 
 import { makeStyles } from '@material-ui/core/styles';
 import Card from '@material-ui/core/Card';
@@ -13,9 +14,8 @@ import FileUpload from '@material-ui/icons/AddPhotoAlternate';
 
 import { createShop } from './api-shop';
 import useAxiosPrivate from '../auth/useAxiosPrivate';
-import useDataContext from '../auth/useDataContext';
+// import useDataContext from '../auth/useDataContext';
 
-// style
 const useStyles = makeStyles(theme => ({
   card: {
     maxWidth: 600,
@@ -50,28 +50,25 @@ const useStyles = makeStyles(theme => ({
 }));
 
 export default function NewShop() {
-  const { auth: auth2 } = useDataContext();
-  const authUser = useDataContext().auth.user;
-  const axiosPrivate = useAxiosPrivate();
-
-  console.log({ authNewShop: auth2 });
-
   const classes = useStyles();
+  const axiosPrivate = useAxiosPrivate();
+  const auth = useSelector(state => state.auth);
+  const navigate = useNavigate();
+
   const [values, setValues] = useState({
     name: '',
     description: '',
     image: ''
   });
-
   const [error, setError] = useState('');
   const [redirect, setRedirect] = useState(false);
 
   const handleChange = ev => {
-    const { name, value, files } = ev.target;
-
+    const { value, name, files } = ev.target;
     setError('');
 
     const inputValue = name === 'image' ? files[0] : value;
+
     setValues({ ...values, [name]: inputValue });
   };
 
@@ -90,9 +87,9 @@ export default function NewShop() {
 
     return createShop({
       shopData,
-      axiosPrivate,
-      userId: authUser._id,
-      accessToken2: auth2.accessToken
+      userId: auth.user._id,
+      accessToken2: auth.accessToken,
+      axiosPrivate2: axiosPrivate
     }).then(data => {
       console.log({ data });
       if (data?.isAxiosError) {
@@ -100,13 +97,10 @@ export default function NewShop() {
         return setError(data.response.data.error);
       }
       setError('');
-      return setRedirect(true);
+      setRedirect(true);
+      return navigate('/seller/shops');
     });
   };
-
-  if (redirect) {
-    return <Navigate to="/seller/shops" />;
-  }
 
   return (
     <div>

@@ -1,13 +1,17 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, memo } from 'react';
+import { useSelector } from 'react-redux';
 import { Outlet } from 'react-router-dom';
 
 import useRefresh from './useRefresh';
-import useDataContext from './useDataContext';
+// import useDataContext from './useDataContext';
+// import { addAuth } from '../redux/auth.slice';
 
 export default function PersistLogin() {
+  // const { auth } = useDataContext()
   const [isLoading, setIsLoading] = useState(true);
+  const runOnce = useRef(true);
   const refresh = useRefresh();
-  const { auth } = useDataContext();
+  const { accessToken } = useSelector(state => state.auth);
 
   useEffect(() => {
     const verifyRefreshToken = async () => {
@@ -20,18 +24,25 @@ export default function PersistLogin() {
       }
     };
 
-    if (!auth?.accesToken) {
-      console.log('verifyingRefresh');
-      verifyRefreshToken();
-    } else {
-      setIsLoading(false);
+    if (runOnce.current) {
+      if (!accessToken) {
+        console.log('verifyingRefresh');
+        verifyRefreshToken();
+      } else {
+        setIsLoading(false);
+      }
     }
-  }, []);
+
+    return () => {
+      runOnce.current = false;
+      console.log('clean persist-login');
+    };
+  }, [accessToken, refresh]);
 
   useEffect(() => {
     // console.log({ isLoading });
     // console.log({ persistLoginAuth: auth });
-  }, [auth, isLoading]);
+  }, [accessToken, isLoading]);
 
   if (isLoading) return <p>Loading...</p>;
 
