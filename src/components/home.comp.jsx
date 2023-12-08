@@ -3,11 +3,11 @@ import { makeStyles } from '@material-ui/core/styles';
 import Grid from '@material-ui/core/Grid';
 
 import Search from '../product/search.comp';
-import Categories from '../product/categories.comp';
+import Categories from '../product/categories2.comp';
 import Suggestions from '../product/suggestions.comp';
 import { listLatest, listCategories } from '../product/api-product';
 
-import { handleAxiosError } from '../axios';
+// import { handleAxiosError } from '../axios';
 
 const useStyles = makeStyles(() => ({
   root: {
@@ -27,44 +27,49 @@ export default function Home() {
   // console.log(suggestions)
 
   useEffect(() => {
+    let isMounted = true;
     const abortController = new AbortController();
     const { signal } = abortController;
 
-    listLatest(signal).then(data => {
-      if (data.error) {
-        console.log(data.message);
-        return handleAxiosError(data);
+    listLatest({ signal }).then(data => {
+      if (data?.isAxiosError) {
+        return console.log({ errHomeLatest: data });
+        // return handleAxiosError(data);
       }
-      return setSuggestions(data);
+
+      return isMounted && setSuggestions(data);
     });
 
     return () => {
-      console.log('abort-home suggest');
-      abortController.abort();
+      isMounted = false;
+      if (isMounted) abortController.abort();
+      console.log('abort home suggest');
     };
   }, []);
 
   useEffect(() => {
+    let isMounted = true;
     const abortController = new AbortController();
     const { signal } = abortController;
 
-    listCategories(signal).then(data => {
-      if (data.error) {
-        console.log(data.message);
-        return handleAxiosError(data);
+    listCategories({ signal }).then(data => {
+      console.log({ data });
+      if (data?.isAxiosError) {
+        return console.log({ errHomeCat: data });
       }
-      return setCategories(data);
+      return isMounted && setCategories(data);
     });
 
     return () => {
-      console.log('abort-home cate');
-      abortController.abort();
+      isMounted = false;
+      if (isMounted) abortController.abort();
+      console.log('abort home category');
     };
   }, []);
 
   // add error
 
-  if (!categories.length || !suggestions.length) return <p>Loading...</p>;
+  if (!categories?.length || !suggestions?.length) return <p>Loading...</p>;
 
   return (
     <div className={classes.root}>
