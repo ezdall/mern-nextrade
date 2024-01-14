@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { Navigate, useParams } from 'react-router-dom';
+import { useSelector } from 'react-redux';
+import { Navigate, useParams, useNavigate } from 'react-router-dom';
 
 import { makeStyles } from '@material-ui/core/styles';
 import Card from '@material-ui/core/Card';
@@ -12,7 +13,7 @@ import Icon from '@material-ui/core/Icon';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Switch from '@material-ui/core/Switch';
 
-import useDataContext from '../auth/useDataContext';
+// import useDataContext from '../auth/useDataContext';
 import useAxiosPrivate from '../auth/useAxiosPrivate';
 import { read, updateUser } from './api-user';
 import { handleAxiosError } from '../axios';
@@ -52,26 +53,20 @@ const passRegex = /^[a-zA-Z0-9]{4,24}$/;
 const emailRegex = /^[a-zA-Z0-9]*@[a-zA-Z0-9]+(?:\.[a-zA-Z0-9]+)*$/;
 
 export default function EditProfile() {
-  const params = useParams();
-  const { auth: auth2 } = useDataContext();
-  const axiosPrivate = useAxiosPrivate();
-
+  const { userId } = useParams();
   const classes = useStyles();
+  const auth = useSelector(state => state.auth);
+  const axiosPrivate = useAxiosPrivate();
+  const navigate = useNavigate();
 
-  // name
   const [validName, setValidName] = useState(false);
-
-  // email
   const [validEmail, setValidEmail] = useState(false);
-
-  // pass
   const [validPass, setValidPass] = useState(false);
 
   const [values, setValues] = useState({
     name: '',
     email: '',
     password: '',
-    userId: '',
     seller: false
   });
 
@@ -80,18 +75,17 @@ export default function EditProfile() {
 
   useEffect(() => {
     const result = nameRegex.test(values.name);
-    console.log({ result });
     setValidName(result);
   }, [values.name]);
 
   useEffect(() => {
     const result = emailRegex.test(values.email);
-    setValidEmail({result});
+    setValidEmail({ result });
   }, [values.email]);
 
   useEffect(() => {
     const result = passRegex.test(values.password);
-    setValidPass({result});
+    setValidPass({ result });
   }, [values.password]);
 
   useEffect(() => {
@@ -99,32 +93,35 @@ export default function EditProfile() {
     const { signal } = abortController;
 
     read({
-        signal,
-        axiosPrivate,
-        userId: params.userId,
-        accessToken2: auth2.accessToken
-      })
-      .then(data => {
+      userId,
+      signal,
+      axiosPrivate2: axiosPrivate
+    }).then(data => {
       if (data?.isAxiosError) {
-        handleAxiosError(data);
-        return setError(data.response.data.error);
+        // handleAxiosError(data);
+        setError(data.response?.data?.error);
+        return (
+          data.response?.status === 401 && navigate('/users', { replace: true })
+        );
       }
-      // console.log(data.user)
       setError('');
-      return setValues(prev => ({ ...prev, ...data.user }));
+      return setValues(prev => ({ ...prev, ...data }));
     });
-    return () => abortController.abort();
-  }, [params.userId, axiosPrivate, auth2.accessToken]);
+
+    return () => {
+      abortController.abort();
+      console.log('abort read edit-prof');
+    };
+  }, [userId, axiosPrivate, navigate]);
+  console.log({ values });
 
   const handleChange = ev => {
-    const { value, name } = ev.target;
-
-    setError('');
+    const { name, value } = ev.target;
 
     setValues({ ...values, [name]: value });
   };
 
-  const handleCheck = (event, checked) => {
+  const handleCheck = (ev, checked) => {
     setValues({ ...values, seller: checked });
   };
 
@@ -135,7 +132,7 @@ export default function EditProfile() {
     let vPass = null;
     const vName = nameRegex.test(values.name);
     const vEmail = emailRegex.test(values.email);
-    const vSeller = typeof values.seller === 'boolean'
+    const vSeller = typeof values.seller === 'boolean';
 
     if (values.password) {
       vPass = passRegex.test(values.password);
@@ -152,15 +149,13 @@ export default function EditProfile() {
       seller: values.seller
     };
 
-    return updateUser(
-      {
-        user,
-        axiosPrivate,
-        userId: params.userId,
-        accessToken2: auth2.accessToken
-      }
-    ).then(data => {
-      if (data.isAxiosError) {
+    return updateUser({
+      user,
+      userId,
+      accessToken2: auth.accessToken,
+      axiosPrivate2: axiosPrivate
+    }).then(data => {
+      if (data?.isAxiosError) {
         handleAxiosError(data);
         return setError(data.response.data.error);
       }

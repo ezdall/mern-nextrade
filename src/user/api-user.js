@@ -5,87 +5,79 @@ export const createUser = async userData => {
     const response = await axios.post('/auth/register', userData);
 
     return await response.data;
-  } catch (err) {
-    return err;
+  } catch (error) {
+    console.log(error);
+    return error;
   }
 };
 
-export const read = async ({ userId, signal, accessToken2, axiosPrivate }) => {
-  try {
-    const response = await axiosPrivate.get(`/api/users/${userId}`, {
-      signal,
-      headers: {
-        authorization: `Bearer ${accessToken2}`
-      }
-    });
-    return response.data;
-  } catch (err) {
-    return err;
-  }
-};
-
-export const updateUser = async ({
-  userId,
-  user,
-  accessToken2,
-  axiosPrivate
-}) => {
-  try {
-    const response = await axiosPrivate.patch(`/api/users/${userId}`, user, {
-      headers: {
-        authorization: `Bearer ${accessToken2}`
-      }
-    });
-    return response.data; // user
-  } catch (err) {
-    return err;
-  }
-};
-
-export const removeUser = async ({ userId, accessToken2, axiosPrivate }) => {
-  try {
-    const response = await axiosPrivate.delete(`/api/users/${userId}`, {
-      headers: {
-        authorization: `Bearer ${accessToken2}`
-      }
-    });
-    return await response.data;
-  } catch (err) {
-    return err;
-  }
-};
-
-export const stripeUpdate = async (
-  code,
-  signal,
-  user,
-  accessToken2,
-  axiosPrivate
-) => {
-  try {
-    const response = await axiosPrivate.patch(
-      `/api/stripe-auth/${user._id}`,
-      { stripe: code },
-      {
-        signal,
-        headers: {
-          authorization: `Bearer ${accessToken2}`
-        }
-      }
-    );
-    return response.data;
-  } catch (err) {
-    return err;
-  }
-};
-
-export const usersList = async signal => {
+export const usersList = async ({ signal }) => {
   try {
     const response = await axios.get('/api/users', {
       signal
     });
+
     return response.data;
-  } catch (err) {
-    return err;
+  } catch (error) {
+    console.log(error);
+
+    return error;
+  }
+};
+
+export const read = async ({ userId, signal, axiosPrivate2 }) => {
+  try {
+    const response = await axiosPrivate2.get(`/api/users/${userId}`, {
+      signal
+      // headers: {
+      //   authorization: `Bearer ${accessToken2}`
+      // }
+    });
+
+    // console.log({ read: response.data });
+
+    return response.data;
+  } catch (error) {
+    console.log(error);
+
+    return error;
+  }
+};
+
+export const updateUser = async ({ user, userId, axiosPrivate2 }) => {
+  try {
+    const response = await axiosPrivate2.patch(`/api/users/${userId}`, user);
+
+    // console.log(response.data);
+    return response.data;
+  } catch (error) {
+    return error;
+  }
+};
+
+export const removeUser = async ({ userId, axiosPrivate2 }) => {
+  try {
+    const response = await axiosPrivate2.delete(`/api/users/${userId}`);
+
+    return response.data;
+  } catch (error) {
+    console.log(error);
+    return error;
+  }
+};
+
+// from local.search >> code: "ac_PvfdPjM2VqzycLQKCqt1b5C6coS6EQ9A"
+export const stripeUpdate = async ({ code, signal, userId, axiosPrivate2 }) => {
+  try {
+    const response = await axiosPrivate2.patch(
+      `/api/stripe-auth/${userId}`,
+      { stripe: code },
+      { signal }
+    );
+
+    return response.data;
+  } catch (error) {
+    console.log(error);
+    throw error;
   }
 };

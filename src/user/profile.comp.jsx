@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
-import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
-import { makeStyles } from '@material-ui/core/styles';
+import { useSelector } from 'react-redux';
+import { Link, useParams, useNavigate } from 'react-router-dom';
 
+import { makeStyles } from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
@@ -16,15 +17,14 @@ import Edit from '@material-ui/icons/Edit';
 import Person from '@material-ui/icons/Person';
 import Divider from '@material-ui/core/Divider';
 
+import MyOrders from '../order/my-orders.comp';
 import DeleteUser from './delete-user.comp';
 import useAxiosPrivate from '../auth/useAxiosPrivate';
-import useDataContext from '../auth/useDataContext';
-import { handleAxiosError } from '../axios';
-
+// import useDataContext from '../auth/useDataContext';
+// import { handleAxiosError } from '../axios';
 import { read } from './api-user';
 
 import stripeButton from '../assets/images/stripeButton.png';
-import MyOrders from '../order/my-orders.comp';
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -54,40 +54,51 @@ const useStyles = makeStyles(theme => ({
 
 export default function Profile() {
   const classes = useStyles();
-  // const navigate = useNavigate();
-  const params = useParams();
-  // const location = useLocation();
-  const authUser = useDataContext().auth.user;
-  const { auth: auth2 } = useDataContext();
+  const { userId } = useParams();
   const axiosPrivate = useAxiosPrivate();
+  const navigate = useNavigate();
+  const auth = useSelector(state => state.auth);
+  const authUser = auth.user;
 
   const [user, setUser] = useState({});
   const [isError, setIsError] = useState(false);
 
   useEffect(() => {
+    // let isMounted = true;
     const abortController = new AbortController();
     const { signal } = abortController;
 
     setIsError(false);
 
-    read({ 
+    read({
+      userId,
       signal,
-      axiosPrivate,
-      userId: params.userId, 
-      accessToken2: auth2.accessToken
+      axiosPrivate2: axiosPrivate
     })
       .then(data => {
         if (data?.isAxiosError) {
-          console.log(data.response.data.error)
-          handleAxiosError(data);
-          return setIsError(true);
+          console.log({ errProf: data.response?.data?.error });
+          // handleAxiosError(data);
+          setIsError(true);
+          return (
+            data.response?.status === 401 &&
+            navigate('/users', { replace: true })
+          );
         }
-        return setUser(data.user);
-      })
-      .catch(err => setIsError(true));
 
-    return () => abortController.abort();
-  }, [auth2.accessToken, axiosPrivate, params.userId]);
+        console.log({ data });
+        // return setUser(prev => ({ ...prev, ...data?.user }));
+        return setUser(data);
+      })
+      .catch(() => setIsError(true));
+
+    return () => {
+      // isMounted = false;
+      // if (isMounted)
+      abortController.abort();
+      console.log('abort profile');
+    };
+  }, [axiosPrivate, userId, navigate]);
 
   if (isError) return <p>Error...</p>;
 
@@ -151,5 +162,3 @@ export default function Profile() {
     </Paper>
   );
 }
-
-//
