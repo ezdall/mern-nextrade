@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import PropTypes from 'prop-types';
+import { useState, useEffect, memo } from 'react';
+import { Link, useParams } from 'react-router-dom';
+// import PropTypes from 'prop-types';
 
 import { makeStyles } from '@material-ui/core/styles';
 
@@ -48,10 +48,9 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-export default function MyProducts(props) {
+const MemoMyProducts = memo(() => {
   const classes = useStyles();
-
-  const { shopId } = props;
+  const { shopId } = useParams();
   const [products, setProducts] = useState([]);
 
   useEffect(() => {
@@ -62,22 +61,21 @@ export default function MyProducts(props) {
       shopId,
       signal
     }).then(data => {
-      console.log({ data });
       if (data.isAxiosError) {
-        console.log(data.message);
+        return console.log(data.response.data.error);
       }
       return setProducts(data);
     });
 
     return () => {
-      console.log('my-prod listByShop');
       abortController.abort();
+      console.log('abort my-prod listByShop');
     };
   }, [shopId]);
 
   const onRemoveProduct = product => {
     const filteredProducts = products.filter(prod => prod._id !== product._id);
-    setProducts(filteredProducts);
+    return setProducts(filteredProducts);
   };
 
   return (
@@ -94,7 +92,7 @@ export default function MyProducts(props) {
         </span>
       </Typography>
       <List dense>
-        {products.length &&
+        {!!products?.length &&
           products.map(product => {
             return (
               <span key={product._id}>
@@ -145,8 +143,10 @@ export default function MyProducts(props) {
       </List>
     </Card>
   );
-}
+});
 
-MyProducts.propTypes = {
-  shopId: PropTypes.string.isRequired
-}
+export default MemoMyProducts;
+
+// MyProducts.propTypes = {
+//   shopId: PropTypes.string.isRequired
+// };

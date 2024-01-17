@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import { Navigate, useParams } from 'react-router-dom';
+// import { useSelector } from 'react-redux';
+import { useNavigate, useParams } from 'react-router-dom';
 
 import { makeStyles } from '@material-ui/core/styles';
 import Card from '@material-ui/core/Card';
@@ -13,11 +14,11 @@ import Avatar from '@material-ui/core/Avatar';
 import FileUpload from '@material-ui/icons/AddPhotoAlternate';
 import Grid from '@material-ui/core/Grid';
 
+// import useDataContext from '../auth/useDataContext';
 import useAxiosPrivate from '../auth/useAxiosPrivate';
-import useDataContext from '../auth/useDataContext';
+import MemoMyProducts from '../product/my-products.comp'; //  memoized
 import { readShop, updateShop } from './api-shop';
 import { BASE_URL } from '../axios';
-import MyProducts from '../product/my-products.comp';
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -63,11 +64,10 @@ const useStyles = makeStyles(theme => ({
 }));
 
 export default function EditShop() {
-  const params = useParams();
-  const { auth: auth2 } = useDataContext();
-  const axiosPrivate = useAxiosPrivate();
-
   const classes = useStyles();
+  const navigate = useNavigate();
+  const { shopId } = useParams();
+  const axiosPrivate = useAxiosPrivate();
 
   const [values, setValues] = useState({
     name: '',
@@ -75,38 +75,33 @@ export default function EditShop() {
     image: '',
     id: ''
   });
-
   const [error, setError] = useState('');
-  const [redirect, setRedirect] = useState(false);
+  const [redirect, setRedirect] = useState('');
 
   useEffect(() => {
     const abortController = new AbortController();
     const { signal } = abortController;
 
-    readShop({ shopId: params.shopId }, signal).then(data => {
-      if (data.isAxiosError) {
-        return setError(data.response.data.error);
+    readShop({
+      shopId,
+      signal
+    }).then(data => {
+      if (data?.isAxiosError) {
+        return setError(data?.response?.data?.error);
       }
-
-      return setValues(prev => ({
-        ...prev,
-        id: data._id,
-        name: data.name,
-        description: data.description,
-        owner: data.owner.name
-      }));
+      // console.log({ data });
+      return setValues(prev => ({ ...prev, ...data }));
     });
 
     return () => {
-      console.log('edit-shop abort');
       abortController.abort();
+      console.log('abort edit-shop');
     };
-  }, [params.shopId]);
+  }, [shopId]);
 
-  const handleChange = ev => {
-    const { name, value, files } = ev.target;
-
+  const handleChange = event => {
     setError('');
+    const { name, value, files } = event.target;
 
     const inputValue = name === 'image' ? files[0] : value;
 
@@ -128,25 +123,21 @@ export default function EditShop() {
 
     return updateShop({
       shopData,
-      axiosPrivate,
-      shopId: params.shopId,
-      accessToken2: auth2.accessToken
+      shopId,
+      axiosPrivate2: axiosPrivate
     }).then(data => {
-      if (data.isAxiosError) {
-        return setError(data.response.data.error);
+      if (data?.isAxiosError) {
+        return setError(data?.response?.data?.error);
       }
       setError('');
-      return setRedirect(true);
+      setRedirect(true);
+      return navigate('/seller/shops');
     });
   };
 
-  const logoUrl = values.id
-    ? `${BASE_URL}/api/shops/logo/${values.id}?${new Date().getTime()}`
+  const logoUrl = values._id
+    ? `${BASE_URL}/api/shops/logo/${values._id}?${new Date().getTime()}`
     : `${BASE_URL}/api/shops/defaultphoto`;
-
-  if (redirect) {
-    return <Navigate to="/seller/shops" />;
-  }
 
   return (
     <div className={classes.root}>
@@ -201,7 +192,7 @@ export default function EditShop() {
                 name="description"
                 label="Description"
                 multiline
-                minRows="3"
+                minRows="2"
                 value={values.description}
                 onChange={handleChange}
                 className={classes.textField}
@@ -213,7 +204,7 @@ export default function EditShop() {
                 component="h4"
                 className={classes.subheading}
               >
-                Owner: {values.owner}
+                Owner: {values.owner?.name}
               </Typography>
               <br />
               {error && (
@@ -238,7 +229,7 @@ export default function EditShop() {
           </Card>
         </Grid>
         <Grid item xs={6} sm={6}>
-          <MyProducts shopId={params.shopId} />
+          <MemoMyProducts />
         </Grid>
       </Grid>
     </div>

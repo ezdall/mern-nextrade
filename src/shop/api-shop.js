@@ -1,101 +1,77 @@
 import axios from '../axios';
 
-export const createShop = ({
-  userId,
-  shopData,
-  accessToken2,
-  axiosPrivate
-}) => {
-  return axiosPrivate
-    .post(`/api/shops/by/${userId}`, shopData, {
-      headers: {
-        authorization: `Bearer ${accessToken2}`
-      }
-    })
+export const createShop = ({ userId, shopData, axiosPrivate2 }) => {
+  return axiosPrivate2
+    .post(`/api/shops/by/${userId}`, shopData)
     .then(resp => {
       return resp.data;
     })
     .catch(err => {
+      console.log(err);
       return err;
     });
 };
 
 export const readShop = async ({ shopId, signal }) => {
   try {
-    const response = await axios.get(`/api/shop/${shopId}`, {
-      signal
-    });
+    const response = await axios.get(`/api/shop/${shopId}`, { signal });
+
+    // console.log(Object.prototype.toString.call(response));
 
     return response.data;
   } catch (err) {
+    console.log(err);
     return err;
   }
 };
 
-export const updateShop = async ({
-  shopId,
-  shopData,
-  accessToken2,
-  axiosPrivate
-}) => {
+export const removeShop = async ({ shopId, axiosPrivate2 }) => {
   try {
-    const response = await axiosPrivate.patch(
+    const response = await axiosPrivate2.delete(`api/shops/${shopId}`);
+
+    return response.data;
+  } catch (error) {
+    console.log(error);
+    return error;
+  }
+};
+
+export const updateShop = async ({ shopId, shopData, axiosPrivate2 }) => {
+  try {
+    const response = await axiosPrivate2.patch(
       `/api/shops/${shopId}`,
-      shopData,
-      {
-        headers: {
-          authorization: `Bearer ${accessToken2}`
-        }
-      }
+      shopData
     );
 
     return response.data;
-  } catch (err) {
-    return err;
+  } catch (error) {
+    console.log(error);
+    return error;
   }
 };
 
-export const removeShop = async ({ shopId, accessToken2, axiosPrivate }) => {
-  try {
-    const response = await axiosPrivate.delete(`/api/shops/${shopId}`, {
-      headers: {
-        authorization: `Bearer ${accessToken2}`
-      }
-    });
-
-    return response.data;
-  } catch (err) {
-    return err;
-  }
-};
-
-export const list = async signal => {
+export const list = async ({ signal }) => {
   try {
     const response = await axios.get('/api/shops', {
       signal
     });
+
     return response.data;
   } catch (err) {
+    console.log(err);
     return err;
   }
 };
 
-export const listByOwner = async ({
-  userId,
-  signal,
-  accessToken2,
-  axiosPrivate
-}) => {
+export const listByOwner = async ({ userId, signal, axiosPrivate2 }) => {
   try {
-    const response = await axiosPrivate.get(`/api/shops/by/${userId}`, {
-      signal,
-      headers: {
-        authorization: `Bearer ${accessToken2}`
-      }
+    const response = await axiosPrivate2.get(`/api/shops/by/${userId}`, {
+      signal
     });
 
     return response.data;
   } catch (err) {
+    console.log(err);
     return err;
   }
 };

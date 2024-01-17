@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { useSelector } from 'react-redux'
-import { useParams } from 'react-router-dom';
+import { useSelector } from 'react-redux';
+import { useParams, useNavigate } from 'react-router-dom';
 
 import { makeStyles } from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
@@ -14,10 +14,10 @@ import Collapse from '@material-ui/core/Collapse';
 import Divider from '@material-ui/core/Divider';
 
 import useAxiosPrivate from '../auth/useAxiosPrivate';
-import useDataContext from '../auth/useDataContext';
+// import useDataContext from '../auth/useDataContext';
 import OrderEdit from './order-edit.comp';
 import { listByShop } from './api-order';
-import { handleAxiosError } from '../axios';
+// import { handleAxiosError } from '../axios';
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -47,129 +47,143 @@ const useStyles = makeStyles(theme => ({
 
 export default function ShopOrder() {
   const classes = useStyles();
-  const params = useParams();
-  const axiosPrivate = useAxiosPrivate()
-  const { auth } = useDataContext()
-  // const auth = useSelector(state => state.auth3)
-
-  console.log({auth})
+  const { shopId, shop } = useParams();
+  const axiosPrivate = useAxiosPrivate();
+  const navigate = useNavigate();
+  const auth = useSelector(state => state.auth);
+  // const { accessToken } = auth;
 
   const [orders, setOrders] = useState([]);
-  const [open, setOpen] = useState(0);
+  const [open, setOpen] = useState([]);
 
   useEffect(() => {
     const abortController = new AbortController();
     const { signal } = abortController;
 
     listByShop({
-        shopId: params.shopId,
-        accessToken2: auth.accessToken,
-        axiosPrivate,
-        signal
-      })
-      .then(data => {
-      if (data.isAxiosError) {
-        console.log({ error: data.response.data.error })
-        handleAxiosError(data);
+      signal,
+      shopId,
+      axiosPrivate2: axiosPrivate
+    }).then(data => {
+      if (data?.isAxiosError) {
+        console.log({ error: data.response?.data?.error });
+        if (data.response.status === 401) navigate('/');
       } else {
+        // console.log({ data });
         setOrders(data);
       }
     });
-      
-    return () => abortController.abort();
-  }, [auth.accessToken, axiosPrivate, params.shopId]);
 
-  const handleClick = orderId => {
-    console.log({orderId})
-    setOpen(orderId);
-  };
+    return () => {
+      console.log('abort shop order');
+      abortController.abort();
+    };
+  }, [axiosPrivate, shopId, navigate]);
 
   const updateOrders = (index, updatedOrder) => {
     const updatedOrders = orders;
 
     updatedOrders[index] = updatedOrder;
+    console.log([...updatedOrders]);
     setOrders([...updatedOrders]);
+  };
+
+  // console.log({ shopOrreder: orders });
+
+  const handleToggle = prodIndex => {
+    if (open.includes(prodIndex)) {
+      const openCopy = open.filter(el => el !== prodIndex);
+
+      setOpen(openCopy);
+    } else {
+      const openCopy = [...open, prodIndex];
+      // openCopy.push(prodIndex);
+      setOpen(openCopy);
+    }
+    // setOpen(prodIndex);
+    // console.log({ open, prodIndex });
   };
 
   return (
     <div>
       <Paper className={classes.root} elevation={4}>
         <Typography type="title" className={classes.title}>
-          Orders in {params.shop}
+          Orders in {shop}
         </Typography>
-        <List dense>
-          {orders.length && orders.map((order, index) => {
-            return (
-              <span key={order._id}>
-                <ListItem button onClick={() => handleClick(index)}>
-                  <ListItemText
-                    primary={`Order # ${order._id}`}
-                    secondary={new Date(order.createdAt).toDateString()}
-                  />
-                  {open !== index && <ExpandMore />}
-                </ListItem>
-                <Divider />
-                <Collapse
-                  component="li"
-                  in={open === index}
-                  timeout="auto"
-                  unmountOnExit
-                >
-                  <OrderEdit
-                    shopId={params.shopId}
-                    order={order}
-                    orderIndex={index}
-                    updateOrders={updateOrders}
-                    axiosPrivate={axiosPrivate}
-                    auth={auth}
-                  />
-                  <div className={classes.customerDetails}>
-                    <Typography
-                      type="subheading"
-                      component="h3"
-                      className={classes.subheading}
-                    >
-                      Deliver to:
-                    </Typography>
-                    <Typography
-                      type="subheading"
-                      component="h3"
-                      color="primary"
-                    >
-                      <strong>{order.customer_name}</strong> (
-                      {order.customer_email})
-                    </Typography>
-                    <Typography
-                      type="subheading"
-                      component="h3"
-                      color="primary"
-                    >
-                      {order.delivery_address.street}
-                    </Typography>
-                    <Typography
-                      type="subheading"
-                      component="h3"
-                      color="primary"
-                    >
-                      {order.delivery_address.city}, 
-                      {order.delivery_address.state} 
-                      {order.delivery_address.zipcode}
-                    </Typography>
-                    <Typography
-                      type="subheading"
-                      component="h3"
-                      color="primary"
-                    >
-                      {order.delivery_address.country}
-                    </Typography>
-                    <br />
-                  </div>
-                </Collapse>
-                <Divider />
-              </span>
-            );
-          })}
-        </List>
+        {!!orders?.length && (
+          <List dense>
+            {orders.map((order, index) => {
+              return (
+                <span key={order._id}>
+                  <ListItem button onClick={() => handleToggle(index)}>
+                    <ListItemText
+                      primary={`Order # ${order._id}`}
+                      secondary={new Date(order.createdAt).toDateString()}
+                    />
+                    {open.includes(index) ? <ExpandLess /> : <ExpandMore />}
+                  </ListItem>
+                  <Divider />
+                  <Collapse
+                    component="li"
+                    in={open.includes(index)}
+                    timeout="auto"
+                    unmountOnExit
+                  >
+                    <OrderEdit
+                      shopId={shopId}
+                      order={order}
+                      orderIndex={index}
+                      updateOrders={updateOrders}
+                    />
+
+                    <div className={classes.customerDetails}>
+                      <Typography
+                        type="subheading"
+                        component="h3"
+                        className={classes.subheading}
+                      >
+                        Deliver to:
+                      </Typography>
+                      <Typography
+                        type="subheading"
+                        component="h3"
+                        color="primary"
+                      >
+                        <strong>{order.customer_name}</strong> (
+                        {order.customer_email})
+                      </Typography>
+                      <Typography
+                        type="subheading"
+                        component="h3"
+                        color="primary"
+                      >
+                        {order.delivery_address.street}
+                      </Typography>
+                      <Typography
+                        type="subheading"
+                        component="h3"
+                        color="primary"
+                      >
+                        {order.delivery_address.city},
+                        {order.delivery_address.state}
+                        {order.delivery_address.zipcode}
+                      </Typography>
+                      <Typography
+                        type="subheading"
+                        component="h3"
+                        color="primary"
+                      >
+                        {order.delivery_address.country}
+                      </Typography>
+                      <br />
+                    </div>
+                  </Collapse>
+                  <Divider />
+                </span>
+              );
+            })}
+          </List>
+        )}
       </Paper>
     </div>
   );

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 
 import { makeStyles } from '@material-ui/core/styles';
 import Card from '@material-ui/core/Card';
@@ -49,10 +49,42 @@ const useStyles = makeStyles(theme => ({
 export default function Shop() {
   const classes = useStyles();
   const { shopId } = useParams();
+  const navigate = useNavigate();
 
-  const [shop, setShop] = useState('');
+  const [shop, setShop] = useState({});
   const [products, setProducts] = useState([]);
   const [error, setError] = useState('');
+
+  // console.log({ shop1: shop });
+
+  useEffect(() => {
+    // let isMounted = true;
+    const abortController = new AbortController();
+    const { signal } = abortController;
+
+    readShop({ shopId, signal }).then(data => {
+      if (data?.isAxiosError) {
+        console.log({ readShop1: data.response });
+        setError(data.response?.data?.error || 'default error');
+        return (
+          data.response?.status === 401 &&
+          navigate('/shops/all', { replace: true })
+        );
+      }
+
+      console.log({ data });
+      setError('');
+      // return isMounted &&
+      return setShop(data);
+    });
+
+    return () => {
+      // isMounted = false
+      // if (isMounted)
+      abortController.abort();
+      console.log('abort r shop/:id');
+    };
+  }, [shopId, navigate]);
 
   useEffect(() => {
     const abortController = new AbortController();
@@ -68,21 +100,11 @@ export default function Shop() {
       setError('');
       return setProducts(data);
     });
+    // .catch(err => console.error(err));
 
-    readShop({
-      shopId,
-      signal
-    }).then(data => {
-      if (data?.isAxiosError) {
-        return setError(data.response.data.error);
-      }
-      setError('');
-      return setShop(data);
-    });
-
-    return function cleanup() {
-      console.log('shop-comp list-by-shop');
+    return () => {
       abortController.abort();
+      console.log('abort l shop/:id');
     };
   }, [shopId]);
 
