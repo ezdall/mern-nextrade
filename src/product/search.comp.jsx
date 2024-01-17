@@ -1,4 +1,5 @@
 import { useState } from 'react';
+
 import PropTypes from 'prop-types';
 
 import { makeStyles } from '@material-ui/core/styles';
@@ -43,6 +44,38 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
+const useStyles2 = makeStyles(theme => ({
+  card: {
+    margin: 'auto',
+    textAlign: 'center',
+    paddingTop: theme.spacing(2),
+    backgroundColor: theme.palette.background.default // Use theme color
+  },
+  menu: {
+    width: theme.spacing(25) // Use theme spacing for width
+  },
+  textField: {
+    margin: theme.spacing(1),
+    width: theme.spacing(16), // Use theme spacing for width
+    verticalAlign: 'bottom',
+    marginBottom: theme.spacing(2)
+  },
+  searchField: {
+    margin: theme.spacing(1),
+    width: theme.spacing(37), // Use theme spacing for width
+    marginBottom: theme.spacing(2)
+  },
+  searchButton: {
+    minWidth: theme.spacing(2.5),
+    height: theme.spacing(3.75),
+    padding: theme.spacing(1),
+    marginBottom: theme.spacing(2),
+    borderRadius: theme.shape.borderRadius, // Add border radius
+    color: theme.palette.primary.contrastText, // Button text color
+    backgroundColor: theme.palette.primary.main // Button background color
+  }
+}));
+
 export default function Search({ categories }) {
   const classes = useStyles();
   const [values, setValues] = useState({
@@ -50,11 +83,10 @@ export default function Search({ categories }) {
     search: '',
     results: []
   });
-
   const [searched, setSearched] = useState(false);
 
-  const handleChange = event => {
-    const { name, value } = event.target;
+  const handleChange = ev => {
+    const { name, value } = ev.target;
 
     setValues({ ...values, [name]: value });
   };
@@ -62,25 +94,28 @@ export default function Search({ categories }) {
   const search = () => {
     if (values.search) {
       list({
-        search: values.search,
+        search: values.search, // || undefined ?
         category: values.category
       }).then(data => {
-        if (data.isAxiosError) {
-          console.log({ errSearch: data.response.data.error });
-        } else {
-          setSearched(true);
-          setValues({ ...values, results: data });
+        console.log({ data });
+        if (data?.isAxiosError) {
+          return console.log({ errSearch: data.response.data.error });
         }
+        setSearched(true);
+        return setValues(prev => ({ ...prev, results: data }));
       });
     }
   };
 
   const enterKey = event => {
     if (event.keyCode === 13) {
-      event.preventDefault();
+      // enter?
+      event.preventDefault(); // refresh at search-box?
       search();
     }
   };
+
+  // console.log({ values });
 
   return (
     <div>
@@ -132,6 +167,7 @@ export default function Search({ categories }) {
     </div>
   );
 }
+
 Search.propTypes = {
   categories: PropTypes.arrayOf(PropTypes.string).isRequired
-}
+};

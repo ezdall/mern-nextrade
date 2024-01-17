@@ -78,11 +78,9 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-export default function Suggestions(props) {
-  const { title, products } = props;
-  // console.log({props})
-
+export default function Suggestions({ title, products }) {
   const classes = useStyles();
+
   return (
     <div>
       <Paper className={classes.root} elevation={4}>
@@ -156,4 +154,4 @@ export default function Suggestions(props) {
 Suggestions.propTypes = {
   products: PropTypes.arrayOf(PropTypes.shape).isRequired,
   title: PropTypes.string.isRequired
-}
+};
