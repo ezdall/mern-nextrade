@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import PropTypes from 'prop-types'
+import PropTypes from 'prop-types';
 import { useSelector, useDispatch } from 'react-redux';
-import { Navigate, useLocation } from 'react-router-dom';
+import { Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
 
 import { makeStyles } from '@material-ui/core/styles';
@@ -9,7 +9,7 @@ import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
 import Icon from '@material-ui/core/Icon';
 
-import useDataContext from '../auth/useDataContext';
+// import useDataContext from '../auth/useDataContext';
 import useAxiosPrivate from '../auth/useAxiosPrivate';
 import { emptyCart } from '../redux/cart.slice';
 import { createOrder } from '../order/api-order';
@@ -43,21 +43,17 @@ const useStyles = makeStyles(() => ({
   }
 }));
 
-export default function PlaceOrder(props) {
-  const { checkoutDetails, onError } = props;
-  const { user: authUser, accessToken } = useDataContext().auth;
+export default function PlaceOrder({ checkoutDetails, onError }) {
+  const classes = useStyles();
+  const { user, accessToken } = useSelector(state => state.auth);
   const axiosPrivate = useAxiosPrivate();
 
-  // const {user: authUser} = useSelector(state => state.auth3)
+  const navigate = useNavigate();
   const dispatch = useDispatch();
   const stripe = useStripe();
   const elements = useElements();
   const location = useLocation();
 
-  console.log({ authUser });
-  // console.log({ stripe, elements });
-
-  const classes = useStyles();
   const [values, setValues] = useState({
     order: {},
     orderId: ''
@@ -65,65 +61,107 @@ export default function PlaceOrder(props) {
   const [error, setError] = useState('');
   const [redirect, setRedirect] = useState(false);
 
-  const placeOrder = () => {
-    const {
-      products,
-      customer_name,
-      customer_email,
-      delivery_address
-    } = checkoutDetails;
+  const placeOrder = async () => {
+    try {
+      const {
+        products,
+        customer_name,
+        customer_email,
+        delivery_address: { street, city, zipcode, country }
+      } = checkoutDetails;
 
-    const { street, city, zipcode, country } = delivery_address;
+      // const { street, city, zipcode, country } = delivery_address;
 
-    if (
-      !Array.isArray(products) ||
-      !customer_name ||
-      !customer_email ||
-      !street ||
-      !city ||
-      !zipcode ||
-      !country
-    ) {
-      return onError();
-    }
+      // validate input data
+      if (
+        !Array.isArray(products) ||
+        !customer_name ||
+        !customer_email ||
+        !street ||
+        !city ||
+        !zipcode ||
+        !country
+      ) {
+        return onError(); // invalid checkout details
+      }
 
-    if (!elements || !stripe) {
-      return setError('no stripe yet');
-    }
+      // check for stripe & elements
+      if (!elements || !stripe) return setError('Stripe is not available');
 
-    return stripe
-      .createToken(elements.getElement(CardElement))
-      .then(payload => {
-        console.log({ payload });
+      console.log({ stripe, elements });
 
-        if (payload.error) {
-          setError(payload.error.message);
-        } else {
-          createOrder({
-            axiosPrivate,
-            userId: authUser._id,
-            order: checkoutDetails,
-            token: payload.token.id,
-            accessToken2: accessToken
-          }).then(data => {
-            if (data?.isAxiosError) {
-              handleAxiosError(data);
-              return setError(data.response.data.error);
-            }
+      // create token using CardElement
+      const payload = await stripe.createToken(
+        elements.getElement(CardElement)
+      );
 
-            setValues({ ...values, orderId: data._id });
-            dispatch(emptyCart());
-            return setRedirect(true);
-          });
-        }
+      console.log({ payload });
+
+      if (payload.error) {
+        return setError(error.message);
+      }
+
+      const orderResult = await createOrder({
+        axiosPrivate2: axiosPrivate,
+        userId: user._id,
+        order: checkoutDetails,
+        token: payload.token.id
       });
+
+      console.log({ orderResult });
+
+      // console.log({ type: Object.prototype.toString.call(orderResult) });
+
+      // handle error if order creating failed
+      if (orderResult?.isAxiosError) {
+        // handleAxiosError(orderResult);
+        console.log('error order');
+        return setError(orderResult?.response?.data?.error);
+      }
+
+      // update order id, then empty cart
+      setValues(prev => ({ ...prev, orderId: orderResult._id }));
+      dispatch(emptyCart());
+
+      return navigate(`/order/${orderResult._id}`);
+    } catch (err) {
+      console.error('Error placing order:', err.message);
+      return setError(error);
+      // Handle the error (e.g., show an error message to the user)
+    }
+
+    // return stripe
+    //   .createToken(elements.getElement(CardElement))
+    //   .then(payload => {
+    //     console.log({ payload });
+
+    //     if (payload.error) {
+    //       setError(payload.error.message);
+    //     } else {
+    //       createOrder({
+    //         axiosPrivate,
+    //         userId: user._id,
+    //         order: checkoutDetails,
+    //         token: payload.token.id,
+    //         accessToken2: accessToken
+    //       }).then(data => {
+    //         if (data?.isAxiosError) {
+    //           handleAxiosError(data);
+    //           return setError(data.response.data.error);
+    //         }
+    //         setValues(prev => ({ ...prev, orderId: data._id }));
+    //         dispatch(emptyCart());
+    //         return setRedirect(true);
+    //       });
+    //     }
+    //   });
   };
 
-  if (redirect) {
-    return <Navigate to={`/order/${values.orderId}`} />;
-  }
+  // if (redirect && values?.orderId) {
+  //   return <Navigate to={`/order/${values.orderId}`} />;
+  // }
 
-  console.log({checkoutDetails})
+  // console.log({ checkoutDetails });
 
   return (
     <span>
@@ -177,7 +215,7 @@ export default function PlaceOrder(props) {
 PlaceOrder.propTypes = {
   onError: PropTypes.func.isRequired,
   checkoutDetails: PropTypes.shape({
-    products: PropTypes.arrayOf(PropTypes.shape.isRequired),
+    products: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
     customer_name: PropTypes.string.isRequired,
     customer_email: PropTypes.string.isRequired,
     delivery_address: PropTypes.shape({
@@ -187,4 +225,4 @@ PlaceOrder.propTypes = {
       country: PropTypes.string.isRequired
     }).isRequired
   }).isRequired
-}
+};
