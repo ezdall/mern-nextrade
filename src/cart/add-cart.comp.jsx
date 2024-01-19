@@ -1,4 +1,4 @@
-import { useSelector, useDispatch } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import PropTypes from 'prop-types';
 
 import { useNavigate } from 'react-router-dom';
@@ -8,7 +8,8 @@ import IconButton from '@material-ui/core/IconButton';
 import AddCartIcon from '@material-ui/icons/AddShoppingCart';
 import DisabledCartIcon from '@material-ui/icons/RemoveShoppingCart';
 
-import { selectCartItems, addProd } from '../redux/cart.slice';
+import useDataContext from '../auth/useDataContext';
+import { addProd } from '../redux/cart.slice';
 
 const useStyles = makeStyles(() => ({
   iconButton: {
@@ -22,25 +23,23 @@ const useStyles = makeStyles(() => ({
   }
 }));
 
-export default function AddToCart(props) {
-  const { item, cartStyle } = props;
-  // const cart3 = useSelector(selectCartItems);
+export default function AddToCart({ item, cartStyle }) {
+  const classes = useStyles();
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
-
-  const classes = useStyles();
+  const { addProduct: addProductCtx } = useDataContext();
 
   const addToCart = () => {
     dispatch(addProd(item));
+    addProductCtx(item);
+
     navigate('/cart');
   };
 
-  console.log({item})
-
   return (
     <span>
-      {item.quantity >= 0 ? (
+      {item?.quantity >= 0 ? (
         <IconButton color="secondary" dense="dense" onClick={addToCart}>
           <AddCartIcon className={cartStyle || classes.iconButton} />
         </IconButton>
@@ -55,9 +54,13 @@ export default function AddToCart(props) {
   );
 }
 
+AddToCart.defaultProps = {
+  cartStyle: ''
+};
+
 AddToCart.propTypes = {
-  cartStyle: PropTypes.string.isRequired,
+  cartStyle: PropTypes.string,
   item: PropTypes.shape({
     quantity: PropTypes.number.isRequired
   }).isRequired
-}
+};

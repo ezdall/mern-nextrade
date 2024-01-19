@@ -1,5 +1,5 @@
-import { useEffect, useCallback } from 'react';
-import PropTypes from 'prop-types'
+import { useEffect, useCallback, useMemo } from 'react';
+import PropTypes from 'prop-types';
 import { useSelector, useDispatch } from 'react-redux';
 import { Link, useLocation } from 'react-router-dom';
 
@@ -13,7 +13,7 @@ import Typography from '@material-ui/core/Typography';
 import Divider from '@material-ui/core/Divider';
 
 import useDataContext from '../auth/useDataContext';
-import { selectCartItems, updateCart, removeProd } from '../redux/cart.slice';
+import { updateCart, removeProd } from '../redux/cart.slice';
 
 const useStyles = makeStyles(theme => ({
   card: {
@@ -94,31 +94,27 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-export default function CartItems(props) {
-  const location = useLocation();
-  const { auth: auth2 } = useDataContext();
-  const cart3 = useSelector(selectCartItems);
-  const dispatch = useDispatch();
-
-  console.log({ cart3 });
-
-  const { checkout, setCheckout } = props;
-
+export default function CartItems({ checkout, setCheckout }) {
   const classes = useStyles();
+  const dispatch = useDispatch();
+  const location = useLocation();
+  const { auth, cart } = useSelector(state => state);
 
-  const getTotal = useCallback(() => {
-    console.log('callback');
-    return cart3.reduce((a, b) => {
-      return a + b.quantity * b.product.price;
-    }, 0);
-  }, [cart3]);
+  console.log({ auth, cart });
 
-  console.log(getTotal());
+  const getTotal = useMemo(() => {
+    return cart.reduce(
+      (total, item) => total + item.quantity * item.product.price,
+      0
+    );
+  }, [cart]);
 
   useEffect(() => {
-    if (getTotal() === 0) {
+    if (getTotal === 0) {
       setCheckout(false);
     }
+
+    return () => console.log('cItem abort?');
   }, [getTotal, setCheckout]);
 
   const handleChange = prodId => event => {
@@ -140,9 +136,9 @@ export default function CartItems(props) {
       <Typography type="title" className={classes.title}>
         Shopping Cart
       </Typography>
-      {cart3.length ? (
+      {cart?.length ? (
         <span>
-          {cart3.map(item => {
+          {cart.map(item => {
             return (
               <span key={item.product._id}>
                 <Card className={classes.cart}>
@@ -210,10 +206,10 @@ export default function CartItems(props) {
             );
           })}
           <div className={classes.checkout}>
-            <span className={classes.total}>Total: ${getTotal()}</span>
+            <span className={classes.total}>Total: ${getTotal}</span>
             {!checkout &&
-              getTotal() !== 0 &&
-              (auth2.user ? (
+              getTotal !== 0 &&
+              (auth.user ? (
                 <Button
                   color="secondary"
                   variant="contained"
@@ -245,4 +241,4 @@ export default function CartItems(props) {
 CartItems.propTypes = {
   checkout: PropTypes.bool.isRequired,
   setCheckout: PropTypes.func.isRequired
-}
+};

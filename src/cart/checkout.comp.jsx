@@ -7,7 +7,7 @@ import TextField from '@material-ui/core/TextField';
 import Typography from '@material-ui/core/Typography';
 import Icon from '@material-ui/core/Icon';
 
-import useDataContext from '../auth/useDataContext';
+// import useDataContext from '../auth/useDataContext';
 import PlaceOrder from './place-order.comp';
 
 const useStyles = makeStyles(theme => ({
@@ -45,14 +45,13 @@ const useStyles = makeStyles(theme => ({
 
 export default function Checkout() {
   const classes = useStyles();
-  const cart3 = useSelector(state => state.cart3);
-
-  const { user } = useDataContext().auth;
+  const cart = useSelector(state => state.cart);
+  const { user } = useSelector(state => state.auth);
 
   const [values, setValues] = useState({
     checkoutDetails: {
       // replace this
-      products: cart3,
+      products: cart,
       customer_name: user.name,
       customer_email: user.email,
       delivery_address: {
@@ -73,24 +72,33 @@ export default function Checkout() {
 
     setError('');
 
-    checkoutDetails[name] = value;
-    setValues({ ...values, checkoutDetails });
+    // checkoutDetails[name] = value;
+    const updatedCheckoutDetails = { ...checkoutDetails, [name]: value };
+    setValues({ ...values, checkoutDetails: updatedCheckoutDetails });
   };
 
   const handleAddressChange = event => {
     const { value, name } = event.target;
-    const { checkoutDetails } = values; // || undefined
+    const { checkoutDetails } = values;
 
     setError('');
 
-    // mutating
-    checkoutDetails.delivery_address[name] = value; // || undefined
-    setValues({ ...values, checkoutDetails });
+    // avoid mutating
+    // checkoutDetails.delivery_address[name] = value;
+    const updatedDeliveryAddress = {
+      ...checkoutDetails.delivery_address,
+      [name]: value
+    };
+    const updatedCheckoutDetails = {
+      ...checkoutDetails,
+      delivery_address: updatedDeliveryAddress
+    };
+
+    setValues({ ...values, checkoutDetails: updatedCheckoutDetails });
   };
 
   const handleError = () => {
-    // console.log({ ev });
-    setError('valid fields are required!');
+    setError('Invalid input data!');
   };
 
   return (

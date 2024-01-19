@@ -1,8 +1,7 @@
 import { createSlice, nanoid } from '@reduxjs/toolkit';
 
-const initialState = JSON.parse(window.localStorage.getItem('cart')) || [];
-
-// JSON.parse(window.localStorage.getItem('cart')) ||
+const initialState = JSON.parse(window?.localStorage?.getItem('cart')) || [];
+// console.log({ initialState });
 
 export const cartSlice = createSlice({
   name: 'cart',
@@ -12,10 +11,9 @@ export const cartSlice = createSlice({
       reducer(state, action) {
         const { cartId, item: prod } = action.payload;
 
-        console.log({ prod });
-
         const cartIndex = state.findIndex(cItem => cItem.id === prod._id);
 
+        // if item already in cart, inc quantity instead
         if (cartIndex !== -1) {
           return [
             ...state.slice(0, cartIndex),
@@ -24,7 +22,7 @@ export const cartSlice = createSlice({
           ];
         }
 
-        return [
+        const product = [
           ...state,
           {
             cartId: prod.cartId,
@@ -34,12 +32,15 @@ export const cartSlice = createSlice({
             shop: prod.shop._id
           }
         ];
+
+        return product;
       },
       prepare(item) {
+        // pre fetch?
         return {
           payload: {
             cartId: nanoid(),
-            item
+            item // capture here?
           }
         };
       }
@@ -65,14 +66,6 @@ export const cartSlice = createSlice({
   }
 });
 
-// const getTotal = () => {
-//   return state.reduce((a, b) => {
-//     return a + b.quantity * b.product.price;
-//   }, 0);
-// };
-
 export const { addProd, updateCart, removeProd, emptyCart } = cartSlice.actions;
-
-export const selectCartItems = state => state.cart3;
 
 export default cartSlice.reducer;
