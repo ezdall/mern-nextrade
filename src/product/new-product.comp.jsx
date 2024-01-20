@@ -1,7 +1,8 @@
-import { useState } from 'react';
-import { Link, Navigate, useParams } from 'react-router-dom';
-import { makeStyles } from '@material-ui/core/styles';
+import { useState, useCallback } from 'react';
+import { useSelector } from 'react-redux';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 
+import { makeStyles } from '@material-ui/core/styles';
 import Card from '@material-ui/core/Card';
 import CardActions from '@material-ui/core/CardActions';
 import CardContent from '@material-ui/core/CardContent';
@@ -13,7 +14,7 @@ import Icon from '@material-ui/core/Icon';
 
 import { createProduct } from './api-product';
 import { handleAxiosError } from '../axios';
-import useDataContext from '../auth/useDataContext';
+// import useDataContext from '../auth/useDataContext';
 import useAxiosPrivate from '../auth/useAxiosPrivate';
 
 const useStyles = makeStyles(theme => ({
@@ -51,9 +52,10 @@ const useStyles = makeStyles(theme => ({
 
 export default function NewProduct() {
   const classes = useStyles();
-  const params = useParams();
-  const { auth: auth2 } = useDataContext();
+  const { shopId } = useParams();
+  const auth = useSelector(state => state.auth);
   const axiosPrivate = useAxiosPrivate();
+  const navigate = useNavigate();
 
   const [values, setValues] = useState({
     name: '',
@@ -65,7 +67,7 @@ export default function NewProduct() {
   });
 
   const [error, setError] = useState('');
-  const [redirect, setRedirect] = useState(false);
+  // const [redirect, setRedirect] = useState(false);
 
   const handleChange = ev => {
     const { name, value, files } = ev.target;
@@ -95,23 +97,24 @@ export default function NewProduct() {
 
     return createProduct({
       productData,
-      axiosPrivate,
-      shopId: params.shopId,
-      accessToken2: auth2.accessToken
-    }).then(data => {
-      console.log({ dataCrtProd: data });
-      if (data?.isAxiosError) {
-        handleAxiosError(data);
-        return setError(data.response.data.error);
-      }
-      setError('');
-      return setRedirect(true);
-    });
+      shopId,
+      axiosPrivate2: axiosPrivate
+    })
+      .then(data => {
+        if (data?.isAxiosError) {
+          // handleAxiosError(data);
+          return setError(data.response?.data);
+        }
+        setError('');
+        return navigate(`/seller/shop/edit/${shopId}`);
+        // return setRedirect(true);
+      })
+      .catch(err => setError(err));
   };
 
-  if (redirect) {
-    return <Navigate to={`/seller/shop/edit/${params.shopId}`} />;
-  }
+  // if (redirect) {
+  //   return <Navigate to={`/seller/shop/edit/${shopId}`} />;
+  // }
 
   return (
     <div>
@@ -216,10 +219,7 @@ export default function NewProduct() {
           >
             Submit
           </Button>
-          <Link
-            to={`/seller/shop/edit/${params.shopId}`}
-            className={classes.submit}
-          >
+          <Link to={`/seller/shop/edit/${shopId}`} className={classes.submit}>
             <Button variant="contained">Cancel</Button>
           </Link>
         </CardActions>

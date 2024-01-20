@@ -9,107 +9,102 @@ export const readProduct = async ({ productId, signal }) => {
     });
 
     return response.data;
-  } catch (err) {
-    return err;
+  } catch (error) {
+    console.log(error);
+    return error;
   }
 };
 
-export const createProduct = async ({
-  shopId,
-  productData,
-  accessToken2,
-  axiosPrivate
-}) => {
+export const createProduct = async ({ shopId, productData, axiosPrivate2 }) => {
   try {
-    const response = await axiosPrivate.post(
+    const response = await axiosPrivate2.post(
       `/api/products/by/${shopId}`,
-      productData,
-      {
-        headers: { authorization: `Bearer ${accessToken2}` }
-      }
+      productData
     );
 
     return response.data;
-  } catch (err) {
-    return err;
+  } catch (error) {
+    console.log(error.data);
+    return error;
   }
 };
 
 export const updateProduct = async ({
+  productData,
   shopId,
   productId,
-  productData,
   accessToken2,
-  axiosPrivate
+  axiosPrivate2
 }) => {
   try {
-    const response = await axiosPrivate.patch(
+    const response = await axiosPrivate2.patch(
       `/api/product/${shopId}/${productId}`,
-      productData,
-      {
-        headers: { authorization: `Bearer ${accessToken2}` }
-      }
+      productData
     );
 
     return response.data;
-  } catch (err) {
-    return err;
+  } catch (error) {
+    console.log(error.data);
+
+    return error;
   }
 };
 
 export const removeProduct = async ({
   accessToken2,
-  axiosPrivate,
+  axiosPrivate2,
   productId,
   shopId
 }) => {
   try {
-    const response = await axiosPrivate.delete(
-      `/api/product/${shopId}/${productId}`,
-      {
-        headers: {
-          authorization: `Bearer ${accessToken2}`
-        }
-      }
+    const response = await axiosPrivate2.delete(
+      `/api/product/${shopId}/${productId}`
     );
+
     return response.data;
-  } catch (err) {
-    return err;
+  } catch (error) {
+    console.log(error);
+    return error;
   }
 };
 
-export const listLatest = async signal => {
+export const listLatest = async ({ signal }) => {
   try {
     const response = await axios.get('/api/products/latest', {
       signal
     });
 
     return response.data;
-  } catch (err) {
-    console.log(err);
-    return err;
+  } catch (error) {
+    console.log(error);
+    return error;
   }
 };
 
-export const listCategories = async signal => {
+export const listCategories = async ({ signal }) => {
   try {
     const response = await axios.get('/api/products/categories', {
       signal
     });
+
     return response.data;
-  } catch (err) {
-    return err;
+  } catch (error) {
+    console.log(error);
+    return error;
   }
 };
 
-export const listRelated = async ({ productId, signal }) => {
+export const listRelated = async ({ signal, productId }) => {
   try {
     const response = await axios.get(`/api/products/related/${productId}`, {
       signal
     });
+
     return response.data;
-  } catch (err) {
-    return err;
+  } catch (error) {
+    console.log(error);
+
+    return error;
   }
 };
 
@@ -120,8 +115,10 @@ export const listByShop = async ({ shopId, signal }) => {
     });
 
     return response.data;
-  } catch (err) {
-    return err;
+  } catch (error) {
+    console.log(error);
+
+    return error;
   }
 };
 
@@ -129,13 +126,11 @@ export const list = async ({ search, category, signal }) => {
   try {
     const query = queryString.stringify({ search, category });
 
-    console.log({ query });
+    const response = await axios.get(`/api/products?${query}`, { signal });
 
-    const response = await axios.get(`/api/products?${query}`, {
-      signal
-    });
     return response.data;
-  } catch (err) {
-    return err;
+  } catch (error) {
+    console.log(error);
+    return error;
   }
 };
