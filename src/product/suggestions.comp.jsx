@@ -87,71 +87,70 @@ export default function Suggestions({ title, products }) {
         <Typography type="title" className={classes.title}>
           {title}
         </Typography>
-        {products?.length &&
-          products.map(item => {
-            return (
-              <span key={item._id}>
-                <Card className={classes.card}>
-                  <CardMedia
-                    className={classes.cover}
-                    image={`${BASE_URL}/api/product/image/${item._id}`}
-                    title={item.name}
-                  />
-                  <div className={classes.details}>
-                    <CardContent className={classes.content}>
-                      <Link to={`/product/${item._id}`}>
-                        <Typography
-                          variant="h3"
-                          component="h3"
-                          className={classes.productTitle}
-                          color="primary"
-                        >
-                          {item.name}
-                        </Typography>
-                      </Link>
-                      <Link to={`/shops/${item.shop._id}`}>
-                        <Typography
-                          type="subheading"
-                          className={classes.subheading}
-                        >
-                          <Icon className={classes.icon}>shopping_basket</Icon>{' '}
-                          {item.shop.name}
-                        </Typography>
-                      </Link>
-                      <Typography component="p" className={classes.date}>
-                        Added on {new Date(item.updatedAt).toDateString()}
-                      </Typography>
-                    </CardContent>
-                    <div className={classes.controls}>
+        {products.map(item => {
+          return (
+            <span key={item._id}>
+              <Card className={classes.card}>
+                <CardMedia
+                  className={classes.cover}
+                  image={`${BASE_URL}/api/product/image/${item._id}`}
+                  title={item.name}
+                />
+                <div className={classes.details}>
+                  <CardContent className={classes.content}>
+                    <Link to={`/product/${item._id}`}>
                       <Typography
-                        type="subheading"
+                        variant="h3"
                         component="h3"
-                        className={classes.price}
+                        className={classes.productTitle}
                         color="primary"
                       >
-                        $ {item.price}
+                        {item.name}
                       </Typography>
-                      <span className={classes.actions}>
-                        <Link to={`/product/${item._id}`}>
-                          <IconButton color="secondary" dense="dense">
-                            <ViewIcon className={classes.iconButton} />
-                          </IconButton>
-                        </Link>
-                        <AddToCart item={item} />
-                      </span>
-                    </div>
+                    </Link>
+                    <Link to={`/shops/${item.shop._id}`}>
+                      <Typography
+                        type="subheading"
+                        className={classes.subheading}
+                      >
+                        <Icon className={classes.icon}>shopping_basket</Icon>
+                        {item.shop.name}
+                      </Typography>
+                    </Link>
+                    <Typography component="p" className={classes.date}>
+                      Added on {new Date(item.updatedAt).toDateString()}
+                    </Typography>
+                  </CardContent>
+                  <div className={classes.controls}>
+                    <Typography
+                      type="subheading"
+                      component="h3"
+                      className={classes.price}
+                      color="primary"
+                    >
+                      $ {item.price}
+                    </Typography>
+                    <span className={classes.actions}>
+                      <Link to={`/product/${item._id}`}>
+                        <IconButton color="secondary" dense="dense">
+                          <ViewIcon className={classes.iconButton} />
+                        </IconButton>
+                      </Link>
+                      <AddToCart item={item} />
+                    </span>
                   </div>
-                </Card>
-                <Divider />
-              </span>
-            );
-          })}
+                </div>
+              </Card>
+              <Divider />
+            </span>
+          );
+        })}
       </Paper>
     </div>
   );
 }
 
 Suggestions.propTypes = {
-  products: PropTypes.arrayOf(PropTypes.shape).isRequired,
+  products: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   title: PropTypes.string.isRequired
 };

@@ -99,7 +99,7 @@ export default function Search({ categories }) {
       }).then(data => {
         console.log({ data });
         if (data?.isAxiosError) {
-          return console.log({ errSearch: data.response.data.error });
+          return console.log({ errSearch: data?.response?.data });
         }
         setSearched(true);
         return setValues(prev => ({ ...prev, results: data }));
@@ -109,7 +109,7 @@ export default function Search({ categories }) {
 
   const enterKey = event => {
     if (event.keyCode === 13) {
-      // enter?
+      // enter
       event.preventDefault(); // refresh at search-box?
       search();
     }
@@ -126,7 +126,7 @@ export default function Search({ categories }) {
           label="Select category"
           className={classes.textField}
           name="category"
-          value={values.category || 'All'}
+          value={values?.category ?? 'All'}
           onChange={handleChange}
           SelectProps={{
             MenuProps: {

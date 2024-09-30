@@ -45,14 +45,16 @@ const useStyles = makeStyles(() => ({
 
 export default function PlaceOrder({ checkoutDetails, onError }) {
   const classes = useStyles();
-  const { user, accessToken } = useSelector(state => state.auth);
+  const { user } = useSelector(state => state.auth);
   const axiosPrivate = useAxiosPrivate();
 
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const stripe = useStripe();
   const elements = useElements();
-  const location = useLocation();
+  // const location = useLocation();
+
+  console.log({ stripe });
 
   const [values, setValues] = useState({
     order: {},

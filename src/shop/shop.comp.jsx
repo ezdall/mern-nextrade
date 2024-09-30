@@ -95,7 +95,7 @@ export default function Shop() {
       signal
     }).then(data => {
       if (data?.isAxiosError) {
-        return setError(data.response.data.error);
+        return setError(data?.response?.data?.error);
       }
       setError('');
       return setProducts(data);

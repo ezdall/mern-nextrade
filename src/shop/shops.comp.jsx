@@ -48,21 +48,22 @@ export default function Shops() {
   const [shops, setShops] = useState([]);
 
   useEffect(() => {
+    let isMounted = true;
     const abortController = new AbortController();
     const { signal } = abortController;
 
-    list({ signal })
-      .then(data => {
-        if (data?.isAxiosError) {
-          return console.error(data.response.data.error);
-        }
+    list({ signal }).then(data => {
+      if (data?.isAxiosError) {
+        return console.error(data?.response?.data);
+      }
 
-        return setShops(data);
-      })
-      .catch(err => console.error(err));
+      return isMounted && setShops(data);
+    });
+    // .catch(err => console.error(err));
 
     return () => {
-      abortController.abort();
+      isMounted = false;
+      if (isMounted) abortController.abort();
       console.log('abort shop-lists');
     };
   }, []);
@@ -74,45 +75,41 @@ export default function Shops() {
           All Shops
         </Typography>
         <List dense>
-          {shops?.length ? (
-            shops.map(shop => {
-              return (
-                <Link to={`/shops/${shop._id}`} key={shop._id}>
-                  <Divider />
-                  <ListItem button>
-                    <ListItemAvatar>
-                      <Avatar
-                        className={classes.avatar}
-                        src={`${BASE_URL}/api/shops/logo/${
-                          shop._id
-                        }?${new Date().getTime()}`}
-                      />
-                    </ListItemAvatar>
-                    <div className={classes.details}>
-                      <Typography
-                        type="headline"
-                        component="h2"
-                        color="primary"
-                        className={classes.shopTitle}
-                      >
-                        {shop.name}
-                      </Typography>
-                      <Typography
-                        type="subheading"
-                        component="h4"
-                        className={classes.subheading}
-                      >
-                        {shop.description}
-                      </Typography>
-                    </div>
-                  </ListItem>
-                  <Divider />
-                </Link>
-              );
-            })
-          ) : (
-            <p>Loading...</p>
-          )}
+          {shops.map(shop => {
+            return (
+              <Link to={`/shops/${shop._id}`} key={shop._id}>
+                <Divider />
+                <ListItem button>
+                  <ListItemAvatar>
+                    <Avatar
+                      className={classes.avatar}
+                      src={`${BASE_URL}/api/shops/logo/${
+                        shop._id
+                      }?${new Date().getTime()}`}
+                    />
+                  </ListItemAvatar>
+                  <div className={classes.details}>
+                    <Typography
+                      type="headline"
+                      component="h2"
+                      color="primary"
+                      className={classes.shopTitle}
+                    >
+                      {shop.name}
+                    </Typography>
+                    <Typography
+                      type="subheading"
+                      component="h4"
+                      className={classes.subheading}
+                    >
+                      {shop.description}
+                    </Typography>
+                  </div>
+                </ListItem>
+                <Divider />
+              </Link>
+            );
+          })}
         </List>
       </Paper>
     </div>

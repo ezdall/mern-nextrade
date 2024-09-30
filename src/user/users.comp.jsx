@@ -34,6 +34,7 @@ export default function Users() {
   const [users, setUsers] = useState([]);
 
   useEffect(() => {
+    let isMounted = true;
     const abortController = new AbortController();
     const { signal } = abortController;
 
@@ -42,12 +43,14 @@ export default function Users() {
         return console.log({ errUserComp: data?.response?.data?.error });
         // return handleAxiosError(data);
       }
-      return setUsers(data);
+      return isMounted && setUsers(data);
     });
     // .catch(err => console.log(err));
 
     return () => {
       abortController.abort();
+      isMounted = false;
+      if (isMounted) abortController.abort();
       console.log('abort user list');
     };
   }, []);

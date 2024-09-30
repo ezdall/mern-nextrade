@@ -3,7 +3,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import Grid from '@material-ui/core/Grid';
 
 import Search from '../product/search.comp';
-import Categories from '../product/categories2.comp';
+import Categories from '../product/categories.comp';
 import Suggestions from '../product/suggestions.comp';
 import { listLatest, listCategories } from '../product/api-product';
 
