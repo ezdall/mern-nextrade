@@ -13,10 +13,9 @@ import Icon from '@material-ui/core/Icon';
 import Avatar from '@material-ui/core/Avatar';
 import FileUpload from '@material-ui/icons/AddPhotoAlternate';
 
+import useAxiosPrivate from '../auth/useAxiosPrivate';
 import { readProduct, updateProduct } from './api-product';
 import { BASE_URL } from '../axios';
-// import useDataContext from '../auth/useDataContext';
-import useAxiosPrivate from '../auth/useAxiosPrivate';
 
 const useStyles = makeStyles(theme => ({
   card: {
@@ -83,15 +82,14 @@ export default function EditProduct() {
       productId,
       signal
     }).then(data => {
-      if (data?.isAxiosError) {
-        return setError(data.response?.data?.error);
+      if (!data?.isAxiosError) {
+        return setValues(prev => ({
+          ...prev,
+          ...data,
+          id: data._id
+        }));
       }
-
-      return setValues(prev => ({
-        ...prev,
-        ...data,
-        id: data._id
-      }));
+      return setError(data.response?.data?.error);
     });
 
     return () => {

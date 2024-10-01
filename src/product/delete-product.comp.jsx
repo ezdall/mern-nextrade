@@ -1,5 +1,4 @@
 import { useState, memo } from 'react';
-import { useSelector } from 'react-redux';
 import PropTypes from 'prop-types';
 
 import IconButton from '@material-ui/core/IconButton';
@@ -11,13 +10,11 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 
-// import useDataContext from '../auth/useDataContext';
 import useAxiosPrivate from '../auth/useAxiosPrivate';
 import { removeProduct } from './api-product';
 
 function DeleteProduct({ shopId, product, onRemoveProduct }) {
   const axiosPrivate = useAxiosPrivate();
-  const auth = useSelector(state => state.auth);
 
   const [open, setOpen] = useState(false);
 
@@ -35,11 +32,11 @@ function DeleteProduct({ shopId, product, onRemoveProduct }) {
       productId: product._id,
       axiosPrivate2: axiosPrivate
     }).then(data => {
-      if (data?.isAxiosError) {
-        return console.log({ errDelProd: data.response?.data });
+      if (!data?.isAxiosError) {
+        setOpen(false);
+        return onRemoveProduct(product);
       }
-      setOpen(false);
-      return onRemoveProduct(product);
+      return console.log({ errDelProd: data.response?.data });
     });
   };
 

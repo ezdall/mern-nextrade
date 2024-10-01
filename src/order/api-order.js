@@ -103,7 +103,6 @@ export const listByShop = async ({ shopId, signal, axiosPrivate2 }) => {
   try {
     const response = await axiosPrivate2.get(`/api/orders/shop/${shopId}`, {
       signal
-      // headers: { authorization: `Bearer ${accessToken2}` }
     });
 
     console.log({ response });
@@ -119,7 +118,6 @@ export const listByUser = async ({ userId, signal, axiosPrivate2 }) => {
   try {
     const response = await axiosPrivate2.get(`/api/orders/user/${userId}`, {
       signal
-      // headers: { authorization: `Bearer ${accessToken2}` }
     });
 
     return response.data;

@@ -8,7 +8,6 @@ import Paper from '@material-ui/core/Paper';
 import Typography from '@material-ui/core/Typography';
 
 import useAxiosPrivate from '../auth/useAxiosPrivate';
-// import useDataContext from '../auth/useDataContext';
 import { stripeUpdate } from './api-user';
 
 const useStyles = makeStyles(theme => ({
@@ -36,10 +35,6 @@ export default function StripeConnect() {
 
   const { user } = useSelector(state => state.auth);
   const location = useLocation();
-
-  // const { userId } = user;
-
-  // console.log({ user });
   const axiosPrivate = useAxiosPrivate();
 
   const [values, setValues] = useState({
@@ -59,15 +54,15 @@ export default function StripeConnect() {
     console.log({ code, error });
 
     if (error) {
-      return setValues(prev => ({ ...prev, error: true }));
+      return setValues({ ...values, error: true });
     }
 
     if (code) {
-      setValues(prev => ({
-        ...prev,
+      setValues({
+        ...values,
         connecting: true,
         error: false
-      }));
+      });
     }
 
     stripeUpdate({
@@ -79,12 +74,12 @@ export default function StripeConnect() {
       .then(data => {
         if (data?.isAxiosError) {
           console.log({ err: data });
-          setValues(prev => ({
-            ...prev,
+          setValues({
+            ...values,
             error: true,
             connected: false,
             connecting: false
-          }));
+          });
         } else if (isMounted) {
           console.log({ mount: data });
           setValues(prev => ({
@@ -98,12 +93,12 @@ export default function StripeConnect() {
       .catch(err => {
         console.log(err.response);
 
-        setValues(prev => ({
-          ...prev,
+        setValues({
+          ...values,
           error: true,
           connected: false,
           connecting: false
-        }));
+        });
       });
 
     return () => {
@@ -113,9 +108,8 @@ export default function StripeConnect() {
         console.log('abort stripe-connect');
       }
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user._id, axiosPrivate, location.search]);
-
-  console.log({ values });
 
   return (
     <div>

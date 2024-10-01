@@ -12,13 +12,10 @@ import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 
 import { removeShop } from './api-shop';
-import { handleAxiosError } from '../axios';
-// import useDataContext from '../auth/useDataContext';
 import useAxiosPrivate from '../auth/useAxiosPrivate';
 
 export default function DeleteShop(props) {
   const { shop, onRemoveShop } = props;
-  const auth = useSelector(state => state.auth);
   const axiosPrivate = useAxiosPrivate();
 
   const [open, setOpen] = useState(false);
@@ -33,12 +30,11 @@ export default function DeleteShop(props) {
       axiosPrivate2: axiosPrivate
     }).then(data => {
       if (data?.isAxiosError) {
-        return console.log({ errDelShp: data.response.data.error });
-        // return handleAxiosError(data);
-      }
-      setOpen(false);
+        setOpen(false);
 
-      return onRemoveShop(shop);
+        return onRemoveShop(shop);
+      }
+      return console.log({ errDelShp: data?.response?.data?.error });
     });
   };
 

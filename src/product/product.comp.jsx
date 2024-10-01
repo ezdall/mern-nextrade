@@ -79,12 +79,11 @@ export default function Product() {
     const { signal } = abortController;
 
     readProduct({ productId, signal }).then(data => {
-      if (data?.isAxiosError) {
-        console.log({ errProd: data.response.data.error });
-        return setError(data.response.data.error);
-        // return handleAxiosError(data);
+      if (!data?.isAxiosError) {
+        return setProduct(data);
       }
-      return setProduct(data);
+      console.log({ errProd: data.response.data.error });
+      return setError(data.response?.data?.error);
     });
 
     return () => {
@@ -98,10 +97,10 @@ export default function Product() {
     const { signal } = abortController;
 
     listRelated({ productId, signal }).then(data => {
-      if (data?.isAxiosError) {
-        return setError(data.response.data.error);
+      if (!data?.isAxiosError) {
+        return setSuggestions(data);
       }
-      return setSuggestions(data);
+      return setError(data.response?.data?.error);
     });
 
     return () => {

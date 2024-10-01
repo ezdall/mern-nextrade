@@ -1,14 +1,12 @@
-import { useEffect, memo, useCallbakc } from 'react';
+import { useEffect, memo } from 'react';
 import { useSelector } from 'react-redux';
 import { axiosPrivate } from '../axios';
 
 import useRefresh from './useRefresh';
-// import useDataContext from './useDataContext';
 
 export default function useAxiosPrivate() {
   const refresh = useRefresh();
   const { accessToken } = useSelector(state => state.auth);
-  // const { auth } = useDataContext();
 
   useEffect(() => {
     const requestIntercept = axiosPrivate.interceptors.request.use(
@@ -18,14 +16,13 @@ export default function useAxiosPrivate() {
           // eslint-disable-next-line no-param-reassign
           config.headers.authorization = `Bearer ${accessToken}`;
         }
+        // dev checking
         console.log(
           `Intercept reQ ${config?.signal?.aborted || ''} ${config.method} ${
             config.url
           }`
         );
         console.log({ configIntercept: config });
-        // eslint-disable-next-line no-param-reassign
-        // config.withCredentials = true;
         return config;
       },
       error => Promise.reject(error)
@@ -36,14 +33,14 @@ export default function useAxiosPrivate() {
 
       async error => {
         if (error.code === 'ERR_CANCELED') {
-          return console.log('canceled private-axios');
-          // return null;
+          console.log('canceled private-axios');
+          return Promise.reject(error);
+          // return console.log('canceled private-axios');
         }
         // error handling
         console.log('Intercept resP');
         if (error?.response) {
           const prevReq = error?.config;
-
           if (
             error?.response?.data?.inner?.name === 'TokenExpiredError' &&
             !prevReq?.sent

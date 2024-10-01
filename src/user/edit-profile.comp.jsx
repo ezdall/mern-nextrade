@@ -13,7 +13,6 @@ import Icon from '@material-ui/core/Icon';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Switch from '@material-ui/core/Switch';
 
-// import useDataContext from '../auth/useDataContext';
 import useAxiosPrivate from '../auth/useAxiosPrivate';
 import { read, updateUser } from './api-user';
 import { handleAxiosError } from '../axios';
@@ -55,7 +54,6 @@ const emailRegex = /^[a-zA-Z0-9]*@[a-zA-Z0-9]+(?:\.[a-zA-Z0-9]+)*$/;
 export default function EditProfile() {
   const { userId } = useParams();
   const classes = useStyles();
-  const auth = useSelector(state => state.auth);
   const axiosPrivate = useAxiosPrivate();
   const navigate = useNavigate();
 
@@ -97,15 +95,14 @@ export default function EditProfile() {
       signal,
       axiosPrivate2: axiosPrivate
     }).then(data => {
-      if (data?.isAxiosError) {
-        // handleAxiosError(data);
-        setError(data.response?.data?.error);
-        return (
-          data.response?.status === 401 && navigate('/users', { replace: true })
-        );
+      if (!data?.isAxiosError) {
+        setError('');
+        return setValues(prev => ({ ...prev, ...data }));
       }
-      setError('');
-      return setValues(prev => ({ ...prev, ...data }));
+      setError(data.response?.data?.error);
+      return (
+        data.response?.status === 401 && navigate('/users', { replace: true })
+      );
     });
 
     return () => {
@@ -113,7 +110,6 @@ export default function EditProfile() {
       console.log('abort read edit-prof');
     };
   }, [userId, axiosPrivate, navigate]);
-  console.log({ values });
 
   const handleChange = ev => {
     const { name, value } = ev.target;
@@ -126,9 +122,6 @@ export default function EditProfile() {
   };
 
   const clickSubmit = () => {
-    // must be turn to "undefined" if empty-string
-    // due to mongoose
-
     let vPass = null;
     const vName = nameRegex.test(values.name);
     const vEmail = emailRegex.test(values.email);
@@ -142,6 +135,8 @@ export default function EditProfile() {
       return setError('valid fields are required');
     }
 
+    // must be turn to "undefined" if empty-string
+    // due to mongoose
     const user = {
       name: values.name || undefined,
       email: values.email || undefined,
@@ -150,17 +145,16 @@ export default function EditProfile() {
     };
 
     return updateUser({
-      user,
+      user, // body
       userId,
-      accessToken2: auth.accessToken,
       axiosPrivate2: axiosPrivate
     }).then(data => {
-      if (data?.isAxiosError) {
-        handleAxiosError(data);
-        return setError(data.response.data.error);
+      if (!data?.isAxiosError) {
+        setValues({ ...values, userId: data._id });
+        return setRedirect(true);
       }
-      setValues({ ...values, userId: data._id });
-      return setRedirect(true);
+      handleAxiosError(data);
+      return setError(data.response?.data?.error);
     });
   };
 

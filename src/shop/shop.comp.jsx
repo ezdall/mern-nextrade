@@ -55,27 +55,23 @@ export default function Shop() {
   const [products, setProducts] = useState([]);
   const [error, setError] = useState('');
 
-  // console.log({ shop1: shop });
-
   useEffect(() => {
     // let isMounted = true;
     const abortController = new AbortController();
     const { signal } = abortController;
 
     readShop({ shopId, signal }).then(data => {
-      if (data?.isAxiosError) {
-        console.log({ readShop1: data.response });
-        setError(data.response?.data?.error || 'default error');
-        return (
-          data.response?.status === 401 &&
-          navigate('/shops/all', { replace: true })
-        );
+      if (!data?.isAxiosError) {
+        setError('');
+        // return isMounted &&
+        return setShop(data);
       }
+      setError(data.response?.data?.error || 'default error');
 
-      console.log({ data });
-      setError('');
-      // return isMounted &&
-      return setShop(data);
+      return (
+        data.response?.status === 401 &&
+        navigate('/shops/all', { replace: true })
+      );
     });
 
     return () => {
@@ -94,17 +90,17 @@ export default function Shop() {
       shopId,
       signal
     }).then(data => {
-      if (data?.isAxiosError) {
-        return setError(data?.response?.data?.error);
+      if (!data?.isAxiosError) {
+        setError('');
+        return setProducts(data);
       }
-      setError('');
-      return setProducts(data);
+      return setError(data?.response?.data?.error);
     });
     // .catch(err => console.error(err));
 
     return () => {
       abortController.abort();
-      console.log('abort l shop/:id');
+      console.log('abort shop/:id');
     };
   }, [shopId]);
 

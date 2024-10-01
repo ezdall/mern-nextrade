@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 
-import { makeStyles } from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
@@ -16,12 +15,11 @@ import Typography from '@material-ui/core/Typography';
 import Edit from '@material-ui/icons/Edit';
 import Person from '@material-ui/icons/Person';
 import Divider from '@material-ui/core/Divider';
+import { makeStyles } from '@material-ui/core/styles';
 
 import MyOrders from '../order/my-orders.comp';
 import DeleteUser from './delete-user.comp';
 import useAxiosPrivate from '../auth/useAxiosPrivate';
-// import useDataContext from '../auth/useDataContext';
-// import { handleAxiosError } from '../axios';
 import { read } from './api-user';
 
 import stripeButton from '../assets/images/stripeButton.png';
@@ -78,7 +76,7 @@ export default function Profile() {
       .then(data => {
         if (data?.isAxiosError) {
           console.log({ errProf: data.response?.data?.error });
-          // handleAxiosError(data);
+
           setIsError(true);
           return (
             data.response?.status === 401 &&
@@ -86,8 +84,6 @@ export default function Profile() {
           );
         }
 
-        console.log({ data });
-        // return setUser(prev => ({ ...prev, ...data?.user }));
         return setUser(data);
       })
       .catch(() => setIsError(true));

@@ -9,11 +9,9 @@ import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
 import Icon from '@material-ui/core/Icon';
 
-// import useDataContext from '../auth/useDataContext';
+import useDataContext from '../auth/useDataContext';
 import useAxiosPrivate from '../auth/useAxiosPrivate';
-import { emptyCart } from '../redux/cart.slice';
 import { createOrder } from '../order/api-order';
-import { handleAxiosError } from '../axios';
 
 const useStyles = makeStyles(() => ({
   subheading: {
@@ -45,16 +43,17 @@ const useStyles = makeStyles(() => ({
 
 export default function PlaceOrder({ checkoutDetails, onError }) {
   const classes = useStyles();
-  const { user } = useSelector(state => state.auth);
-  const axiosPrivate = useAxiosPrivate();
 
+  const axiosPrivate = useAxiosPrivate();
+  const location = useLocation();
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const stripe = useStripe();
   const elements = useElements();
-  // const location = useLocation();
+  const { user } = useSelector(state => state.auth);
+  const { emptyCart } = useDataContext();
 
-  console.log({ stripe });
+  // console.log({ stripe });
 
   const [values, setValues] = useState({
     order: {},
@@ -112,20 +111,18 @@ export default function PlaceOrder({ checkoutDetails, onError }) {
 
       console.log({ orderResult });
 
-      // console.log({ type: Object.prototype.toString.call(orderResult) });
+      if (!orderResult?.isAxiosError) {
+        // update order id, then empty cart
+        // setValues(prev => ({ ...prev, orderId: orderResult._id }));
+        setValues({ ...values, orderId: orderResult._id });
+        // dispatch(emptyCart());
+        emptyCart();
 
-      // handle error if order creating failed
-      if (orderResult?.isAxiosError) {
-        // handleAxiosError(orderResult);
-        console.log('error order');
-        return setError(orderResult?.response?.data?.error);
+        return navigate(`/order/${orderResult._id}`);
       }
 
-      // update order id, then empty cart
-      setValues(prev => ({ ...prev, orderId: orderResult._id }));
-      dispatch(emptyCart());
-
-      return navigate(`/order/${orderResult._id}`);
+      // handle error if order creating failed
+      return setError(orderResult?.response?.data?.error);
     } catch (err) {
       console.error('Error placing order:', err.message);
       return setError(error);

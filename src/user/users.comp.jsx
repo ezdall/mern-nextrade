@@ -14,9 +14,7 @@ import Typography from '@material-ui/core/Typography';
 import ArrowForward from '@material-ui/icons/ArrowForward';
 import Person from '@material-ui/icons/Person';
 
-// import useDataContext from '../auth/useDataContext';
 import { usersList } from './api-user';
-// import { handleAxiosError } from '../axios';
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -39,11 +37,10 @@ export default function Users() {
     const { signal } = abortController;
 
     usersList({ signal }).then(data => {
-      if (data?.isAxiosError) {
-        return console.log({ errUserComp: data?.response?.data?.error });
-        // return handleAxiosError(data);
+      if (!data?.isAxiosError) {
+        return isMounted && setUsers(data);
       }
-      return isMounted && setUsers(data);
+      return console.log({ errUserComp: data?.response?.data?.error });
     });
     // .catch(err => console.log(err));
 

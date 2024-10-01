@@ -48,7 +48,7 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-const MemoMyProducts = memo(() => {
+function MyProducts() {
   const classes = useStyles();
   const { shopId } = useParams();
   const [products, setProducts] = useState([]);
@@ -143,9 +143,10 @@ const MemoMyProducts = memo(() => {
       </List>
     </Card>
   );
-});
+}
 
-export default MemoMyProducts;
+// MemoMyProducts
+export default memo(MyProducts);
 
 // MyProducts.propTypes = {
 //   shopId: PropTypes.string.isRequired

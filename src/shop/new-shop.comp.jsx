@@ -14,7 +14,6 @@ import FileUpload from '@material-ui/icons/AddPhotoAlternate';
 
 import { createShop } from './api-shop';
 import useAxiosPrivate from '../auth/useAxiosPrivate';
-// import useDataContext from '../auth/useDataContext';
 
 const useStyles = makeStyles(theme => ({
   card: {
@@ -52,7 +51,7 @@ const useStyles = makeStyles(theme => ({
 export default function NewShop() {
   const classes = useStyles();
   const axiosPrivate = useAxiosPrivate();
-  const auth = useSelector(state => state.auth);
+  const { accessToken, user } = useSelector(state => state.auth);
   const navigate = useNavigate();
 
   const [values, setValues] = useState({
@@ -87,8 +86,8 @@ export default function NewShop() {
 
     return createShop({
       shopData,
-      userId: auth.user._id,
-      accessToken2: auth.accessToken,
+      userId: user._id,
+      accessToken2: accessToken,
       axiosPrivate2: axiosPrivate
     }).then(data => {
       console.log({ data });

@@ -1,7 +1,10 @@
 import { createSlice, nanoid } from '@reduxjs/toolkit';
 
+/**
+ * We use 'window.localStorage' for now
+ */
+
 const initialState = JSON.parse(window?.localStorage?.getItem('cart')) || [];
-// console.log({ initialState });
 
 export const cartSlice = createSlice({
   name: 'cart',
@@ -22,6 +25,7 @@ export const cartSlice = createSlice({
           ];
         }
 
+        // if not yet in the cart
         const product = [
           ...state,
           {

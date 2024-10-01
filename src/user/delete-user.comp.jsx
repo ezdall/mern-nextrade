@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { useSelector } from 'react-redux';
 import { Navigate } from 'react-router-dom';
 import PropTypes from 'prop-types';
 
@@ -13,12 +12,10 @@ import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 
 import useAxiosPrivate from '../auth/useAxiosPrivate';
-// import useDataContext from '../auth/useDataContext';
 import { removeUser } from './api-user';
-// import { handleAxiosError } from '../axios';
 
 export default function DeleteUser({ userId }) {
-  const auth = useSelector(state => state.auth);
+  // const auth = useSelector(state => state.auth);
   const axiosPrivate = useAxiosPrivate();
 
   const [open, setOpen] = useState(false);
@@ -35,19 +32,18 @@ export default function DeleteUser({ userId }) {
   const deleteAccount = () => {
     removeUser({
       userId,
-      accessToken2: auth.accessToken,
       axiosPrivate2: axiosPrivate
     }).then(data => {
-      if (data?.isAxiosError) {
-        console.log({ errDelUsr: data.response.data.error });
-        return handleRequestClose();
+      if (!data?.isAxiosError) {
+        return setRedirectHome(true);
       }
-      return setRedirectHome(true);
+      console.log({ errDelUsr: data.response?.data?.error });
+      return handleRequestClose();
     });
   };
 
   if (redirectHome) {
-    return <Navigate to="/" replace />;
+    return <Navigate to="/users" replace />;
   }
 
   return (

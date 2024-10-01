@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-// import { useSelector } from 'react-redux';
 import { useNavigate, useParams } from 'react-router-dom';
 
 import { makeStyles } from '@material-ui/core/styles';
@@ -14,7 +13,6 @@ import Avatar from '@material-ui/core/Avatar';
 import FileUpload from '@material-ui/icons/AddPhotoAlternate';
 import Grid from '@material-ui/core/Grid';
 
-// import useDataContext from '../auth/useDataContext';
 import useAxiosPrivate from '../auth/useAxiosPrivate';
 import MemoMyProducts from '../product/my-products.comp'; //  memoized
 import { readShop, updateShop } from './api-shop';
@@ -76,7 +74,6 @@ export default function EditShop() {
     id: ''
   });
   const [error, setError] = useState('');
-  const [redirect, setRedirect] = useState('');
 
   useEffect(() => {
     const abortController = new AbortController();
@@ -86,11 +83,10 @@ export default function EditShop() {
       shopId,
       signal
     }).then(data => {
-      if (data?.isAxiosError) {
-        return setError(data?.response?.data?.error);
+      if (!data?.isAxiosError) {
+        return setValues(prev => ({ ...prev, ...data }));
       }
-      // console.log({ data });
-      return setValues(prev => ({ ...prev, ...data }));
+      return setError(data?.response?.data?.error);
     });
 
     return () => {
@@ -126,11 +122,10 @@ export default function EditShop() {
       shopId,
       axiosPrivate2: axiosPrivate
     }).then(data => {
-      if (data?.isAxiosError) {
+      if (!data?.isAxiosError) {
         return setError(data?.response?.data?.error);
       }
       setError('');
-      setRedirect(true);
       return navigate('/seller/shops');
     });
   };

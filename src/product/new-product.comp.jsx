@@ -1,5 +1,4 @@
-import { useState, useCallback } from 'react';
-import { useSelector } from 'react-redux';
+import { useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 
 import { makeStyles } from '@material-ui/core/styles';
@@ -13,8 +12,6 @@ import Typography from '@material-ui/core/Typography';
 import Icon from '@material-ui/core/Icon';
 
 import { createProduct } from './api-product';
-import { handleAxiosError } from '../axios';
-// import useDataContext from '../auth/useDataContext';
 import useAxiosPrivate from '../auth/useAxiosPrivate';
 
 const useStyles = makeStyles(theme => ({
@@ -53,7 +50,6 @@ const useStyles = makeStyles(theme => ({
 export default function NewProduct() {
   const classes = useStyles();
   const { shopId } = useParams();
-  const auth = useSelector(state => state.auth);
   const axiosPrivate = useAxiosPrivate();
   const navigate = useNavigate();
 
@@ -67,7 +63,6 @@ export default function NewProduct() {
   });
 
   const [error, setError] = useState('');
-  // const [redirect, setRedirect] = useState(false);
 
   const handleChange = ev => {
     const { name, value, files } = ev.target;
@@ -101,20 +96,14 @@ export default function NewProduct() {
       axiosPrivate2: axiosPrivate
     })
       .then(data => {
-        if (data?.isAxiosError) {
-          // handleAxiosError(data);
-          return setError(data.response?.data);
+        if (!data?.isAxiosError) {
+          setError('');
+          return navigate(`/seller/shop/edit/${shopId}`);
         }
-        setError('');
-        return navigate(`/seller/shop/edit/${shopId}`);
-        // return setRedirect(true);
+        return setError(data.response?.data);
       })
       .catch(err => setError(err));
   };
-
-  // if (redirect) {
-  //   return <Navigate to={`/seller/shop/edit/${shopId}`} />;
-  // }
 
   return (
     <div>

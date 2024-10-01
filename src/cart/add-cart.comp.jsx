@@ -1,4 +1,4 @@
-import { useDispatch } from 'react-redux';
+// import { useDispatch } from 'react-redux';
 import PropTypes from 'prop-types';
 
 import { useNavigate } from 'react-router-dom';
@@ -9,7 +9,7 @@ import AddCartIcon from '@material-ui/icons/AddShoppingCart';
 import DisabledCartIcon from '@material-ui/icons/RemoveShoppingCart';
 
 import useDataContext from '../auth/useDataContext';
-import { addProd } from '../redux/cart.slice';
+// import { addProd } from '../redux/cart.slice';
 
 const useStyles = makeStyles(() => ({
   iconButton: {
@@ -26,12 +26,12 @@ const useStyles = makeStyles(() => ({
 export default function AddToCart({ item, cartStyle }) {
   const classes = useStyles();
 
-  const dispatch = useDispatch();
+  // const dispatch = useDispatch();
   const navigate = useNavigate();
   const { addProduct: addProductCtx } = useDataContext();
 
   const addToCart = () => {
-    dispatch(addProd(item));
+    // dispatch(addProd(item));
     addProductCtx(item);
 
     navigate('/cart');

@@ -20,7 +20,6 @@ export const usersList = async ({ signal }) => {
     return response.data;
   } catch (error) {
     console.log(error);
-
     return error;
   }
 };
@@ -29,17 +28,12 @@ export const read = async ({ userId, signal, axiosPrivate2 }) => {
   try {
     const response = await axiosPrivate2.get(`/api/users/${userId}`, {
       signal
-      // headers: {
-      //   authorization: `Bearer ${accessToken2}`
-      // }
     });
 
     // console.log({ read: response.data });
-
     return response.data;
   } catch (error) {
     console.log(error);
-
     return error;
   }
 };
@@ -51,6 +45,7 @@ export const updateUser = async ({ user, userId, axiosPrivate2 }) => {
     // console.log(response.data);
     return response.data;
   } catch (error) {
+    console.log(error);
     return error;
   }
 };

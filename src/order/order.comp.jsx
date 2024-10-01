@@ -121,14 +121,14 @@ export default function Order() {
       axiosPrivate2: axiosPrivate
     }).then(data => {
       // console.log({ data });
-      if (data?.isAxiosError) {
-        console.log(data?.response?.data);
-        // handleAxiosError(data);
-
-        if (data.response.status === 401) navigate('/users', { replace: true });
-      } else {
+      if (!data?.isAxiosError) {
         console.log(data);
-        setOrder(prev => ({ ...prev, ...data }));
+        setOrder(data);
+      } else {
+        console.log(data?.response?.data);
+
+        if (data.response?.status === 401)
+          navigate('/users', { replace: true });
       }
     });
     return () => {
@@ -144,7 +144,7 @@ export default function Order() {
     }, 0);
   };
 
-  if (!order) return <p>Loading...</p>;
+  // if (!order) return <p>Loading...</p>;
 
   return (
     <Card className={classes.card}>
@@ -163,56 +163,55 @@ export default function Order() {
       <Grid container spacing={4}>
         <Grid item xs={7} sm={7}>
           <Card className={classes.innerCardItems}>
-            {!!order.products?.length &&
-              order.products.map(item => (
-                <span key={item._id}>
-                  <Card className={classes.cart}>
-                    <CardMedia
-                      className={classes.cover}
-                      image={`${BASE_URL}/api/product/image/${item.product._id}`}
-                      title={item.product.name}
-                    />
-                    <div className={classes.details}>
-                      <CardContent className={classes.content}>
-                        <Link to={`/product/${item.product._id}`}>
-                          <Typography
-                            type="title"
-                            component="h3"
-                            className={classes.productTitle}
-                            color="primary"
-                          >
-                            {item.product.name}
-                          </Typography>
-                        </Link>
+            {order?.products?.map(item => (
+              <span key={item._id}>
+                <Card className={classes.cart}>
+                  <CardMedia
+                    className={classes.cover}
+                    image={`${BASE_URL}/api/product/image/${item.product._id}`}
+                    title={item.product.name}
+                  />
+                  <div className={classes.details}>
+                    <CardContent className={classes.content}>
+                      <Link to={`/product/${item.product._id}`}>
                         <Typography
-                          type="subheading"
+                          type="title"
                           component="h3"
-                          className={classes.itemShop}
+                          className={classes.productTitle}
                           color="primary"
                         >
-                          $ {item.product.price} x {item.quantity}
+                          {item.product.name}
                         </Typography>
-                        <span className={classes.itemTotal}>
-                          ${item.product.price * item.quantity}
-                        </span>
-                        <span className={classes.itemShop}>
-                          Shop: {item.shop.name}
-                        </span>
-                        <Typography
-                          type="subheading"
-                          component="h3"
-                          color={
-                            item.status === 'Cancelled' ? 'error' : 'secondary'
-                          }
-                        >
-                          Status: {item.status}
-                        </Typography>
-                      </CardContent>
-                    </div>
-                  </Card>
-                  <Divider />
-                </span>
-              ))}
+                      </Link>
+                      <Typography
+                        type="subheading"
+                        component="h3"
+                        className={classes.itemShop}
+                        color="primary"
+                      >
+                        $ {item.product.price} x {item.quantity}
+                      </Typography>
+                      <span className={classes.itemTotal}>
+                        ${item.product.price * item.quantity}
+                      </span>
+                      <span className={classes.itemShop}>
+                        Shop: {item.shop.name}
+                      </span>
+                      <Typography
+                        type="subheading"
+                        component="h3"
+                        color={
+                          item.status === 'Cancelled' ? 'error' : 'secondary'
+                        }
+                      >
+                        Status: {item.status}
+                      </Typography>
+                    </CardContent>
+                  </div>
+                </Card>
+                <Divider />
+              </span>
+            ))}
             <div className={classes.checkout}>
               <span className={classes.total}>Total: ${getTotal()}</span>
             </div>

@@ -14,15 +14,16 @@ instance.interceptors.response.use(
 
   error => {
     // handle axios-abort somewhat conflict w/ React-18
-    if (error.code === 'ERR_CANCELED') {
-      console.log('canceled axios');
-      return null;
-    }
+    // if (error.code === 'ERR_CANCELED') { }
 
     // error handling
-    console.log('Intercept resP');
-    if (error?.response) {
-      console.error({ errIntResP: error.response.data });
+    console.log('Inter resP');
+    if (error.code === 'ERR_CANCELED') {
+      console.log('canceled axios');
+    } else if (error.code === 'ERR_NETWORK') {
+      console.log({ errIntNet: error.message });
+    } else if (error?.response) {
+      console.error({ errIntResp: error });
     } else if (error?.request) {
       console.log({ errIntReQ: error });
     } else {
@@ -40,6 +41,8 @@ export const axiosPrivate = axios.create({
   withCredentials: true,
   timeout: 1000 * 3 // 3sec
 });
+
+export const onAxiosError = () => ({});
 
 export const handleAxiosError = (
   error,
@@ -71,7 +74,7 @@ export const handleAxiosError = (
     if (inner.name === 'TokenExpiredError') {
       console.log('innnerrrrr');
       if (typeof window !== 'undefined') sessionStorage.removeItem('jwt');
-      cb();
+      if (cb) cb();
     }
   }
 };

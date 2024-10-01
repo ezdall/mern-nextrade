@@ -14,10 +14,8 @@ import Collapse from '@material-ui/core/Collapse';
 import Divider from '@material-ui/core/Divider';
 
 import useAxiosPrivate from '../auth/useAxiosPrivate';
-// import useDataContext from '../auth/useDataContext';
 import OrderEdit from './order-edit.comp';
 import { listByShop } from './api-order';
-// import { handleAxiosError } from '../axios';
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -65,12 +63,11 @@ export default function ShopOrder() {
       shopId,
       axiosPrivate2: axiosPrivate
     }).then(data => {
-      if (data?.isAxiosError) {
+      if (!data?.isAxiosError) {
+        setOrders(data);
+      } else {
         console.log({ error: data.response?.data?.error });
         if (data.response.status === 401) navigate('/');
-      } else {
-        // console.log({ data });
-        setOrders(data);
       }
     });
 
@@ -84,7 +81,7 @@ export default function ShopOrder() {
     const updatedOrders = orders;
 
     updatedOrders[index] = updatedOrder;
-    console.log([...updatedOrders]);
+
     setOrders([...updatedOrders]);
   };
 
@@ -97,11 +94,9 @@ export default function ShopOrder() {
       setOpen(openCopy);
     } else {
       const openCopy = [...open, prodIndex];
-      // openCopy.push(prodIndex);
+
       setOpen(openCopy);
     }
-    // setOpen(prodIndex);
-    // console.log({ open, prodIndex });
   };
 
   return (

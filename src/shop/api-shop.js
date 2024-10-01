@@ -16,12 +16,10 @@ export const readShop = async ({ shopId, signal }) => {
   try {
     const response = await axios.get(`/api/shop/${shopId}`, { signal });
 
-    // console.log(Object.prototype.toString.call(response));
-
     return response.data;
-  } catch (err) {
-    console.log(err);
-    return err;
+  } catch (error) {
+    console.log(error);
+    return error;
   }
 };
 
@@ -57,9 +55,9 @@ export const list = async ({ signal }) => {
     });
 
     return response.data;
-  } catch (err) {
-    console.log(err);
-    return err;
+  } catch (error) {
+    console.log(error);
+    return error;
   }
 };
 
@@ -70,8 +68,8 @@ export const listByOwner = async ({ userId, signal, axiosPrivate2 }) => {
     });
 
     return response.data;
-  } catch (err) {
-    console.log(err);
-    return err;
+  } catch (error) {
+    console.log(error);
+    return error;
   }
 };

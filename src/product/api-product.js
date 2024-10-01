@@ -33,7 +33,6 @@ export const updateProduct = async ({
   productData,
   shopId,
   productId,
-  accessToken2,
   axiosPrivate2
 }) => {
   try {
@@ -50,12 +49,7 @@ export const updateProduct = async ({
   }
 };
 
-export const removeProduct = async ({
-  accessToken2,
-  axiosPrivate2,
-  productId,
-  shopId
-}) => {
+export const removeProduct = async ({ productId, shopId, axiosPrivate2 }) => {
   try {
     const response = await axiosPrivate2.delete(
       `/api/product/${shopId}/${productId}`

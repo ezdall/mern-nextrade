@@ -17,9 +17,8 @@ import Edit from '@material-ui/icons/Edit';
 import Divider from '@material-ui/core/Divider';
 
 import DeleteShop from './delete-shop.comp';
-import { handleAxiosError, BASE_URL } from '../axios';
+import { BASE_URL } from '../axios';
 import useAxiosPrivate from '../auth/useAxiosPrivate';
-// import useDataContext from '../auth/useDataContext';
 
 import { listByOwner } from './api-shop';
 
@@ -51,9 +50,8 @@ export default function MyShops() {
   const axiosPrivate = useAxiosPrivate();
 
   const [shops, setShops] = useState([]);
-  const auth = useSelector(state => state.auth);
-  const userId = auth.user._id;
-  const { accessToken } = auth;
+  const { user } = useSelector(state => state.auth);
+  const userId = user._id;
 
   useEffect(() => {
     let isMounted = true;
@@ -65,11 +63,10 @@ export default function MyShops() {
       userId,
       axiosPrivate2: axiosPrivate
     }).then(data => {
-      if (data?.isAxiosError) {
-        console.log({ errMyShop: data.response.data.error });
-        return handleAxiosError(data);
+      if (!data?.isAxiosError) {
+        return isMounted && setShops(data);
       }
-      return isMounted && setShops(data);
+      return console.log({ errMyShop: data?.response?.data?.error });
     });
 
     return () => {

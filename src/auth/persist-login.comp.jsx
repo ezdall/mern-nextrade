@@ -3,11 +3,14 @@ import { useSelector } from 'react-redux';
 import { Outlet } from 'react-router-dom';
 
 import useRefresh from './useRefresh';
-// import useDataContext from './useDataContext';
-// import { addAuth } from '../redux/auth.slice';
+
+/**
+ * Component responsible for persisting user login by refreshing access tokens.
+ * Renders child routes once the loading state is complete.
+ *
+ */
 
 export default function PersistLogin() {
-  // const { auth } = useDataContext()
   const [isLoading, setIsLoading] = useState(true);
   const runOnce = useRef(true);
   const refresh = useRefresh();
@@ -25,8 +28,9 @@ export default function PersistLogin() {
     };
 
     if (runOnce.current) {
+      // refresh, if no token
       if (!accessToken) {
-        console.log('verifyingRefresh');
+        console.log('verify refresh-token');
         verifyRefreshToken();
       } else {
         setIsLoading(false);
@@ -39,10 +43,10 @@ export default function PersistLogin() {
     };
   }, [accessToken, refresh]);
 
-  useEffect(() => {
-    // console.log({ isLoading });
-    // console.log({ persistLoginAuth: auth });
-  }, [accessToken, isLoading]);
+  // useEffect(() => {
+  // console.log({ isLoading });
+  // console.log({ persistLoginToken: accessToken });
+  // }, [accessToken, isLoading]);
 
   if (isLoading) return <p>Loading...</p>;
 

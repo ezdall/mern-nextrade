@@ -62,8 +62,6 @@ export default function ProductOrderEdit({
   const axiosPrivate = useAxiosPrivate();
   const auth = useSelector(state => state.auth);
 
-  // console.log({ order });
-
   // const [open, setOpen] = useState(0);
   const [statusList, setStatusList] = useState([]);
   const [error, setError] = useState('');
@@ -73,14 +71,12 @@ export default function ProductOrderEdit({
     const { signal } = abortController;
 
     getStatusValues({ signal }).then(data => {
-      if (data?.response) {
-        console.log({ errOrdEdit: data?.response?.data });
-        // handleAxiosError(data);
-        setError('Could not get status');
-      } else {
+      if (!data?.isAxiosError) {
         setError('');
-
         setStatusList(data);
+      } else {
+        console.log({ errOrdEdit: data?.response?.data });
+        setError('Could not get status');
       }
     });
 

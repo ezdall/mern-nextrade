@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { useSelector } from 'react-redux';
 import { Link, useParams } from 'react-router-dom';
 
 import { makeStyles } from '@material-ui/core/styles';
@@ -11,7 +10,6 @@ import Typography from '@material-ui/core/Typography';
 import Divider from '@material-ui/core/Divider';
 
 import { listByUser } from './api-order';
-// import useDataContext from '../auth/useDataContext';
 import useAxiosPrivate from '../auth/useAxiosPrivate';
 
 const useStyles = makeStyles(theme => ({
@@ -44,11 +42,12 @@ export default function MyOrders() {
       signal,
       axiosPrivate2: axiosPrivate
     }).then(data => {
-      if (data?.isAxiosError) {
-        return console.log(data?.response?.data?.error);
+      if (!data?.isAxiosError) {
+        // return isMounted &&
+        return setOrders(data);
       }
-      // return isMounted &&
-      return setOrders(data);
+
+      return console.log(data?.response?.data?.error);
     });
 
     return () => {

@@ -1,5 +1,4 @@
 import { useState } from 'react';
-
 import PropTypes from 'prop-types';
 
 import { makeStyles } from '@material-ui/core/styles';
@@ -10,8 +9,8 @@ import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
 import SearchIcon from '@material-ui/icons/Search';
 
-import { list } from './api-product';
 import Products from './products.comp';
+import { list } from './api-product';
 
 const useStyles = makeStyles(theme => ({
   card: {
@@ -94,28 +93,25 @@ export default function Search({ categories }) {
   const search = () => {
     if (values.search) {
       list({
-        search: values.search, // || undefined ?
+        search: values?.search || undefined,
         category: values.category
       }).then(data => {
-        console.log({ data });
-        if (data?.isAxiosError) {
-          return console.log({ errSearch: data?.response?.data });
+        if (!data?.isAxiosError) {
+          setSearched(true);
+          return setValues({ ...values, results: data });
         }
-        setSearched(true);
-        return setValues(prev => ({ ...prev, results: data }));
+        return console.log({ errSearch: data?.response?.data });
       });
     }
   };
 
+  // pressing enter key
   const enterKey = event => {
     if (event.keyCode === 13) {
-      // enter
-      event.preventDefault(); // refresh at search-box?
+      event.preventDefault(); // due to refresh at search-box
       search();
     }
   };
-
-  // console.log({ values });
 
   return (
     <div>
@@ -126,7 +122,7 @@ export default function Search({ categories }) {
           label="Select category"
           className={classes.textField}
           name="category"
-          value={values?.category ?? 'All'}
+          value={values?.category || 'All'}
           onChange={handleChange}
           SelectProps={{
             MenuProps: {

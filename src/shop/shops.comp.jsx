@@ -53,11 +53,10 @@ export default function Shops() {
     const { signal } = abortController;
 
     list({ signal }).then(data => {
-      if (data?.isAxiosError) {
-        return console.error(data?.response?.data);
+      if (!data?.isAxiosError) {
+        return isMounted && setShops(data);
       }
-
-      return isMounted && setShops(data);
+      return console.error(data?.response?.data);
     });
     // .catch(err => console.error(err));
 

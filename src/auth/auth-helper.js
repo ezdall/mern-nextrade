@@ -1,5 +1,10 @@
 import { logout } from './api-auth';
 
+/**
+ * To Delete
+ *
+ */
+
 const auth = {
   isAuthenticated() {
     if (typeof window === 'undefined') return false;
@@ -32,7 +37,7 @@ const auth = {
     if (typeof window !== 'undefined') {
       if (sessionStorage.getItem('jwt')) {
         const auth1 = JSON.parse(sessionStorage.getItem('jwt'));
-        auth1.user = user;        
+        auth1.user = user;
         sessionStorage.setItem('jwt', JSON.stringify(auth1));
         cb();
       }
