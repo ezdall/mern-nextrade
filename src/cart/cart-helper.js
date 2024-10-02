@@ -1,3 +1,33 @@
+//
+
+export const saveCartItems = async ({ cart, userId, axiosPrivate2 }) => {
+  try {
+    const response = await axiosPrivate2.post(`/api/orders/cart/${userId}`, {
+      cart
+    });
+
+    return response.data;
+  } catch (error) {
+    console.log({ error });
+    return error;
+  }
+};
+
+export const fetchCart = async ({ cartId, signal, axiosPrivate2 }) => {
+  try {
+    const response = await axiosPrivate2.get(`/api/orders/cart/${cartId}`, {
+      signal
+    });
+
+    console.log({ response });
+
+    return response.data;
+  } catch (error) {
+    console.log({ error });
+    return error;
+  }
+};
+
 const Cart = {
   itemTotal() {
     if (typeof window !== 'undefined') {

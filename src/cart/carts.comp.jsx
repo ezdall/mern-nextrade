@@ -1,6 +1,6 @@
-import PropTypes from 'prop-types';
-import { useSelector } from 'react-redux';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { useEffect } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import { Link, useParams, useLocation, useNavigate } from 'react-router-dom';
 
 import { makeStyles } from '@material-ui/core/styles';
 import Card from '@material-ui/core/Card';
@@ -13,7 +13,7 @@ import Divider from '@material-ui/core/Divider';
 
 import useDataContext from '../auth/useDataContext';
 import useAxiosPrivate from '../auth/useAxiosPrivate';
-import { saveCartItems } from './cart-helper';
+import { fetchCart } from './cart-helper';
 
 const useStyles = makeStyles(theme => ({
   card: {
@@ -94,9 +94,11 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-export default function CartItems({ checkout, setCheckout }) {
+export default function Cart() {
   const classes = useStyles();
   const location = useLocation();
+  const axiosPrivate = useAxiosPrivate();
+  const { cartId } = useParams();
   const { user } = useSelector(state => state.auth);
 
   const {
@@ -112,33 +114,27 @@ export default function CartItems({ checkout, setCheckout }) {
     updateCartQty(prodId, quantity);
   };
 
-  const removeItem = prodId => removeProduct(prodId);
+  const removeItem = prodId => {
+    removeProduct(prodId);
+  };
 
-  const openCheckout = () => setCheckout(true);
+  useEffect(() => {
+    const abortController = new AbortController();
+    const { signal } = abortController;
 
-  // const onSave = () => {
-  //   const updCart = cart.map(item => ({
-  //     ...item,
-  //     product: item.product._id
-  //   }));
+    fetchCart({
+      cartId,
+      signal,
+      axiosPrivate2: axiosPrivate
+    });
 
-  //   saveCartItems({
-  //     userId: user._id,
-  //     axiosPrivate2: axiosPrivate,
-  //     cart: updCart
-  //   }).then(data => {
-  //     if (!data?.isAxiosError) {
-  //       // console.log(data);
-  //
+    return () => {
+      abortController.abort();
+      console.log('abort carts');
+    };
+  }, [cartId, axiosPrivate]);
 
-  //       if (cartId) navigate(`/cart/${cartId}`);
-  //     } else {
-  //       console.log(data?.response?.data);
-  //     }
-  //   });
-  // };
-
-  // console.log({ cart: cart.map(s => s.product._id) });
+  // const [, setCheckout] = useState(false);
 
   return (
     <Card className={classes.card}>
@@ -218,22 +214,28 @@ export default function CartItems({ checkout, setCheckout }) {
           })}
           <div className={classes.checkout}>
             <span className={classes.total}>Total: ${totalCost()}</span>
-            {!checkout &&
-              totalCost() !== 0 &&
+            {totalCost() !== 0 &&
               (user ? (
                 <Button
                   color="secondary"
                   variant="contained"
-                  onClick={openCheckout}
+                  // onClick={onSave}
                 >
-                  Checkout
+                  Save
                 </Button>
               ) : (
-                <Link to="/login" state={{ from: location }}>
-                  <Button color="primary" variant="contained">
-                    Sign in to checkout
-                  </Button>
-                </Link>
+                <>
+                  <Link to="/login" state={{ from: location }}>
+                    <Button color="primary" variant="contained">
+                      Sign in to Save
+                    </Button>
+                  </Link>{' '}
+                  <Link to="/login" state={{ from: location }}>
+                    <Button color="primary" variant="contained">
+                      Sign in to checkout
+                    </Button>
+                  </Link>
+                </>
               ))}
             <Link to="/" className={classes.continueBtn}>
               <Button variant="contained">Continue Shopping</Button>
@@ -248,8 +250,3 @@ export default function CartItems({ checkout, setCheckout }) {
     </Card>
   );
 }
-
-CartItems.propTypes = {
-  checkout: PropTypes.bool.isRequired,
-  setCheckout: PropTypes.func.isRequired
-};
