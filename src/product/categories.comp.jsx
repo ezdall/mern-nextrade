@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, memo } from 'react';
 import PropTypes from 'prop-types';
 
 import { makeStyles } from '@material-ui/core/styles';
@@ -60,11 +60,11 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-export default function Categories({ categories }) {
+function Categories({ categories }) {
   const classes = useStyles();
 
   const [products, setProducts] = useState([]);
-  const [selected, setSelected] = useState(categories[0]);
+  const [selectedCategory, setSelectedCategory] = useState(categories[0]);
 
   useEffect(() => {
     // let isMounted = true;
@@ -72,69 +72,56 @@ export default function Categories({ categories }) {
     const { signal } = abortController;
 
     list({
-      category: selected, // categories[0]?
+      category: selectedCategory,
       signal
-    })
-      .then(data => {
-        if (data?.isAxiosError) {
-          return console.error(data?.response?.data?.error);
-          // return handleAxiosError(data);
-        }
+    }).then(data => {
+      // if not error, setProduct
+      if (!data?.isAxiosError) {
+        console.log('fetch');
         return setProducts(data);
-      })
-      .catch(err => console.log(err));
+      }
+      return console.error(data?.response?.data);
+    });
+    // .catch(err => console.log(err));
 
     return () => {
       // isMounted = false;
       abortController.abort();
       console.log('abort @categories-list');
     };
-  }, [selected]);
+  }, [selectedCategory]);
 
-  const listByCategory = category => {
-    setSelected(category);
-
-    list({ category }).then(data => {
-      if (data?.isAxiosError) {
-        return console.log(data?.response?.data?.error);
-
-        // return handleAxiosError(data);
-      }
-      return setProducts(data);
-    });
+  const handleCategoryClick = category => {
+    // if selected category is not the former, then set new
+    if (selectedCategory !== category) {
+      setSelectedCategory(category);
+    }
   };
-
-  // console.log({ categories });
 
   return (
     <div>
       <Card className={classes.card}>
-        <Typography type="title" className={classes.title}>
-          Explore by category
+        <Typography variant="h6" className={classes.title}>
+          Explore by Category
         </Typography>
         <div className={classes.root}>
-          <ImageList className={classes.gridList} cols={4} rowHeight="auto">
-            {categories?.length &&
-              categories.map(tile => (
-                <ImageListItem
-                  key={tile}
-                  className={classes.tileTitle}
-                  onClick={() => listByCategory(tile)}
-                  style={{
-                    backgroundColor:
-                      selected === tile
-                        ? 'rgba(95, 139, 137, 0.56)'
-                        : 'rgba(95, 124, 139, 0.32)'
-                  }}
-                >
-                  <span className={classes.link}>
-                    {tile}
-                    <Icon className={classes.icon}>
-                      {selected === tile && 'arrow_drop_down'}
-                    </Icon>
-                  </span>
-                </ImageListItem>
-              ))}
+          <ImageList className={classes.gridList} cols={5} rowHeight="auto">
+            {categories?.map(category => (
+              <ImageListItem
+                key={category}
+                className={`${classes.tileTitle} ${selectedCategory ===
+                  category && classes.activeTile}`}
+                onClick={() => handleCategoryClick(category)}
+              >
+                {category}
+                <span className={classes.link}>
+                  {category}
+                  <Icon className={classes.icon}>
+                    {selectedCategory === category && 'arrow_drop_down'}
+                  </Icon>
+                </span>
+              </ImageListItem>
+            ))}
           </ImageList>
         </div>
         <Divider />
@@ -147,3 +134,6 @@ export default function Categories({ categories }) {
 Categories.propTypes = {
   categories: PropTypes.arrayOf(PropTypes.string.isRequired).isRequired
 };
+
+// MemoCategories
+export default memo(Categories);
