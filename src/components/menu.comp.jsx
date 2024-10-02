@@ -1,6 +1,6 @@
-import { useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom';
+import { NavLink, useLocation, useNavigate } from 'react-router-dom';
+// import { Switch, FormControlLabel } from '@material-ui/core';
 
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
@@ -13,7 +13,7 @@ import Badge from '@material-ui/core/Badge';
 
 import { resetAuth } from '../redux/auth.slice';
 import { logout } from '../auth/api-auth';
-// import useDataContext from '../auth/useDataContext';
+import useDataContext from '../auth/useDataContext';
 
 const isActive = (location, path) => {
   if (location.pathname === path) return { color: '#bef67a' };
@@ -28,13 +28,14 @@ const isPartActive = (location, path) => {
 };
 
 export default function Menu() {
-  const { auth, cart } = useSelector(state => state);
+  const { user } = useSelector(state => state.auth);
+  const { cart, clearCart } = useDataContext();
   const dispatch = useDispatch();
   const location = useLocation();
   const navigate = useNavigate();
 
   // check if you need to Persist route the menu
-  // console.log({ auth, cart });
+  // console.log({ user, cart });
 
   return (
     <AppBar position="static">
@@ -75,27 +76,27 @@ export default function Menu() {
 
         <div style={{ position: 'absolute', right: '10px' }}>
           <span style={{ float: 'right' }}>
-            {!auth?.user && (
+            {!user && (
               <span>
+                <NavLink to="/login" state={{ from1: location.pathname }}>
+                  <Button style={isActive(location, '/login')}>Log In</Button>
+                </NavLink>
                 <NavLink to="/signup">
                   <Button style={isActive(location, '/signup')}>Sign up</Button>
                 </NavLink>
-                <NavLink to="/login">
-                  <Button style={isActive(location, '/login')}>Log In</Button>
-                </NavLink>
               </span>
             )}
-            {auth?.user && (
+            {user && (
               <span>
-                {auth?.user?.seller && (
+                {user?.seller && (
                   <NavLink to="/seller/shops">
                     <Button style={isPartActive(location, '/seller')}>
                       My Shops
                     </Button>
                   </NavLink>
                 )}
-                <NavLink to={`/user/${auth.user._id}`}>
-                  <Button style={isActive(location, `/user/${auth.user._id}`)}>
+                <NavLink to={`/user/${user?._id}`}>
+                  <Button style={isActive(location, `/user/${user._id}`)}>
                     My Profile
                   </Button>
                 </NavLink>
@@ -103,8 +104,10 @@ export default function Menu() {
                   color="inherit"
                   onClick={() => {
                     logout({
-                      dispatchResetAuth: dispatch(resetAuth()),
-                      navigateHome: navigate('/', { replace: true })
+                      // clear auth, cart (localStorage)
+                      clearCart,
+                      dispatchResetAuth: () => dispatch(resetAuth()),
+                      navigateHome: () => navigate('/users', { replace: true })
                     });
                   }}
                 >

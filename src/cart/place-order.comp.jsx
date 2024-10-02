@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import PropTypes from 'prop-types';
 import { useSelector, useDispatch } from 'react-redux';
-import { Navigate, useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
 
 import { makeStyles } from '@material-ui/core/styles';
@@ -45,13 +45,11 @@ export default function PlaceOrder({ checkoutDetails, onError }) {
   const classes = useStyles();
 
   const axiosPrivate = useAxiosPrivate();
-  const location = useLocation();
   const navigate = useNavigate();
-  const dispatch = useDispatch();
   const stripe = useStripe();
   const elements = useElements();
   const { user } = useSelector(state => state.auth);
-  const { emptyCart } = useDataContext();
+  const { clearCart } = useDataContext();
 
   // console.log({ stripe });
 
@@ -60,7 +58,7 @@ export default function PlaceOrder({ checkoutDetails, onError }) {
     orderId: ''
   });
   const [error, setError] = useState('');
-  const [redirect, setRedirect] = useState(false);
+  // const [redirect, setRedirect] = useState(false);
 
   const placeOrder = async () => {
     try {
@@ -115,9 +113,8 @@ export default function PlaceOrder({ checkoutDetails, onError }) {
         // update order id, then empty cart
         // setValues(prev => ({ ...prev, orderId: orderResult._id }));
         setValues({ ...values, orderId: orderResult._id });
-        // dispatch(emptyCart());
-        emptyCart();
 
+        clearCart();
         return navigate(`/order/${orderResult._id}`);
       }
 

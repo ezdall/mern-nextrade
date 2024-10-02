@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useLocation, useNavigate, Navigate } from 'react-router-dom';
+import { useLocation, Navigate } from 'react-router-dom';
 
 import Card from '@material-ui/core/Card';
 import CardActions from '@material-ui/core/CardActions';
@@ -12,9 +12,7 @@ import Icon from '@material-ui/core/Icon';
 import { makeStyles } from '@material-ui/core/styles';
 
 import { addAuth } from '../redux/auth.slice';
-import useDataContext from './useDataContext';
 import { login } from './api-auth';
-// import { handleAxiosError } from '../axios';
 
 const useStyles = makeStyles(theme => ({
   card: {
@@ -47,11 +45,14 @@ export default function Login() {
 
   const dispatch = useDispatch();
   const location = useLocation();
-  // const navigate = useNavigate();
-  const auth = useSelector(state => state.auth);
+  const { user } = useSelector(state => state.auth);
 
-  // const { setAuth } = useDataContext();
-  const from = location.state?.from?.pathname || '/';
+  // return to prev. location (or user):
+  // from = Link<private> || NavLink<public> || default
+  const from =
+    location.state?.from?.pathname || location.state?.from1 || '/users';
+
+  console.log({ from });
 
   const [values, setValues] = useState({
     email: '',
@@ -60,39 +61,6 @@ export default function Login() {
   const [error, setError] = useState('');
   const [redirect, setRedirect] = useState(false);
 
-  const clickSubmit = () => {
-    const { email, password } = values;
-
-    if (!email || !password) {
-      return setError('all fields are required');
-    }
-
-    return login({
-      user: { email, password }
-    })
-      .then(data => {
-        if (data?.response) {
-          // handleAxiosError(data);
-          console.log({ errLogin: data?.response?.data });
-          return setError(data.response?.data?.error);
-        }
-        dispatch(addAuth(data));
-        // setAuth(data);
-        setError('');
-        setValues({ email: '', password: '' });
-        return setRedirect(true);
-        // return navigate(from, { replace: true });
-      })
-      .catch(err => {
-        console.log({ err });
-
-        if (err.request) {
-          return setError(err.message);
-        }
-        return setError(err.message);
-      });
-  };
-
   const handleChange = event => {
     const { name, value } = event.target;
 
@@ -100,9 +68,30 @@ export default function Login() {
     setValues({ ...values, [name]: value });
   };
 
-  if (auth?.user) return <Navigate to="/" />;
+  const clickSubmit = () => {
+    const { email, password } = values;
 
-  if (redirect) return <Navigate to={from} replace />;
+    if (!email || !password) {
+      return setError('All fields are required');
+    }
+
+    return login({
+      user: { email, password }
+    })
+      .then(data => {
+        if (!data?.response) {
+          // setAuth(data);
+          dispatch(addAuth(data));
+          // setError('');
+          return setRedirect(true);
+        }
+        console.log({ errLogin: data?.response?.data });
+        return setError(data.response?.data?.error);
+      })
+      .catch(err => setError(err.message));
+  };
+
+  if (redirect || user) return <Navigate to={from} replace />;
 
   return (
     <Card className={classes.card}>
