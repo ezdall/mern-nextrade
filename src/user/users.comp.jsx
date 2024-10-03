@@ -45,7 +45,6 @@ export default function Users() {
     // .catch(err => console.log(err));
 
     return () => {
-      abortController.abort();
       isMounted = false;
       if (isMounted) abortController.abort();
       console.log('abort user list');

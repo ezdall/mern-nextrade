@@ -135,7 +135,7 @@ export default function EditProfile() {
       return setError('valid fields are required');
     }
 
-    // must be turn to "undefined" if empty-string
+    // must be turn to "undefined" if empty-string ''
     // due to mongoose
     const user = {
       name: values.name || undefined,

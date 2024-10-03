@@ -12,8 +12,8 @@ import Typography from '@material-ui/core/Typography';
 import Divider from '@material-ui/core/Divider';
 
 import useDataContext from '../auth/useDataContext';
-import useAxiosPrivate from '../auth/useAxiosPrivate';
-import { saveCartItems } from './cart-helper';
+// import useAxiosPrivate from '../auth/useAxiosPrivate';
+// import { saveCartItems } from './cart-helper';
 
 const useStyles = makeStyles(theme => ({
   card: {

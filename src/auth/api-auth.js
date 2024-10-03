@@ -30,7 +30,7 @@ export const logout = async ({ dispatchResetAuth, clearCart }) => {
 
     console.log({ dispatchResetAuth });
 
-    if (response.data.status === 204) {
+    if (response.status === 204) {
       clearCart();
       return dispatchResetAuth();
 

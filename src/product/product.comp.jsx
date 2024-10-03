@@ -82,7 +82,7 @@ export default function Product() {
       if (!data?.isAxiosError) {
         return setProduct(data);
       }
-      console.log({ errProd: data.response.data.error });
+      console.log({ errProd: data.response?.data });
       return setError(data.response?.data?.error);
     });
 

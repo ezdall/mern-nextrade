@@ -44,7 +44,6 @@ export const updateProduct = async ({
     return response.data;
   } catch (error) {
     console.log(error.data);
-
     return error;
   }
 };
@@ -97,7 +96,6 @@ export const listRelated = async ({ signal, productId }) => {
     return response.data;
   } catch (error) {
     console.log(error);
-
     return error;
   }
 };
@@ -111,7 +109,6 @@ export const listByShop = async ({ shopId, signal }) => {
     return response.data;
   } catch (error) {
     console.log(error);
-
     return error;
   }
 };

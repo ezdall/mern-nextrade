@@ -21,7 +21,7 @@ export default function Home() {
   const [categories, setCategories] = useState([]);
   const [suggestions, setSuggestions] = useState([]);
 
-  // console.log({ categories, suggestions})
+  // console.log({ categories, suggestions })
 
   useEffect(() => {
     let isMounted = true;

@@ -24,7 +24,6 @@ export const cartSlice = createSlice({
             ...state.slice(cartIndex + 1)
           ];
         }
-
         // if not yet in the cart
         const product = [
           ...state,

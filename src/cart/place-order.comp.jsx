@@ -44,6 +44,7 @@ const useStyles = makeStyles(() => ({
 export default function PlaceOrder({ checkoutDetails, onError }) {
   const classes = useStyles();
 
+  // const location = useLocation();
   const axiosPrivate = useAxiosPrivate();
   const navigate = useNavigate();
   const stripe = useStripe();

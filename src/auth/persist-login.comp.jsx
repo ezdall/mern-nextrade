@@ -7,9 +7,9 @@ import useRefresh from './useRefresh';
 /**
  * Component responsible for persisting user login by refreshing access tokens.
  * Renders child routes once the loading state is complete.
- *
  */
 
+// to memo?
 export default function PersistLogin() {
   const [isLoading, setIsLoading] = useState(true);
   const runOnce = useRef(true);

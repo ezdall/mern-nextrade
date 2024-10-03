@@ -132,12 +132,11 @@ export default function Search({ categories }) {
           margin="normal"
         >
           <MenuItem value="All">All</MenuItem>
-          {categories.length &&
-            categories.map(option => (
-              <MenuItem key={option} value={option}>
-                {option}
-              </MenuItem>
-            ))}
+          {categories?.map(option => (
+            <MenuItem key={option} value={option}>
+              {option}
+            </MenuItem>
+          ))}
         </TextField>
         <TextField
           id="search"

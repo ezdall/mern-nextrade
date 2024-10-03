@@ -126,6 +126,7 @@ export default function EditShop() {
         return setError(data?.response?.data?.error);
       }
       setError('');
+
       return navigate('/seller/shops');
     });
   };

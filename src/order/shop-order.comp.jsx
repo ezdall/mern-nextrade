@@ -48,8 +48,7 @@ export default function ShopOrder() {
   const { shopId, shop } = useParams();
   const axiosPrivate = useAxiosPrivate();
   const navigate = useNavigate();
-  const auth = useSelector(state => state.auth);
-  // const { accessToken } = auth;
+  // const auth = useSelector(state => state.auth);
 
   const [orders, setOrders] = useState([]);
   const [open, setOpen] = useState([]);
@@ -81,7 +80,6 @@ export default function ShopOrder() {
     const updatedOrders = orders;
 
     updatedOrders[index] = updatedOrder;
-
     setOrders([...updatedOrders]);
   };
 
@@ -94,7 +92,6 @@ export default function ShopOrder() {
       setOpen(openCopy);
     } else {
       const openCopy = [...open, prodIndex];
-
       setOpen(openCopy);
     }
   };

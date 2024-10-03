@@ -60,7 +60,6 @@ export default function EditProduct() {
   const classes = useStyles();
   const { productId, shopId } = useParams();
   const axiosPrivate = useAxiosPrivate();
-  const auth = useSelector(state => state.auth);
 
   const [values, setValues] = useState({
     name: '',

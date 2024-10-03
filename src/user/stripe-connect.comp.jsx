@@ -82,12 +82,12 @@ export default function StripeConnect() {
           });
         } else if (isMounted) {
           console.log({ mount: data });
-          setValues(prev => ({
-            ...prev,
+          setValues({
+            ...values,
             error: false,
             connected: true,
             connecting: false
-          }));
+          });
         }
       })
       .catch(err => {

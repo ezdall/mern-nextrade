@@ -47,7 +47,7 @@ export default function Login() {
   const location = useLocation();
   const { user } = useSelector(state => state.auth);
 
-  // return to prev. location (or user):
+  // return to prev. location (or users):
   // from = Link<private> || NavLink<public> || default
   const from =
     location.state?.from?.pathname || location.state?.from1 || '/users';
@@ -79,7 +79,7 @@ export default function Login() {
       user: { email, password }
     })
       .then(data => {
-        if (!data?.response) {
+        if (!data?.isAxiosError) {
           // setAuth(data);
           dispatch(addAuth(data));
           // setError('');

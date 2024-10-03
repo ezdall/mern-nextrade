@@ -23,7 +23,7 @@ instance.interceptors.response.use(
     } else if (error.code === 'ERR_NETWORK') {
       console.log({ errIntNet: error.message });
     } else if (error?.response) {
-      console.error({ errIntResp: error });
+      console.error({ errIntResP: error });
     } else if (error?.request) {
       console.log({ errIntReQ: error });
     } else {
