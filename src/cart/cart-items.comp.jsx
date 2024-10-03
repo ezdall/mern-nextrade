@@ -129,7 +129,7 @@ export default function CartItems({ checkout, setCheckout }) {
   //   }).then(data => {
   //     if (!data?.isAxiosError) {
   //       // console.log(data);
-  //
+  //      const cartId = data?._id
 
   //       if (cartId) navigate(`/cart/${cartId}`);
   //     } else {

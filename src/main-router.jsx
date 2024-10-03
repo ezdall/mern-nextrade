@@ -1,4 +1,6 @@
-import { Route, Routes } from 'react-router-dom';
+import { useSelector } from 'react-redux';
+import { Route, Routes, useLocation } from 'react-router-dom';
+
 // basic
 import Home from './components/home.comp';
 import Menu from './components/menu.comp';
@@ -26,14 +28,21 @@ import EditProduct from './product/edit-product.comp';
 import ShopOrders from './order/shop-order.comp';
 import Order from './order/order.comp';
 import Cart from './cart/cart.comp';
+// import Carts from './cart/carts.comp';
 
 export default function MainRouter() {
+  const { user } = useSelector(state => state.auth);
+
   return (
     <div>
       <Routes>
-        <Route element={<PersistLogin />}>
+        {!user ? ( // if user exist provide auth/data to menu
+          <Route element={<PersistLogin />}>
+            <Route path="*" element={<Menu />} />
+          </Route>
+        ) : (
           <Route path="*" element={<Menu />} />
-        </Route>
+        )}
       </Routes>
 
       <Routes>
@@ -54,6 +63,7 @@ export default function MainRouter() {
             <Route path="/user/edit/:userId" element={<EditProfile />} />
             <Route path="/seller/stripe/connect" element={<StripeConnect />} />
 
+            {/* <Route path="/cart/:cartId" element={<Carts />} /> */}
             <Route path="/order/:orderId" element={<Order />} />
 
             <Route

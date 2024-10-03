@@ -123,7 +123,7 @@ export default function ProductOrderEdit({
         productId: product.product._id,
         product: {
           ...commonParams.product,
-          quantity: product.quantity
+          quantity: product.quantity // prod? or orderQty?
         }
       });
     } else if (value === 'Processing') {

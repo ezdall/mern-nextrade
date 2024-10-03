@@ -31,8 +31,10 @@ export const update = async ({ shopId, axiosPrivate2, product }) => {
   try {
     const response = await axiosPrivate2.patch(
       `/api/order/status/${shopId}`,
+      // product: { cartItemId: product._id, status: value }
       product
     );
+
     return response.data;
   } catch (error) {
     console.log(error);
